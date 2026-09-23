@@ -1,0 +1,27 @@
+# Dependencies & builds
+node_modules/
+dist/
+dist-ssr/
+
+# Environment / secrets — only .env.example is committed
+.env
+.env.*
+!.env.example
+*.local
+*.pem
+*.key
+
+# Logs
+*.log
+logs/
+
+# Server uploads (user content)
+server/uploads/*
+!server/uploads/.gitkeep
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
