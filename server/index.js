@@ -7,6 +7,9 @@ import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
+import gameApiKeyRoutes from "./routes/gameApiKeyRoutes.js";
+import gameRoutes from "./routes/gameRoutes.js";
+import playGameRoutes from "./routes/playGameRoutes.js";
 
 dotenv.config();
 
@@ -69,6 +72,13 @@ app.get("/health", (req, res) => {
 
 app.use("/api/admin", adminRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/admin/game-api-key", gameApiKeyRoutes);
+
+// ক্লায়েন্টের গেম — White-label master থেকে প্রক্সি
+app.use("/api/games", gameRoutes);
+
+// গেম চালু — এখন শুধু ফ্রি ট্রায়াল (০ ব্যালেন্সে); অ্যাডমিনের launch key ও এখানে
+app.use("/api/play-game", playGameRoutes);
 
 app.use((req, res) => {
   res.status(404).json({
