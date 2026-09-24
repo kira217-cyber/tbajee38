@@ -6,6 +6,8 @@ import Login from "../pages/Login/Login";
 import Dashboard from "../pages/Dashboard/Dashboard";
 import Profile from "../pages/Profile/Profile";
 import Admins from "../pages/Admins/Admins";
+import GameApiKey from "../pages/GameApiKey/GameApiKey";
+import GameLaunchKey from "../pages/GameLaunchKey/GameLaunchKey";
 import Placeholder from "../pages/Placeholder/Placeholder";
 import NotFoundPage from "../pages/NotFoundPage/NotFoundPage";
 import { navItems } from "../data/navigation";
@@ -24,6 +26,8 @@ import { navItems } from "../data/navigation";
 const REAL_PAGES = {
   "/": <Dashboard />,
   "/admins": <Admins />,
+  "/game-api-key": <GameApiKey />,
+  "/game-launch-key": <GameLaunchKey />,
 };
 
 /** নেস্টেড তালিকাটা সমতল করে — গ্রুপের নামও সাথে রাখি */
