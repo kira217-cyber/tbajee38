@@ -1,4 +1,5 @@
 import React from "react";
+import { useLanguage } from "../../Context/LanguageProvider";
 
 import { useIsDesktop } from "../../hook/useIsDesktop";
 import { m } from "../../hook/useUnits";
@@ -19,11 +20,12 @@ import { m } from "../../hook/useUnits";
  *   ডানে `.download-icon` ২৪ × ৪৭ — বেগুনি শেভরন + "APP"
  */
 const Notice = ({ notices = [] }) => {
+  const { lang } = useLanguage();
   const isDesktop = useIsDesktop();
 
   if (!notices.length) return null;
 
-  const text = notices.map((notice) => notice.text).join("　　");
+  const text = notices.map((notice) => (lang === "en" && notice.textEn) || notice.text).join("　　");
 
   const marquee = (
     <div className="tb-marquee">

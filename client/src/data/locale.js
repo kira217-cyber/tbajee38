@@ -126,6 +126,29 @@ export const locale = {
     playNow: "এখন খেলুন",
     freeTrial: "ফ্রি ট্রায়াল",
 
+    // খেলার কেন্দ্র (/games/*) ও গেম চালু — মূল সাইটের লেখা
+    games: {
+      title: "খেলার কেন্দ্র",
+      back: "Back",
+      search: "অনুসন্ধান",
+      searchDesk: "গেম অনুসন্ধান",
+      filterTitle: "বিভাগ",
+      providers: "প্রয়োগকারীরা",
+      all: "সব",
+      confirm: "নিশ্চিত করুন",
+      home: "হোম",
+      hot: "গরম",
+      favEmpty: "লগইন করে গেমে ♥ দিলে এখানে দেখাবে",
+      trialBadge: "ফ্রি ট্রায়াল",
+      trialHint: "ফ্রি ট্রায়াল — ব্যালেন্স ০, বাজি ধরা যাবে না",
+      starting: "গেম চালু হচ্ছে…",
+      failed: "গেম চালু করা যায়নি",
+      notReady: "গেম এখনো চালু করা হয়নি — একটু পরে চেষ্টা করুন",
+      retry: "আবার চেষ্টা করুন",
+      close: "বন্ধ করুন",
+      more: "অধিক",
+    },
+
     auth: {
       loginTab: "লগইন",
       registerTab: "নিবন্ধন করুন",
@@ -384,6 +407,28 @@ export const locale = {
     noData: "No Data",
     playNow: "Play Now",
     freeTrial: "Free Trial",
+
+    games: {
+      title: "Game Center",
+      back: "Back",
+      search: "Search",
+      searchDesk: "Search games",
+      filterTitle: "Category",
+      providers: "Providers",
+      all: "All",
+      confirm: "Confirm",
+      home: "Home",
+      hot: "HOT",
+      favEmpty: "Log in and tap ♥ on a game to see it here",
+      trialBadge: "Free Trial",
+      trialHint: "Free trial — balance 0, betting is off",
+      starting: "Starting the game…",
+      failed: "Could not start the game",
+      notReady: "Games are not ready yet — please try again later",
+      retry: "Try again",
+      close: "Close",
+      more: "More",
+    },
 
     auth: {
       loginTab: "Login",

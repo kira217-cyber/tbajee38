@@ -21,7 +21,8 @@ import { m } from "../../hook/useUnits";
  * মোবাইলে একই কার্ড, কিন্তু এক কলামে পুরো প্রস্থে।
  */
 const Promotions = () => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  const titleOf = (promo) => (lang === "en" && promo.titleEn) || promo.title;
   const isDesktop = useIsDesktop();
   const promotions = useSelector(selectPromotions);
   const [category, setCategory] = useState("all");
@@ -87,7 +88,7 @@ const Promotions = () => {
             {promo.image && (
               <img
                 src={promo.image}
-                alt={promo.title}
+                alt={titleOf(promo)}
                 loading="lazy"
                 style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
               />
@@ -106,7 +107,7 @@ const Promotions = () => {
                 className="flex-1 truncate"
                 style={{ fontSize: isDesktop ? 18 : m(24), color: "#fff" }}
               >
-                {promo.title}
+                {titleOf(promo)}
               </span>
               <span
                 className="flex shrink-0 items-center justify-center"

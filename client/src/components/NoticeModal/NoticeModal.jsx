@@ -18,7 +18,8 @@ import { m } from "../../hook/useUnits";
  *   শিরোনাম (৩০, ৩০) fs ৩২ fw ৮০০; লেখা (৩০, ১০২) fs ২৬
  */
 const NoticeModal = ({ items = [], onClose }) => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  const titleOf = (item) => (lang === "en" && item?.titleEn) || item?.title;
   const isDesktop = useIsDesktop();
   const [active, setActive] = useState(0);
 
@@ -70,7 +71,7 @@ const NoticeModal = ({ items = [], onClose }) => {
               width: m(442),
             }}
           >
-            {current.title}
+            {titleOf(current)}
           </div>
 
           <div
@@ -159,7 +160,7 @@ const NoticeModal = ({ items = [], onClose }) => {
                     flexShrink: 0,
                   }}
                 />
-                <span className="flex-1 truncate">{item.title}</span>
+                <span className="flex-1 truncate">{titleOf(item)}</span>
                 <Icon name="common-arrow" size={14} />
               </button>
             ))}
@@ -173,7 +174,7 @@ const NoticeModal = ({ items = [], onClose }) => {
             <div style={{ fontSize: 46, fontWeight: 700, color: "#fff", fontStyle: "italic" }}>
               {t.noticeTitle}
             </div>
-            <div style={{ fontSize: 24, color: "#fff", marginTop: 18 }}>{current.title}</div>
+            <div style={{ fontSize: 24, color: "#fff", marginTop: 18 }}>{titleOf(current)}</div>
             {current.image && (
               <img
                 src={current.image}
