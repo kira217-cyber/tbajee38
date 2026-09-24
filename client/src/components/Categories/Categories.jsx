@@ -1,8 +1,10 @@
 import React from "react";
+import { useSelector } from "react-redux";
 
 import { useLanguage } from "../../Context/LanguageProvider";
 import { useIsDesktop } from "../../hook/useIsDesktop";
 import { m } from "../../hook/useUnits";
+import { selectGameTabs } from "../../features/globalGame/globalGameSelectors";
 
 /**
  * হোমের ক্যাটাগরি ট্যাব সারি।
@@ -87,9 +89,33 @@ const DESK_ITEM_H = DESK_ICON_BOX[1] + DESK_GAP + DESK_LABEL_H;
 const ringUrl = (isActive) =>
   `url(/assets/mobile/cat/${isActive ? "ring-active" : "ring"}.png)`;
 
+/**
+ * White-label থেকে ট্যাব এলে সেগুলো, নইলে উপরের স্ট্যাটিক তালিকা।
+ * "হোম"/"জনপ্রিয়" ক্যাটাগরি নয় (হোম পেজ নিজেই), তাই সবসময় প্রথমে থাকে।
+ */
+const buildTabs = (apiTabs, isDesktop, lang) => {
+  const statics = isDesktop ? DESK_TABS : MOB_TABS;
+  if (!apiTabs) return statics;
+
+  const home = statics[0];
+  const list = isDesktop ? apiTabs.desktop : apiTabs.mobile;
+
+  return [
+    home,
+    ...list.map((c) => ({
+      key: c.key,
+      iconUrl: isDesktop ? c.deskIcon : c.mobIcon,
+      // admin এ মাপ দেওয়া থাকলে মূল সাইটের মতো নিজের মাপে, নইলে ৬০ এ ধরানো
+      size: isDesktop ? c.deskIconSize || null : 64,
+      label: c.name?.[lang] || c.name?.bn || c.key,
+    })),
+  ];
+};
+
 const Categories = ({ active = "HOME", onChange }) => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const isDesktop = useIsDesktop();
+  const tabs = buildTabs(useSelector(selectGameTabs), isDesktop, lang);
 
   if (!isDesktop) {
     return (
@@ -97,7 +123,7 @@ const Categories = ({ active = "HOME", onChange }) => {
         className="hide-scrollbar flex overflow-x-auto"
         style={{ height: m(166), padding: `${m(15)} ${m(15)} ${m(16)} ${m(18)}` }}
       >
-        {MOB_TABS.map((tab) => {
+        {tabs.map((tab) => {
           const isActive = tab.key === active;
 
           return (
@@ -135,7 +161,7 @@ const Categories = ({ active = "HOME", onChange }) => {
                       top: m(9.2),
                       width: m(tab.size),
                       height: m(tab.size),
-                      backgroundImage: `url(/assets/mobile/cat/${tab.icon}.png)`,
+                      backgroundImage: `url(${tab.iconUrl || `/assets/mobile/cat/${tab.icon}.png`})`,
                       backgroundRepeat: "no-repeat",
                       backgroundPosition: "50%",
                       backgroundSize: "contain",
@@ -147,7 +173,7 @@ const Categories = ({ active = "HOME", onChange }) => {
                   className="w-full truncate text-center"
                   style={{ marginTop: m(15), fontSize: m(20), color: "#fff" }}
                 >
-                  {t.tabsMobile[tab.key]}
+                  {tab.label ?? t.tabsMobile[tab.key]}
                 </span>
               </button>
             </li>
@@ -159,12 +185,14 @@ const Categories = ({ active = "HOME", onChange }) => {
 
   return (
     <div
-      className="hide-scrollbar flex overflow-x-auto mb-10"
-      style={{ height: DESK_ITEM_H + 5.6, padding: "2.8px 0", gap: 40 }}
+      className="hide-scrollbar flex overflow-x-auto"
+      // `.game-menu` padding ২.৮ চারদিকে — প্রথম ট্যাব x = কলাম + ২.৮;
+      // নিচে প্রথম সেকশনের শিরোনাম পর্যন্ত ৩৪ (মাপা)
+      style={{ height: DESK_ITEM_H + 5.6, padding: 2.8, gap: 40, marginBottom: 34 }}
     >
-      {DESK_TABS.map((tab) => {
+      {tabs.map((tab) => {
         const isActive = tab.key === active;
-        const [iw, ih] = tab.size;
+        const [iw, ih] = tab.size || [60, 60];
 
         return (
           <button
@@ -173,6 +201,8 @@ const Categories = ({ active = "HOME", onChange }) => {
             onClick={() => onChange?.(tab.key)}
             className="relative flex shrink-0 cursor-pointer flex-col items-center whitespace-nowrap"
             style={{
+              // `.game-menu-item` — min-width ৭৬.৮ (border-box), পাশে ৮ padding;
+              // ছোট নামে ৭৬.৮, লম্বা নামে নাম + ১৬ ("আমার প্রিয়" ৯৬.৪)
               minWidth: 76.8,
               height: DESK_ITEM_H,
               padding: "0 8px",
@@ -186,13 +216,15 @@ const Categories = ({ active = "HOME", onChange }) => {
             {/* আইকন ও তার পিছনের বৃত্ত — মোবাইলের মতো এক বাক্সে */}
             <div
               className="relative flex items-end justify-center"
-              style={{ width: DESK_ICON_BOX[0], height: DESK_ICON_BOX[1], flexShrink: 0 }}
+              // বাক্সটা আইকনের সমান (৬০) — বৃত্ত দুপাশে একটু বেরিয়ে থাকে, তাই
+              // বৃত্ত আইটেমকে চওড়া করে না
+              style={{ width: DESK_ICON, height: DESK_ICON_BOX[1], flexShrink: 0 }}
             >
               {/* বৃত্তটা DOM এ আইকনের আগে বলে এমনিতেই পিছনে পড়ে */}
               <span
                 className="pointer-events-none absolute"
                 style={{
-                  left: 0,
+                  left: (DESK_ICON - DESK_RING[0]) / 2,
                   top: DESK_RING_TOP,
                   width: DESK_RING[0],
                   height: DESK_RING[1],
@@ -210,10 +242,11 @@ const Categories = ({ active = "HOME", onChange }) => {
                   top: DESK_ICON_TOP,
                   width: DESK_ICON,
                   height: DESK_ICON,
-                  backgroundImage: `url(/assets/icons/menu/${tab.icon}.png)`,
+                  backgroundImage: `url(${tab.iconUrl || `/assets/icons/menu/${tab.icon}.png`})`,
                   backgroundRepeat: "no-repeat",
                   backgroundPosition: "50%",
-                  backgroundSize: `${iw}px ${ih}px`,
+                  // প্রতিটা আইকনের নিজস্ব মাপ; না থাকলে বাক্সে contain
+                  backgroundSize: tab.size ? `${iw}px ${ih}px` : "contain",
                 }}
               />
             </div>
@@ -221,7 +254,7 @@ const Categories = ({ active = "HOME", onChange }) => {
             <span
               style={{ marginTop: DESK_GAP, height: DESK_LABEL_H, lineHeight: `${DESK_LABEL_H}px` }}
             >
-              {t.tabs[tab.key]}
+              {tab.label ?? t.tabs[tab.key]}
             </span>
 
             {/* সক্রিয় ট্যাবের নিচের রেখা — মূল সাইটের `:before` */}

@@ -66,7 +66,7 @@
 
   --section-title-h: 54px;
   --section-gap: 34px; /* games-wrapper margin-top */
-  --section-mb: 40px; /* home-game margin-bottom */
+  --section-mb: 34px; /* পাতার নম্বর থেকে পরের সেকশনের শিরোনাম (মাপা) */
 
   /* গেম গ্রিড: ৬ কলাম × ১৬৪.২ + ৫ × ২০ গ্যাপ = ১০৮৫ */
   --card-w: 164.2px;

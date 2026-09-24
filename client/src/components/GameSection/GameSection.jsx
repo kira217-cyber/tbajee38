@@ -1,11 +1,17 @@
 import React, { useMemo, useState } from "react";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router";
 
 import GameCard from "../GameCard/GameCard";
 import Icon from "../Icon/Icon";
 import { m } from "../../hook/useUnits";
-import Loader, { NoData } from "../Loader/Loader";
+import { NoData } from "../Loader/Loader";
+import CardPlaceholders from "../GameCard/CardPlaceholders";
 import { useLanguage } from "../../Context/LanguageProvider";
 import { useIsDesktop } from "../../hook/useIsDesktop";
+import { selectGameSource } from "../../features/globalGame/globalGameSelectors";
+import { useSectionGames } from "../../features/globalGame/useSectionGames";
+import { useDragScroll } from "../../hook/useDragScroll";
 
 /**
  * হোমের একটা গেম সেকশন — ডেস্কটপ ও মোবাইলে গঠন **সম্পূর্ণ আলাদা**,
@@ -92,35 +98,68 @@ const MobArrow = ({ dir, disabled, onClick }) => (
   </button>
 );
 
-const GameSection = ({ section, vendors = [], games = [], loading = false }) => {
+const GameSection = ({
+  section,
+  vendors = [],
+  games = [],
+  total,
+  loading = false,
+  // ডেস্কটপ হোমের ট্যাব খুললে: শিরোনাম নেই, প্রথমে ৪ সারি (মূল সাইট মাপা)
+  hideTitle = false,
+  initialRows = DESKTOP_ROWS,
+  // "আমার প্রিয়" — ব্রাউজারের তালিকা, server থেকে কিছু আনা হয় না
+  offline = false,
+}) => {
   const { t } = useLanguage();
   const isDesktop = useIsDesktop();
   const [vendor, setVendor] = useState(null);
   // মূল সাইটে "More" নতুন পেজে নেয় না — সেকশনেই আরও সারি যোগ হয়
-  const [rows, setRows] = useState(DESKTOP_ROWS);
+  const [rows, setRows] = useState(initialRows);
   // তীর দুটো তালিকার পাতা বদলায়
   const [page, setPage] = useState(0);
 
-  const isHot = section.key === "hot";
+  const apiMode = useSelector(selectGameSource) === "api" && !offline;
+  const navigate = useNavigate();
+  // ডেস্কটপের প্রোভাইডার সারি — মাউসে টেনে / চাকায় সরানো যায়
+  const chipRow = useDragScroll();
+  const isHot = section.type === "hot" || section.key === "hot";
   const mobRows = isHot ? MOBILE_HOT_ROWS : MOBILE_ROWS;
 
-  // মোবাইলে চিপগুলো ট্যাবের মতো — একটা সবসময় বাছা থাকে, শুরুতে প্রথমটা।
-  // ডেস্কটপে বাছাই ঐচ্ছিক, কিছু না বাছলে সব গেম দেখায়। ভেন্ডর তালিকা
-  // ডেটার সাথে পরে আসে বলে state এর initial value দিয়ে হয় না।
-  const active = !isDesktop ? (vendor ?? vendors[0]?.code ?? null) : vendor;
+  // চিপগুলো ট্যাবের মতো — দুই ডিজাইনেই একটা সবসময় বাছা থাকে, শুরুতে
+  // প্রথমটা (মূল সাইটে ডেস্কটপেও PG/JILI আগে থেকে বাছা, গ্রিডে শুধু তার
+  // গেম)। ভেন্ডর তালিকা ডেটার সাথে পরে আসে বলে initial value দিয়ে হয় না।
+  const active = vendor ?? vendors[0]?.code ?? null;
 
-  const list = useMemo(
-    () => (active ? games.filter((g) => g.vendor === active) : games),
-    [games, active],
-  );
-  const perPage = isDesktop ? rows * DESKTOP_COLS : MOBILE_COLS * mobRows;
+  // API থেকে এলে ভেন্ডরের গেম আর পরের পাতা server থেকে আসে
+  const { list, hasMore, loadMore, loading: moreLoading } = useSectionGames({
+    sectionKey: section.key,
+    games,
+    total,
+    vendor: active,
+    apiMode,
+  });
+  const busy = loading || (moreLoading && !list.length);
+
+  // মোবাইলের "গরম খেলা": ৮টা গেম + শেষ ঘরে "অধিক" (মূল সাইট মাপা)
+  const hotMoreTile = !isDesktop && isHot && apiMode;
+  const perPage = isDesktop ? rows * DESKTOP_COLS : MOBILE_COLS * mobRows - (hotMoreTile ? 1 : 0);
   const filtered = useMemo(() => {
     const start = Math.min(page * perPage, Math.max(0, list.length - perPage));
     return list.slice(start, start + perPage);
   }, [list, perPage, page]);
 
   const atStart = page === 0;
-  const atEnd = (page + 1) * perPage >= list.length;
+  const atEnd = (page + 1) * perPage >= list.length && !hasMore;
+
+  // পরের পাতা/সারিতে হাতে থাকা গেম না কুলালে server থেকে আরও আনা
+  const nextPage = () => {
+    if ((page + 2) * perPage > list.length) loadMore();
+    setPage((n) => n + 1);
+  };
+  const moreRows = () => {
+    if ((rows + 2) * DESKTOP_COLS > list.length) loadMore();
+    setRows((n) => n + 2);
+  };
 
   const cards = filtered.map((game) => <GameCard key={game.id} game={game} />);
 
@@ -148,14 +187,15 @@ const GameSection = ({ section, vendors = [], games = [], loading = false }) => 
             <div
               className="flex items-center"
               style={{
-                width: m(205),
+                // ২০৫ মূল মাপ, লম্বা নামে ("ক্র্যাশ গেমস") চওড়া হয়
+                minWidth: m(205),
                 height: m(50),
                 paddingInline: m(10),
                 borderRadius: `${m(10)} ${m(10)} 0 0`,
               }}
             >
               <span
-                className="truncate"
+                className="whitespace-nowrap"
                 style={{
                   paddingInlineStart: m(14),
                   fontSize: m(30),
@@ -180,6 +220,11 @@ const GameSection = ({ section, vendors = [], games = [], loading = false }) => 
                 />
                 <button
                   type="button"
+                  // পুরো তালিকা খেলার কেন্দ্রে — বাছা প্রোভাইডার সহ
+                  onClick={() =>
+                    apiMode &&
+                    navigate(`/games/${section.key}${active ? `?vendor=${encodeURIComponent(active)}` : ""}`)
+                  }
                   className="tb-more-btn flex cursor-pointer items-center justify-center"
                   style={{
                     height: m(28),
@@ -193,7 +238,7 @@ const GameSection = ({ section, vendors = [], games = [], loading = false }) => 
                 >
                   {t.seeAll}
                 </button>
-                <MobArrow dir="next" disabled={atEnd} onClick={() => setPage((n) => n + 1)} />
+                <MobArrow dir="next" disabled={atEnd} onClick={nextPage} />
               </div>
             )}
           </div>
@@ -281,15 +326,36 @@ const GameSection = ({ section, vendors = [], games = [], loading = false }) => 
               gap: m(15),
             }}
           >
-            {cards}
+            {busy ? <CardPlaceholders count={perPage} /> : cards}
+            {hotMoreTile && filtered.length > 0 && !busy && (
+              <button
+                type="button"
+                onClick={() => navigate(`/games/${section.key}`)}
+                className="flex cursor-pointer flex-col items-center justify-center"
+                style={{
+                  // কার্ডের ছবির সমান উঁচু (২১৭:২৪৫) + নামের সারি
+                  aspectRatio: "217 / 280.8",
+                  borderRadius: m(20),
+                  border: "1px solid var(--accent-bright)",
+                  gap: m(14),
+                  color: "#fff",
+                  fontSize: m(32),
+                }}
+              >
+                <svg style={{ width: m(50), height: m(50) }} viewBox="0 0 24 24" aria-hidden="true">
+                  <g fill="#fff">
+                    <rect x="2" y="2" width="9" height="9" rx="2.5" />
+                    <rect x="13" y="2" width="9" height="9" rx="2.5" />
+                    <rect x="2" y="13" width="9" height="9" rx="2.5" />
+                    <rect x="13" y="13" width="9" height="9" rx="2.5" />
+                  </g>
+                </svg>
+                {t.games.more}
+              </button>
+            )}
           </div>
 
-          {loading && (
-            <div className="relative" style={{ height: m(200) }}>
-              <Loader scope="section" />
-            </div>
-          )}
-          {!loading && !filtered.length && <NoData />}
+          {!busy && !filtered.length && <NoData />}
         </div>
       </section>
     );
@@ -305,30 +371,40 @@ const GameSection = ({ section, vendors = [], games = [], loading = false }) => 
         marginBottom: "var(--section-mb)",
       }}
     >
-      <div className="flex items-center" style={{ height: "var(--section-title-h)", gap: 13 }}>
-        <img
-          src={`/assets/icons/title/${section.titleIcon}.png`}
-          alt=""
-          style={{ width: 34, height: 34, objectFit: "contain" }}
-        />
+      {/* `.main-title` ৫৪ উঁচু, কিন্তু চিপ থাকা সেকশনে ৩৩ (মাপা) */}
+      {!hideTitle && (
+      <div
+        className="flex items-center"
+        style={{ height: vendors.length ? 33 : "var(--section-title-h)", gap: 13 }}
+      >
+        {(section.titleIconUrl || section.titleIcon) && (
+          <img
+            src={section.titleIconUrl || `/assets/icons/title/${section.titleIcon}.png`}
+            alt=""
+            style={{ width: 34, height: 34, objectFit: "contain" }}
+          />
+        )}
         <span style={{ fontSize: 25, color: "#fff" }}>{section.title}</span>
       </div>
+      )}
 
       {vendors.length > 0 && (
         <div
+          ref={chipRow}
           className="hide-scrollbar flex overflow-x-auto"
           style={{ marginTop: 30, height: "var(--vendor-h)", gap: 10 }}
         >
           {vendors.map((v) => {
-            const isActive = vendor === v.code;
+            const isActive = active === v.code;
 
             return (
               <button
                 key={v.code}
                 type="button"
                 onClick={() => {
-                  setVendor(isActive ? null : v.code);
+                  setVendor(v.code);
                   setPage(0);
+                  setRows(initialRows);
                 }}
                 className="flex shrink-0 cursor-pointer items-center justify-center"
                 style={{
@@ -358,30 +434,24 @@ const GameSection = ({ section, vendors = [], games = [], loading = false }) => 
         </div>
       )}
 
-      {/* কলাম-মেজর: grid-auto-flow: column, সারি ফিক্সড */}
+      {/* সারি ধরে ভরে — একটা সারি (৬টা) পূর্ণ হলে তবেই পরের সারি; কম গেম
+          থাকলে ফাঁকা থাকে শুধু শেষ সারির ডানদিকে */}
       <div
         style={{
           marginTop: "var(--section-gap)",
           display: "grid",
-          gridTemplateRows: `repeat(${rows}, auto)`,
-          gridAutoFlow: "column",
-          gridAutoColumns: "var(--card-w)",
+          gridTemplateColumns: `repeat(${DESKTOP_COLS}, var(--card-w))`,
           gap: "var(--card-gap)",
           justifyContent: "start",
         }}
       >
-        {cards}
+        {busy ? <CardPlaceholders count={DESKTOP_COLS * rows} desktop /> : cards}
       </div>
 
       {/* ডেটা আসার আগে স্পিনার, না এলে "কোন ডেটা নেই" — মূল সাইটের মতোই */}
-      {loading && (
-        <div className="relative" style={{ height: 200 }}>
-          <Loader scope="section" />
-        </div>
-      )}
-      {!loading && !filtered.length && <NoData />}
+      {!busy && !filtered.length && <NoData />}
 
-      {!loading && filtered.length > 0 && (
+      {!busy && filtered.length > 0 && (
         <div className="flex items-center justify-center" style={{ marginTop: 24 }}>
           <DeskArrow
             dir="prev"
@@ -391,8 +461,8 @@ const GameSection = ({ section, vendors = [], games = [], loading = false }) => 
 
           <button
             type="button"
-            onClick={() => setRows((n) => n + 2)}
-            disabled={filtered.length >= games.length}
+            onClick={moreRows}
+            disabled={filtered.length >= list.length && !hasMore}
             className="tb-more-btn flex cursor-pointer items-center justify-center"
             style={{
               width: 96,
@@ -401,13 +471,13 @@ const GameSection = ({ section, vendors = [], games = [], loading = false }) => 
               background: "rgb(251 208 41 / 0.15)",
               color: "var(--gold)",
               fontSize: 20,
-              opacity: filtered.length >= games.length ? 0.4 : 1,
+              opacity: filtered.length >= list.length && !hasMore ? 0.4 : 1,
             }}
           >
             {t.more}
           </button>
 
-          <DeskArrow dir="next" disabled={atEnd} onClick={() => setPage((n) => n + 1)} />
+          <DeskArrow dir="next" disabled={atEnd} onClick={nextPage} />
         </div>
       )}
     </section>
