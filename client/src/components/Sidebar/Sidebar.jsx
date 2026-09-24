@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 
 import { useNavigate } from "react-router";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { selectGameCategories } from "../../features/globalGame/globalGameSelectors";
 
 import Icon from "../Icon/Icon";
 import { logout } from "../../features/auth/authSlice";
@@ -18,6 +19,8 @@ import { useIsDesktop } from "../../hook/useIsDesktop";
  *   nav-item h৫২, margin-top ১০, radius ৮.৭, padding 0 20, gap 20
  *     active: bg rgba(188,67,244,.28) + 1px solid #AD00FF
  *   আইকন ৪০×৪০, label fs ১৮ fw ৬০০
+ *   নিচের গ্রুপ (ভাষা, অ্যাপ, গ্রাহক সেবা, সাইন আউট) — লেখা #97A5C9 fs ১৬.৫,
+ *   আইকনগুলো মূল সাইটের নিজের PNG (`public/assets/sidebar/`)
  *
  * মোবাইলে এটা ড্রয়ার হয়ে বাঁ দিক থেকে ঢোকে।
  */
@@ -28,7 +31,14 @@ const Group = ({ children, mb = 0 }) => (
   </div>
 );
 
-const NavItem = ({ icon, label, active, trailing, onClick, iconSize = 40 }) => (
+/** মূল সাইটের PNG আইকন — নিজের মাপে, ৪০ এর ঘরের মাঝে */
+const Png = ({ name, w = 40, h = 40 }) => (
+  <img src={`/assets/sidebar/${name}.png`} alt="" style={{ width: w, height: h, objectFit: "contain" }} />
+);
+
+const MUTED = "#97A5C9";
+
+const NavItem = ({ icon, label, active, trailing, onClick, iconSize = 40, muted = false, labelSize = 18, ghost = false }) => (
   <button
     type="button"
     onClick={onClick}
@@ -39,10 +49,10 @@ const NavItem = ({ icon, label, active, trailing, onClick, iconSize = 40 }) => (
       borderRadius: 8.7,
       padding: "0 20px",
       gap: 20,
-      color: "#fff",
+      color: muted ? MUTED : "#fff",
       fontSize: 17.3,
       fontWeight: 600,
-      background: active ? "var(--accent-soft)" : "transparent",
+      background: active && !ghost ? "var(--accent-soft)" : "transparent",
       border: active ? "1px solid var(--accent)" : "1px solid transparent",
     }}
   >
@@ -51,7 +61,7 @@ const NavItem = ({ icon, label, active, trailing, onClick, iconSize = 40 }) => (
     ) : (
       <span style={{ width: 40, height: 40, display: "grid", placeItems: "center" }}>{icon}</span>
     )}
-    <span style={{ fontSize: 18, fontWeight: 600, flex: 1 }}>{label}</span>
+    <span style={{ fontSize: muted ? labelSize : 18, fontWeight: 600, flex: 1 }}>{label}</span>
     {trailing}
   </button>
 );
@@ -84,19 +94,35 @@ const Sidebar = ({ topOffset = 0, open, onClose, onMember, onSection, onDownload
   // খোলে, আলাদা পেজে যায় না
   const top = [
     { key: "deposit", icon: "deposit", label: t.sidebar.deposit, member: "deposit" },
-    { key: "withdraw", icon: "withdraw", label: t.sidebar.withdraw, member: "withdraw" },
+    // স্প্রাইটের withdraw ছবিটা ছেঁটে বসানো — আলাদা PNG এ সেই ছাঁটা রূপ
+    { key: "withdraw", icon: <Png name="withdraw" w={41} h={40} />, label: t.sidebar.withdraw, member: "withdraw" },
     { key: "promo", icon: "promo-2", label: t.sidebar.promo, to: "/promotions" },
     { key: "reward", icon: "reward", label: t.sidebar.reward, member: "reward" },
     { key: "rebate", icon: "cashback", label: t.sidebar.rebate, member: "manualRebate" },
   ];
 
-  const gameCenter = [
-    { key: "RNG", icon: "rng" },
-    { key: "FISH", icon: "rng" },
-    { key: "LIVE", icon: "live" },
-    { key: "PVP", icon: "member" },
-    { key: "SPORTS", icon: "sports" },
+  // গেম সেন্টার — মূল সাইটের মতো স্লট, ফিশিং, লাইভ, পোকার, স্পোর্টস
+  // (প্রোভাইডার-ভিত্তিক ক্যাটাগরি)। আইকন মূল সাইটের নিজের।
+  const categories = useSelector(selectGameCategories);
+  const GC_ICON = { slot: "gc-rng.png", fishing: "gc-fish.svg", live: "gc-live.png", poker: "gc-pvp.svg", sports: "gc-sports.png" };
+  const STATIC_GC = [
+    { key: "slot", label: t.gameCenter.RNG },
+    { key: "fishing", label: t.gameCenter.FISH },
+    { key: "live", label: t.gameCenter.LIVE },
+    { key: "poker", label: t.gameCenter.PVP },
+    { key: "sports", label: t.gameCenter.SPORTS },
   ];
+  const gameCenter = categories.length
+    ? categories
+        .filter((c) => c.type === "sports" || (c.type === "games" && c.showProviders !== false))
+        .map((c) => ({ key: c.key, label: c.name?.[lang] || c.name?.bn || c.key, deskIcon: c.deskIcon }))
+    : STATIC_GC;
+  const gcIcon = (item) =>
+    GC_ICON[item.key] ? (
+      <img src={`/assets/sidebar/${GC_ICON[item.key]}`} alt="" style={{ width: 40, height: 40, objectFit: "contain" }} />
+    ) : (
+      <img src={item.deskIcon} alt="" style={{ width: 40, height: 40, objectFit: "contain" }} />
+    );
 
   const member = [
     { key: "vip", icon: "vip", label: t.memberCenter.vip },
@@ -153,7 +179,7 @@ const Sidebar = ({ topOffset = 0, open, onClose, onMember, onSection, onDownload
 
         <Group>
           <NavItem
-            icon="game-center"
+            icon={<Png name="gameCenter" w={32} h={40} />}
             label={t.sidebar.gameCenter}
             active
             trailing={<Chevron open={gameCenterOpen} />}
@@ -163,8 +189,8 @@ const Sidebar = ({ topOffset = 0, open, onClose, onMember, onSection, onDownload
             gameCenter.map((item) => (
               <NavItem
                 key={item.key}
-                icon={item.icon}
-                label={t.gameCenter[item.key]}
+                icon={gcIcon(item)}
+                label={item.label}
                 onClick={() => {
                   onSection?.(item.key);
                   onClose?.();
@@ -175,7 +201,7 @@ const Sidebar = ({ topOffset = 0, open, onClose, onMember, onSection, onDownload
 
         <Group mb={40}>
           <NavItem
-            icon="member"
+            icon={<Png name="member" />}
             label={t.sidebar.memberCenter}
             active
             trailing={<Chevron open={memberOpen} />}
@@ -208,7 +234,9 @@ const Sidebar = ({ topOffset = 0, open, onClose, onMember, onSection, onDownload
             }
             label={current.name}
             active
-            trailing={<Chevron open={langOpen} />}
+            muted
+            labelSize={16.5}
+            // মূল সাইটে এখানে তীরচিহ্ন নেই — চাপলে তালিকা খোলে
             onClick={() => setLangOpen((v) => !v)}
           />
           {langOpen &&
@@ -233,26 +261,31 @@ const Sidebar = ({ topOffset = 0, open, onClose, onMember, onSection, onDownload
               ))}
 
           <NavItem
-            icon="icon-download"
-            iconSize={36}
+            icon={<Png name="download" w={36} h={36} />}
             label={t.sidebar.appDownload}
             active
+            muted
+            labelSize={16.5}
             onClick={() => onDownload?.()}
           />
           <NavItem
-            icon="icon-cs"
-            iconSize={39}
+            icon={<Png name="service" w={39} h={30} />}
             label={t.sidebar.support}
             active
+            muted
             onClick={() => onSupport?.()}
           />
         </Group>
 
         <Group>
           <NavItem
-            icon="icon-logout"
+            icon={<Png name="logout" w={27} h={33} />}
             label={t.sidebar.signOut}
+            // মূল সাইটে সাইন আউটের শুধু বর্ডার, ভিতরটা ফাঁকা
             active
+            ghost
+            muted
+            labelSize={16.5}
             onClick={() => {
               dispatch(logout());
               onClose?.();

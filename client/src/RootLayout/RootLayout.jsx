@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Outlet, useNavigate } from "react-router";
+import { Outlet, useLocation, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 
 import Navber from "../components/Navber/Navber";
@@ -38,6 +38,11 @@ const RootLayout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isDesktop = useIsDesktop();
+  const { pathname } = useLocation();
+  // খেলার কেন্দ্র (/games/*) মূল সাইটে আলাদা চেহারার পেজ: ডেস্কটপে
+  // সাইডবার নেই আর কলাম ১২৩৬ চওড়া; মোবাইলে নিজের হেডার, সাইটের
+  // হেডার-ডাউনলোড বার-ফুটার নেই (নিচের নেভবার থাকে)
+  const isGameCenter = pathname.startsWith("/games/");
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   // ডেস্কটপে সাইডবার ডিফল্টে খোলা; হ্যামবার্গারে লুকানো-দেখানো যায়
@@ -95,17 +100,14 @@ const RootLayout = () => {
     [isDesktop, navigate],
   );
 
-  // সাইডবারের "গেম সেন্টার" এর ভিতরের আইটেম — হোমের সেই সেকশনে নিয়ে যায়
+  // সাইডবারের "গেম সেন্টার" — মূল সাইটের মতো ডেস্কটপে হোমের সেই ক্যাটাগরি
+  // ট্যাব খোলে (পাতা বদলায় না); মোবাইলে খেলার কেন্দ্র
   const goToSection = useCallback(
     (key) => {
-      navigate("/");
-      // রাউট বদলের পর DOM বসতে এক টিক সময় দিই
-      requestAnimationFrame(() => {
-        const el = document.getElementById(`section-${key}`);
-        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
+      if (isDesktop) navigate(`/?tab=${encodeURIComponent(key)}`);
+      else navigate(`/games/${encodeURIComponent(key)}`);
     },
-    [navigate],
+    [navigate, isDesktop],
   );
 
   // গ্রাহক সেবা — মূল সাইটের টেলিগ্রাম চ্যানেল
@@ -135,20 +137,23 @@ const RootLayout = () => {
   useHideBootLoader(!booting);
 
   // বারটা খোলা থাকলে হেডার ও কনটেন্ট ততটা নিচে নামে
-  const barOffset = !isDesktop && dlBarOpen ? m(125) : 0;
+  const barOffset = !isDesktop && dlBarOpen && !isGameCenter ? m(125) : 0;
+  const ownHeader = isGameCenter && !isDesktop;
+  const sidebarShown = isDesktop && deskSidebarOpen && !isGameCenter;
 
   return (
     <UIContext.Provider value={ui}>
       <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
         <SpriteLoader />
 
-        {!isDesktop && dlBarOpen && (
+        {!isDesktop && dlBarOpen && !isGameCenter && (
           <DownloadBar
             onClose={() => setDlBarOpen(false)}
             onDownload={() => setDownloadOpen(true)}
           />
         )}
 
+        {!ownHeader && (
         <Navber
           topOffset={barOffset}
           onToggleSidebar={toggleSidebar}
@@ -160,9 +165,10 @@ const RootLayout = () => {
             navigate("/");
           }}
         />
+        )}
         <Sidebar
           topOffset={barOffset}
-          open={isDesktop ? deskSidebarOpen : sidebarOpen}
+          open={isDesktop ? sidebarShown : sidebarOpen}
           onClose={() => setSidebarOpen(false)}
           onMember={openMember}
           onSection={goToSection}
@@ -172,17 +178,25 @@ const RootLayout = () => {
 
         <div
           style={{
-            paddingTop: barOffset
-              ? `calc(var(--header-h) + ${barOffset})`
-              : "var(--header-h)",
-            marginInlineStart: isDesktop && deskSidebarOpen ? "var(--sidebar-w)" : 0,
+            paddingTop: ownHeader
+              ? 0
+              : barOffset
+                ? `calc(var(--header-h) + ${barOffset})`
+                : "var(--header-h)",
+            marginInlineStart: sidebarShown ? "var(--sidebar-w)" : 0,
             transition: "margin-inline-start .25s",
           }}
         >
-          <main className="page-center">
-            <Outlet />
-          </main>
-          <Footer />
+          {isGameCenter ? (
+            <main>
+              <Outlet />
+            </main>
+          ) : (
+            <main className="page-center">
+              <Outlet />
+            </main>
+          )}
+          {!ownHeader && <Footer />}
         </div>
 
         <BottomNavbar />
