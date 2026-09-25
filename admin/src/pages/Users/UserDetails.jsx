@@ -30,8 +30,6 @@ import { api } from "../../api/axios";
 import HistoryTable from "./HistoryTable";
 import ConfirmModal from "../../components/ConfirmModal/ConfirmModal";
 
-/** VIP এর server রুট (`/api/vip/admin/...`) তৈরি হলে true — VIP ধাপে */
-const VIP_READY = false;
 
 const money = (value) => Number(value || 0).toFixed(2);
 
@@ -240,12 +238,8 @@ const UserDetails = ({ kind }) => {
   const saveVip = async () => {
     try {
       setBusy("vip");
-      await api.post(`/api/vip/admin/user/${id}/adjust`, {
-        vipLevel: Number(vipDraft.vipLevel) || 0,
-        vipXP: Number(vipDraft.vipXP) || 0,
-        vipPoints: Number(vipDraft.vipPoints) || 0,
-        note: "Adjusted from user details",
-      });
+      // উপরে তুললে মাঝের ধাপগুলোর বোনাসও যায় (একবারই); নামালে কিছু কাটে না
+      await api.put(`/api/vip/admin/user/${id}/level`, { lv: Number(vipDraft.vipLevel) || 0 });
       toast.success("VIP updated");
       await load(true);
     } catch (error) {
@@ -823,41 +817,22 @@ const UserDetails = ({ kind }) => {
       </form>
 
       {/* ── VIP ──
-          লেভেল/XP/পয়েন্ট আলাদা এন্ডপয়েন্টে বসে (আলাদা লগ হয়), তাই
-          মূল ফর্মের বাইরে নিজের Save বোতাম। VIP এর server অংশ VIP ধাপে
-          আসবে — ততক্ষণ কার্ডটা লুকানো (`VIP_READY`) */}
-      {VIP_READY && (
-      <Section title="VIP (level, XP & points)">
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          ধাপ নিজের endpoint এ বসে (VIP History তে লেখা থাকে), তাই মূল
+          ফর্মের বাইরে নিজের Save বোতাম। XP শুধু দেখানো — বাজি থেকে বাড়ে। */}
+      <Section title="VIP level">
+        <div className="grid gap-4 md:grid-cols-3">
           <Field label="VIP level" htmlFor="vip-level">
             <input
               id="vip-level"
               type="number"
-              min="1"
+              min="0"
               value={vipDraft.vipLevel}
               onChange={(e) => setVipDraft((p) => ({ ...p, vipLevel: e.target.value }))}
               className="ad-input"
             />
           </Field>
-          <Field label="XP (experience)" htmlFor="vip-xp">
-            <input
-              id="vip-xp"
-              type="number"
-              min="0"
-              value={vipDraft.vipXP}
-              onChange={(e) => setVipDraft((p) => ({ ...p, vipXP: e.target.value }))}
-              className="ad-input"
-            />
-          </Field>
-          <Field label="VIP points" htmlFor="vip-points">
-            <input
-              id="vip-points"
-              type="number"
-              min="0"
-              value={vipDraft.vipPoints}
-              onChange={(e) => setVipDraft((p) => ({ ...p, vipPoints: e.target.value }))}
-              className="ad-input"
-            />
+          <Field label="XP (from bets)" htmlFor="vip-xp">
+            <input id="vip-xp" value={vipDraft.vipXP} disabled className="ad-input" />
           </Field>
           <div className="flex items-end">
             <button
@@ -876,11 +851,10 @@ const UserDetails = ({ kind }) => {
           </div>
         </div>
         <p className="mt-3 text-[12px] text-[var(--text-disabled)]">
-          XP drives the level automatically as the player bets. Set these only to
-          correct a figure — every change is logged in VIP history.
+          The level rises by itself as the player bets. Raising it here pays each skipped level&apos;s bonus once;
+          lowering it takes nothing back. Every change shows in VIP History.
         </p>
       </Section>
-      )}
 
       {/* ── ইতিহাস ──
           Bajiman এর single-user সেকশনগুলোর মতো: প্রতিটার নিজের

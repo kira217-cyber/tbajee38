@@ -256,7 +256,7 @@ export const navItems = [
     children: [
       { key: "register-bonus", path: "/register-bonus", label: "Register Bonus", icon: "Gift", motherOnly: true },
       { key: "referral", path: "/referral", label: "Referral Program", icon: "Gift", motherOnly: true },
-      { key: "referral-content", path: "/referral-content", label: "Referral Content", icon: "Gift", motherOnly: true },
+      { key: "referral-rewards", path: "/referral-rewards", label: "Referral Rewards", icon: "History", perm: "referral-rewards" },
     ],
   },
 
@@ -374,6 +374,7 @@ export const allPermissions = [
     path: "/turnover-history",
   },
   { key: "vip-history", label: "VIP History", path: "/vip-history" },
+  { key: "referral-rewards", label: "Referral Rewards", path: "/referral-rewards" },
   {
     key: "aff-withdraw-requests",
     label: "Affiliate Withdraws",

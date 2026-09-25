@@ -24,6 +24,11 @@ import WithdrawRequests from "../pages/WithdrawRequests/WithdrawRequests";
 import Verification from "../pages/Verification/Verification";
 import AffiliateVerification from "../pages/Verification/AffiliateVerification";
 import TurnoverHistory from "../pages/TurnoverHistory/TurnoverHistory";
+import ReferralProgram from "../pages/Referral/ReferralProgram";
+import ReferralRewards from "../pages/Referral/ReferralRewards";
+import VipLevels from "../pages/Vip/VipLevels";
+import VipSettings from "../pages/Vip/VipSettings";
+import VipHistory from "../pages/Vip/VipHistory";
 import Placeholder from "../pages/Placeholder/Placeholder";
 import NotFoundPage from "../pages/NotFoundPage/NotFoundPage";
 import { navItems } from "../data/navigation";
@@ -59,6 +64,11 @@ const REAL_PAGES = {
   "/game-launch-key": <GameLaunchKey />,
   "/maintenance": <Maintenance />,
   "/otp-setting": <OtpSetting />,
+  "/referral": <ReferralProgram />,
+  "/referral-rewards": <ReferralRewards />,
+  "/vip-levels": <VipLevels />,
+  "/vip-settings": <VipSettings />,
+  "/vip-history": <VipHistory />,
 };
 
 /** নেস্টেড তালিকাটা সমতল করে — গ্রুপের নামও সাথে রাখি */
