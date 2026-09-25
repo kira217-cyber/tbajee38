@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useSearchParams } from "react-router";
 import DeskWithdraw from "./account/DeskWithdraw";
 import { Trash2 } from "lucide-react";
 
@@ -410,6 +411,15 @@ const WalletTab = () => {
 const Mobile = () => {
   const { t } = useLanguage();
   const f = useWithdrawFlow();
+  const [params, setParams] = useSearchParams();
+  const { setView } = f;
+  // "আমার কার্ড" এর "+" থেকে এলে সরাসরি ওয়ালেট যোগের ফর্ম
+  useEffect(() => {
+    if (params.get("add") === "1") {
+      setView("addWallet");
+      setParams({}, { replace: true });
+    }
+  }, [params, setParams, setView]);
   return (
     <MemberShell title={t.money.withdrawTitle} headerIcon="withrec3">
       <WalletTab />

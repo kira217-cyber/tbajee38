@@ -9,6 +9,7 @@ import InboxSection from "./InboxSection";
 import SecuritySection from "./SecuritySection";
 import FeedbackSection from "./FeedbackSection";
 import HelpSection from "./HelpSection";
+import CardsSection from "./CardsSection";
 
 /**
  * সদস্য কেন্দ্রের **একটাই তালিকা**।
@@ -181,6 +182,15 @@ export const MEMBER_SECTIONS = [
     inGrid: true,
     title: (t) => t.memberPage.items.help,
     render: () => <HelpSection />,
+  },
+  {
+    // মোবাইলের "আমার কার্ড" (সদস্য পাতার উপরের বোতাম) — গ্রিড বা মডালে নেই
+    key: "cards",
+    path: "cards",
+    inModal: false,
+    inGrid: false,
+    title: (t) => t.memberPage.cardBtn,
+    render: () => <CardsSection />,
   },
 ];
 

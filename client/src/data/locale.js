@@ -366,6 +366,13 @@ export const locale = {
       "eWallet": "E wallet"
     },
 
+    cardsPage: {
+      "added": "ই-ওয়ালেট যোগ করা হয়েছে",
+      "empty": "খালি ই-ওয়ালেট",
+      "add": "ওয়ালেট যোগ করুন",
+      "remove": "মুছুন"
+    },
+
     records: {
       types: {
         deposit: "জমা",
@@ -1196,6 +1203,13 @@ export const locale = {
         "rejected": "Rejected"
       },
       "eWallet": "E wallet"
+    },
+
+    cardsPage: {
+      "added": "E-wallets added",
+      "empty": "No e-wallet",
+      "add": "Add wallet",
+      "remove": "Remove"
     },
 
     records: {

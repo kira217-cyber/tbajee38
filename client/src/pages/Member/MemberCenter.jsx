@@ -93,7 +93,7 @@ const MemberCenter = () => {
   const actions = [
     { key: "deposit", label: t.memberPage.depositBtn, to: MEMBER_LINKS.deposit },
     { key: "withdraw", label: t.memberPage.withdrawBtn, to: MEMBER_LINKS.withdraw },
-    { key: "card", label: t.memberPage.cardBtn, to: MEMBER_LINKS.security },
+    { key: "card", label: t.memberPage.cardBtn, to: MEMBER_LINKS.cards },
   ];
 
   const onItem = (item) => {
