@@ -80,9 +80,10 @@ const MobArrow = ({ dir, disabled, onClick }) => (
     aria-label={dir}
     className="flex shrink-0 cursor-pointer items-center justify-center"
     style={{
-      width: m(26),
-      height: m(28),
-      borderRadius: m(5),
+      // মূল মাপ (২৬ × ২৮) মোবাইলে চাপতে ছোট লাগে — দেড়গুণ
+      width: m(40),
+      height: m(42),
+      borderRadius: m(8),
       background: "rgb(251 208 41 / 0.15)",
       color: "var(--gold)",
       opacity: disabled ? 0.35 : 1,
@@ -93,7 +94,7 @@ const MobArrow = ({ dir, disabled, onClick }) => (
     <img
       src={`/assets/mobile/icons/nav-${dir === "prev" ? "prev" : "next"}.svg`}
       alt=""
-      style={{ width: m(10), height: m(18) }}
+      style={{ width: m(14), height: m(25) }}
     />
   </button>
 );
@@ -211,7 +212,9 @@ const GameSection = ({
             {!isHot && (
               <div
                 className="absolute flex items-center"
-                style={{ right: 0, height: m(28), gap: m(12) }}
+                // প্যানেলের ছবির ডান দিকটা ৬৫ ইউনিট নিচ থেকে শুরু — বোতামের সারি
+                // উপরের খাঁজের ভিতরে (৭–৪৯) রাখি, নইলে প্যানেলের কিনারায় লেগে যায়
+                style={{ right: 0, top: m(-8), height: m(42), gap: m(14) }}
               >
                 <MobArrow
                   dir="prev"
@@ -227,12 +230,12 @@ const GameSection = ({
                   }
                   className="tb-more-btn flex cursor-pointer items-center justify-center"
                   style={{
-                    height: m(28),
-                    padding: `0 ${m(11)} 0 ${m(12)}`,
+                    height: m(42),
+                    padding: `0 ${m(20)}`,
                     borderRadius: m(50),
                     background: "rgb(251 208 41 / 0.15)",
                     color: "var(--gold)",
-                    fontSize: m(16),
+                    fontSize: m(24),
                     whiteSpace: "nowrap",
                   }}
                 >
