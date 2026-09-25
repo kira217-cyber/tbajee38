@@ -514,6 +514,49 @@ const Desktop = ({ tab }) => {
  */
 const GAME_TABS = ["RNG", "FISH", "LIVE", "PVP", "SPORTS"];
 
+const BLUE = "#1e9bf0";
+
+/**
+ * নীল রেখার বোতামের চেহারায় আসল `<select>` — মূল সাইটের "সব" / "প্রকার"
+ * বোতাম চাপলে তালিকা খোলে; এখানে ব্রাউজারের নিজের তালিকা।
+ */
+const SelectChip = ({ value, onChange, options, children, filled = false, gray = false, style }) => (
+  <span
+    className="relative flex shrink-0 items-center"
+    style={{
+      height: m(62),
+      padding: `0 ${m(26)}`,
+      borderRadius: m(8),
+      border: gray ? "none" : `1px solid ${BLUE}`,
+      background: filled ? BLUE : gray ? "#e2e2e6" : "#fff",
+      color: filled ? "#fff" : gray ? "#555" : BLUE,
+      fontSize: m(28),
+      gap: m(10),
+      ...style,
+    }}
+  >
+    {children}
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="absolute inset-0 cursor-pointer opacity-0"
+      aria-label={typeof children === "string" ? children : undefined}
+    >
+      {options.map(([key, text]) => (
+        <option key={key} value={key}>
+          {text}
+        </option>
+      ))}
+    </select>
+  </span>
+);
+
+const Chevron = () => (
+  <svg viewBox="0 0 12 8" style={{ width: m(22), height: m(14) }} aria-hidden="true">
+    <path d="M1 1l5 5 5-5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+  </svg>
+);
+
 const Mobile = ({ tab, titleKey, withGameTabs = false, withDays7 = false, pageTitle }) => {
   const { t, lang } = useLanguage();
   const [range, setRange] = useState("today");
@@ -526,8 +569,22 @@ const Mobile = ({ tab, titleKey, withGameTabs = false, withDays7 = false, pageTi
   const requestKind = titleKey === "depositRecord" ? "deposit" : titleKey === "withdrawRecord" ? "withdraw" : "";
   const isAcc = tab === "accountRecord" && !requestKind;
   const isPL = tab === "profitLoss";
-  const acc = useAccountRecords({ range, enabled: isAcc });
-  const requests = useRequestRecords({ kind: requestKind, range, enabled: Boolean(requestKind) });
+  const [accType, setAccType] = useState("all");
+  const [status, setStatus] = useState("all");
+  const [method, setMethod] = useState("all");
+  const [vendor, setVendor] = useState("all");
+  const acc = useAccountRecords({ range, type: accType, enabled: isAcc });
+  const rawRequests = useRequestRecords({ kind: requestKind, range, enabled: Boolean(requestKind) });
+  const requests = {
+    ...rawRequests,
+    rows: rawRequests.rows.filter(
+      (r) => (status === "all" || r.status === status) && (method === "all" || r.methodId?.toLowerCase() === method),
+    ),
+  };
+  const methodOptions = [...new Set(rawRequests.rows.map((r) => r.methodId?.toLowerCase()).filter(Boolean))];
+  const betRows = vendor === "all" ? bet.rows : bet.rows.filter((row) => row.providerCode === vendor);
+  const vendorOptions = [...new Set(bet.rows.map((row) => row.providerCode).filter(Boolean))];
+  const dr = t.deskRec;
   const pl = useProfitLoss({ range, enabled: isPL });
 
   const keys = withDays7
@@ -551,7 +608,66 @@ const Mobile = ({ tab, titleKey, withGameTabs = false, withDays7 = false, pageTi
       tabs={tabs}
       onTab={setGameTab}
     >
-      {/* ফিল্টার সারি */}
+      {/* ফিল্টার — মূল সাইটের প্রতিটা পাতার নিজের চেহারা */}
+      {requestKind ? (
+        <>
+          {/* আজ / গতকাল / 7 দিন — নীল দাগের ট্যাব */}
+          <div className="flex" style={{ background: "#fff", height: m(96), borderBottom: "1px solid #eee" }}>
+            {["today", "yesterday", "days7"].map((key) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setRange(key)}
+                className="relative flex-1 cursor-pointer"
+                style={{ color: range === key ? BLUE : "#333", fontSize: m(30) }}
+              >
+                {key === "days7" ? t.memberPage.pages.days7 : t.member.ranges[key]}
+                {range === key && <span className="absolute bottom-0 left-0" style={{ width: "100%", height: m(5), background: BLUE }} />}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center" style={{ background: "#f0f0f2", padding: `${m(20)} ${m(32)}`, gap: m(40) }}>
+            <SelectChip value={status} onChange={setStatus} options={["all", "pending", "approved", "rejected"].map((k) => [k, k === "all" ? dr.types.all : dr.status[k]])}>
+              {status === "all" ? dr.types.all : dr.status[status]}
+            </SelectChip>
+            {requestKind === "deposit" && (
+              <SelectChip value={method} onChange={setMethod} options={[["all", dr.types.all], ...methodOptions.map((k) => [k, k.toUpperCase()])]}>
+                {method === "all" ? t.memberPage.pages.recordType : method.toUpperCase()}
+              </SelectChip>
+            )}
+            <span className="flex shrink-0 items-center" style={{ height: m(62), padding: `0 ${m(26)}`, borderRadius: m(8), border: `1px solid ${BLUE}`, background: "#fff", color: BLUE, fontSize: m(28), gap: m(12), marginLeft: requestKind === "deposit" ? "auto" : 0 }}>
+              <Icon name="discount-calender" size={m(34)} />
+              {shortDate(span.from)}- {shortDate(span.to)}
+            </span>
+          </div>
+        </>
+      ) : isAcc ? (
+        <div className="flex items-center" style={{ background: "#f0f0f2", padding: `${m(14)} ${m(24)}`, gap: m(16) }}>
+          <SelectChip gray value={accType} onChange={setAccType} options={dr.typeKeys.map((k) => [k, dr.types[k]])}>
+            {dr.types[accType]}
+            <Chevron />
+          </SelectChip>
+          <SelectChip filled value={range} onChange={setRange} options={keys.map((k) => [k, k === "days7" ? t.memberPage.pages.days7 : t.member.ranges[k]])}>
+            <Icon name="achievement-done" size={m(32)} />
+            {ranges.find((r) => r.key === range)?.label}
+          </SelectChip>
+          <span className="flex shrink-0 items-center" style={{ height: m(62), padding: `0 ${m(20)}`, borderRadius: m(8), background: "#e2e2e6", color: "#555", fontSize: m(28), gap: m(12) }}>
+            <Icon name="discount-calender" size={m(34)} />
+            {shortDate(span.from)}- {shortDate(span.to)}
+          </span>
+        </div>
+      ) : isBet ? (
+        <div className="flex items-center" style={{ background: "#fff", padding: `${m(16)} ${m(20)}`, gap: m(16), borderBottom: "1px solid #eee" }}>
+          <SelectChip value={range} onChange={setRange} options={keys.map((k) => [k, k === "days7" ? t.memberPage.pages.days7 : t.member.ranges[k]])} style={{ padding: `0 ${m(18)}` }}>
+            <Icon name="discount-calender" size={m(34)} />
+            {shortDate(span.from)} 00:00:00- {shortDate(span.to)} 23:59:59
+          </SelectChip>
+          <SelectChip value={vendor} onChange={setVendor} options={[["all", dr.types.all], ...vendorOptions.map((k) => [k, k])]} style={{ padding: `0 ${m(18)}` }}>
+            <Chevron />
+            {vendor === "all" ? dr.types.all : vendor}
+          </SelectChip>
+        </div>
+      ) : (
       <div
         className="hide-scrollbar flex overflow-x-auto items-center"
         style={{ background: "#fff", padding: `${m(20)} ${m(24)}`, gap: m(16) }}
@@ -597,29 +713,13 @@ const Mobile = ({ tab, titleKey, withGameTabs = false, withDays7 = false, pageTi
           {shortDate(span.from)}- {shortDate(span.to)}
         </span>
       </div>
+      )}
 
       {!isBet ? (
         <MobileRows kind={requestKind || (isPL ? "pl" : isAcc ? "acc" : "")} acc={acc} requests={requests} pl={pl} />
-      ) : bet.rows.length > 0 ? (
-        <div style={{ padding: `${m(10)} ${m(24)} ${m(30)}`, background: "#f5f5f9" }}>
-          {/* মোট */}
-          <div
-            className="grid grid-cols-3 text-center"
-            style={{ background: "#1e9bf0", color: "#fff", borderRadius: m(16), padding: `${m(20)} 0`, margin: `${m(10)} 0 ${m(20)}` }}
-          >
-            {[
-              [t.member.desk.betRecord.columns[1], fmt(bet.totals.bet)],
-              [t.member.desk.betRecord.columns[3], fmt(bet.totals.win)],
-              [t.member.desk.betRecord.columns[4], fmt(bet.totals.net)],
-            ].map(([label, value]) => (
-              <div key={label}>
-                <div style={{ fontSize: m(24), opacity: 0.85 }}>{label}</div>
-                <div style={{ fontSize: m(32), fontWeight: 700, marginTop: m(6) }}>{value}</div>
-              </div>
-            ))}
-          </div>
-
-          {bet.rows.map((row) => (
+      ) : betRows.length > 0 ? (
+        <div style={{ padding: `${m(20)} ${m(24)} ${m(200)}`, background: "#f5f5f9" }}>
+          {betRows.map((row) => (
             <div
               key={row.gameUId}
               style={{ background: "#fff", borderRadius: m(16), padding: m(24), marginBottom: m(16), fontSize: m(26), color: "#333" }}
@@ -647,6 +747,23 @@ const Mobile = ({ tab, titleKey, withGameTabs = false, withDays7 = false, pageTi
         </div>
       ) : (
         <EmptyState />
+      )}
+
+      {/* বেটিং রেকর্ডের নিচের ধূসর সারাংশ — মূল সাইটের মতো সবুজ সংখ্যা */}
+      {isBet && (
+        <div className="fixed bottom-0 left-0 grid w-full grid-cols-2" style={{ background: "#e8e8ea", padding: `${m(16)} ${m(60)}`, rowGap: m(4), zIndex: 5 }}>
+          {[
+            [t.member.desk.betRecord.columns[1], betRows.reduce((sum, r) => sum + Number(r.bet || 0), 0)],
+            [t.member.desk.betRecord.columns[2], betRows.reduce((sum, r) => sum + Number(r.validBet || 0), 0)],
+            [t.memberPage.pages.win, betRows.reduce((sum, r) => sum + Number(r.win || 0), 0)],
+            [t.memberPage.pages.profitLoss, betRows.reduce((sum, r) => sum + Number(r.net || 0), 0)],
+          ].map(([label, value]) => (
+            <div key={label} style={{ fontSize: m(26), color: "#333", lineHeight: 1.25 }}>
+              {label}
+              <div style={{ color: "#6cc31b" }}>{fmt(value)}</div>
+            </div>
+          ))}
+        </div>
       )}
 
       {/* অস্বীকরণ বার — মূল সাইটে লাভ-লস ও রিবেটে থাকে */}

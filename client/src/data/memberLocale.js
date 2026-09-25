@@ -92,6 +92,9 @@ export const memberPagesLocale = {
     profitLoss: { title: "ব্যক্তিগত প্রতিবেদন" },
     help: { title: "সাহায্য কেন্দ্র" },
     note: "অস্বীকরণ: উপরের ডেটা আপনার ডিভাইসের সময় অনুযায়ী",
+    recordType: "প্রকার",
+    win: "জয়",
+    profitLoss: "লাভ এবং লস",
     days7: "7 দিন",
   },
 
@@ -178,6 +181,9 @@ export const memberPagesLocale = {
     profitLoss: { title: "Personal Report" },
     help: { title: "Help Center" },
     note: "Disclaimer: the data above follows your device time",
+    recordType: "Type",
+    win: "Win",
+    profitLoss: "Profit & loss",
     days7: "7 days",
   },
 };
