@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -29,6 +29,7 @@ import MaintenanceScreen from "../components/Maintenance/MaintenanceScreen";
 import { useIsDesktop } from "../hook/useIsDesktop";
 import { openSupport as openSupportLink } from "../data/contact";
 import { m } from "../hook/useUnits";
+import { referralInUrl } from "../utils/referralLink";
 import { useHideBootLoader } from "../hook/useHideBootLoader";
 
 /**
@@ -116,6 +117,35 @@ const RootLayout = () => {
     },
     [isDesktop, navigate, pathname, search],
   );
+
+  /*
+   * আমন্ত্রণ লিংকে (`?referralCode=…`) ঢুকলে সরাসরি নিবন্ধন — ডেস্কটপে
+   * মডাল, মোবাইলে `/register` পাতা। কোডটা main.jsx সাইট খোলার সময়েই
+   * sessionStorage এ রাখে, ফর্ম সেখান থেকে ভরে নেয়। লগইন করা থাকলে কিছু
+   * নয়। URL থেকে কোডটা সরিয়ে দেওয়া হয়, যাতে রিফ্রেশে বারবার না খোলে।
+   */
+  const referralHandled = useRef(false);
+  useEffect(() => {
+    if (referralHandled.current) return;
+    const code = referralInUrl();
+    if (!code) return;
+    referralHandled.current = true;
+    const params = new URLSearchParams(search);
+    params.delete("referralCode");
+    params.delete("ref");
+    const rest = params.toString();
+    if (loggedIn) {
+      navigate(`${pathname}${rest ? `?${rest}` : ""}`, { replace: true });
+      return;
+    }
+    setNoticeClosed(true);
+    if (isDesktop) {
+      navigate(`${pathname}${rest ? `?${rest}` : ""}`, { replace: true });
+      setAuthTab("register");
+    } else {
+      navigate("/register", { replace: true, state: { from: "/" } });
+    }
+  }, [search, pathname, loggedIn, isDesktop, navigate]);
 
   // একই জিনিস, দুই চেহারা — ডেস্কটপে মডাল খোলে, মোবাইলে সেই
   // ফিচারের নিজের পেজে যায় (মূল সাইটেও ঠিক তাই)

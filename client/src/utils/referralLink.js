@@ -23,6 +23,13 @@ export const captureReferral = () =>
     if (/^[A-Z0-9]{4,12}$/.test(code)) window.sessionStorage.setItem(KEY, code);
   }, undefined);
 
+/** এই মুহূর্তে URL এ আমন্ত্রণ কোড আছে কিনা (থাকলে কোডটা) */
+export const referralInUrl = () =>
+  safe(() => {
+    const params = new URLSearchParams(window.location.search);
+    return (params.get("referralCode") || params.get("ref") || "").trim().toUpperCase();
+  }, "");
+
 /** নিবন্ধন ফর্মের জন্য — URL এ থাকলে সেটা, নইলে রাখা কোড */
 export const storedReferral = () =>
   safe(() => {
