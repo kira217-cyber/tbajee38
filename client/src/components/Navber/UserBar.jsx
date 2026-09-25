@@ -183,10 +183,9 @@ const UserBar = ({ user, onDeposit, onWithdraw, onMember, onSupport, onLogout })
           width: 122.2,
           height: 45,
           borderRadius: 20,
-          background: "linear-gradient(90deg,#FFD76E,#F0A020)",
-          color: "#2b0b4b",
+          background: "linear-gradient(90deg,#fff5e2,#f0cda3)",
+          color: "#333",
           fontSize: 18,
-          fontWeight: 700,
         }}
       >
         {t.deposit}
@@ -200,9 +199,9 @@ const UserBar = ({ user, onDeposit, onWithdraw, onMember, onSupport, onLogout })
           width: 111.6,
           height: 45,
           borderRadius: 8.7,
-          background: "var(--accent-soft)",
-          border: "1px solid var(--accent)",
-          color: "#fff",
+          background: "rgba(188,67,244,.28)",
+          border: "1px solid #ad00ff",
+          color: "#ad00ff",
           fontSize: 18,
         }}
       >
@@ -218,36 +217,33 @@ const UserBar = ({ user, onDeposit, onWithdraw, onMember, onSupport, onLogout })
       >
       <button
         type="button"
-        onClick={onMember}
+        onClick={() => onMember("myAccount")}
         className="relative flex cursor-pointer items-center justify-center"
         style={{ width: 49, height: 49 }}
       >
-        <span
-          style={{
-            width: 42,
-            height: 42,
-            borderRadius: "50%",
-            overflow: "hidden",
-            display: "grid",
-            placeItems: "center",
-            background: "var(--surface)",
+        {/* আসল অবতারের ছবি (আগে শুধু একটা আইকন দেখাত) */}
+        <img
+          src={user.avatar || "/assets/member-desk/avatar-0.png"}
+          onError={(e) => {
+            e.currentTarget.src = "/assets/member-desk/avatar-0.png";
           }}
-        >
-          <Icon name="icon-avatar" size={30} />
-        </span>
+          alt=""
+          style={{ width: 49, height: 49, borderRadius: "50%", objectFit: "cover", background: "#b1b8b6" }}
+        />
         <span
-          className="absolute"
+          className="absolute grid place-items-center"
           style={{
-            bottom: -2,
+            bottom: -9,
             left: "50%",
             transform: "translateX(-50%)",
-            padding: "0 5px",
-            borderRadius: 6,
-            background: "var(--gold)",
-            color: "#2b0b4b",
-            fontSize: 10,
+            width: 47,
+            height: 19,
+            borderRadius: 4,
+            background: "linear-gradient(278deg,#e8a31d 87%,#dcb05b)",
+            color: "#543c00",
+            fontSize: 15,
             fontWeight: 700,
-            lineHeight: "13px",
+            fontStyle: "italic",
           }}
         >
           VIP{user.vipLevel}
@@ -257,40 +253,54 @@ const UserBar = ({ user, onDeposit, onWithdraw, onMember, onSupport, onLogout })
         {menuOpen && (
           <ProfileMenu
             user={user}
-            onMember={onMember}
-            onSupport={onSupport}
-            onLogout={onLogout}
+            // কিছুতে চাপলে মেনু বন্ধ — নইলে মডালের উপরেও ঝুলে থাকত
+            onMember={(tab) => {
+              setMenuOpen(false);
+              onMember(tab);
+            }}
+            onSupport={() => {
+              setMenuOpen(false);
+              onSupport?.();
+            }}
+            onLogout={() => {
+              setMenuOpen(false);
+              onLogout?.();
+            }}
           />
         )}
       </div>
 
       {/* ব্যালেন্স */}
+      {/* ব্যালেন্স — মূল সাইটের `.member-info-item`: গাঢ় পিল, #AD00FF এ বড় সংখ্যা */}
       <div
         className="flex items-center"
-        style={{ width: 124.5, height: 40, gap: 8, color: "var(--gold)", fontSize: 17 }}
+        style={{ minWidth: 124.5, height: 40, padding: "0 12px", gap: 8, borderRadius: 8, background: "#262a3a", color: "#ad00ff" }}
       >
-        <span className="truncate">{balance}</span>
+        <span style={{ fontSize: 25, lineHeight: 1 }}>{user.currency}</span>
+        <span className="truncate" style={{ fontSize: 25, lineHeight: 1 }}>
+          {user.balance.toFixed(2)}
+        </span>
         <span
           role="button"
           aria-label="refresh"
           onClick={refresh}
           className={`flex cursor-pointer${refreshing ? " tb-spin" : ""}`}
-          style={{ opacity: 0.8 }}
+          style={{ color: "#fff" }}
         >
-          <Icon name="refresh" size={16} />
+          <Icon name="refresh" size={19} />
         </span>
       </div>
 
       <button
         type="button"
-        onClick={onMember}
+        onClick={() => onMember("myAccount")}
         className="tb-hover-fade flex cursor-pointer items-center justify-center"
         style={{
           width: 78.8,
           height: 45,
           borderRadius: 20,
-          background: "linear-gradient(270deg,#48E0C8,#9AF0A8)",
-          color: "var(--accent)",
+          background: "linear-gradient(270deg,#484b5a,#424a57 28.47%,#515767 51.24%,#414559)",
+          color: "#ad00ff",
           fontSize: 16,
         }}
       >

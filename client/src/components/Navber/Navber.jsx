@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 
 import { useSelector } from "react-redux";
 
@@ -33,10 +33,13 @@ const Navber = ({ topOffset = 0, onToggleSidebar, onAuth, onMember, onSupport, o
   const user = useSelector(selectUser);
   const isDesktop = useIsDesktop();
 
+  const { pathname } = useLocation();
+  // মূল সাইটের মতো — পাতা অনুযায়ী সক্রিয়; "অর্থ উপার্জন" বন্ধুদের আমন্ত্রণ খোলে
+  // (লগইন না থাকলে আগে লগইন)
   const menu = [
-    { key: "games", label: t.headerMenu.games, to: "/", active: true },
-    { key: "promotions", label: t.headerMenu.promotions, to: "/promotions" },
-    { key: "earn", label: t.headerMenu.earn, to: "/agent" },
+    { key: "games", label: t.headerMenu.games, to: "/", active: pathname === "/" || pathname.startsWith("/games") },
+    { key: "promotions", label: t.headerMenu.promotions, to: "/promotions", active: pathname.startsWith("/promotions") },
+    { key: "earn", label: t.headerMenu.earn, onClick: () => (user ? onMember?.("referral") : onAuth?.("login")) },
   ];
 
   if (!isDesktop) {
@@ -174,22 +177,24 @@ const Navber = ({ topOffset = 0, onToggleSidebar, onAuth, onMember, onSupport, o
       </Link>
 
       <nav className="flex h-full items-center" style={{ marginInlineStart: 125, gap: 52 }}>
-        {menu.map((item) => (
-          <Link
-            key={item.key}
-            to={item.to}
-            className="relative flex h-full items-center whitespace-nowrap"
-            style={{ fontSize: 20, color: item.active ? "#fff" : "var(--accent)" }}
-          >
-            {item.label}
-            {item.active && (
-              <span
-                className="absolute bottom-0 left-0 w-full"
-                style={{ height: 3, background: "var(--accent)" }}
-              />
-            )}
-          </Link>
-        ))}
+        {menu.map((item) => {
+          const body = (
+            <>
+              {item.label}
+              {item.active && <span className="absolute bottom-0 left-0 w-full" style={{ height: 2, background: "#ad00ff" }} />}
+            </>
+          );
+          const style = { fontSize: 20, color: "#ad00ff" };
+          return item.to ? (
+            <Link key={item.key} to={item.to} className="relative flex h-full items-center whitespace-nowrap" style={style}>
+              {body}
+            </Link>
+          ) : (
+            <button key={item.key} type="button" onClick={item.onClick} className="relative flex h-full cursor-pointer items-center whitespace-nowrap" style={style}>
+              {body}
+            </button>
+          );
+        })}
       </nav>
 
       <div className="flex-1" />
@@ -199,7 +204,7 @@ const Navber = ({ topOffset = 0, onToggleSidebar, onAuth, onMember, onSupport, o
           user={user}
           onDeposit={() => onMember?.("deposit")}
           onWithdraw={() => onMember?.("withdraw")}
-          onMember={() => onMember?.("myAccount")}
+          onMember={(tab) => onMember?.(typeof tab === "string" ? tab : "myAccount")}
         />
       ) : (
       <div className="flex shrink-0 items-center" style={{ gap: 14 }}>
