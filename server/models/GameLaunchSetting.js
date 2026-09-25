@@ -57,6 +57,19 @@ const gameLaunchSettingSchema = new mongoose.Schema(
       default: "",
       trim: true,
     },
+
+    /**
+     * callback URL এর গোপন অংশ — `/api/callback/<token>`।
+     *
+     * callback দিয়ে খেলোয়াড়ের ব্যালেন্স বাড়ে-কমে, তাই টোকেন না মিললে
+     * server কিছুই করে না। admin এর পাতায় পুরো URL দেখায়; ফাঁস হলে
+     * সেখান থেকেই নতুন টোকেন বানানো যায়।
+     */
+    callbackToken: {
+      type: String,
+      default: "",
+      select: false,
+    },
   },
   { timestamps: true },
 );

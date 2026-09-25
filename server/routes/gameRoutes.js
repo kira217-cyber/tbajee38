@@ -3,6 +3,8 @@ import express from "express";
 import { successResponse, errorResponse } from "../utils/response.js";
 import { getCached, setCached } from "../utils/gameCache.js";
 import { loadUsableKey, masterGet } from "../utils/masterApi.js";
+import { noteApiFailure, noteApiSuccess } from "../utils/maintenance.js";
+import { loadProviderCatalog } from "../utils/providerCatalog.js";
 
 /**
  * ক্লায়েন্টের গেম — White-label master থেকে প্রক্সি করে।
@@ -21,7 +23,12 @@ const notConfigured = (res, reason) =>
 
 const text = (value) => String(value ?? "").trim();
 
-const proxy = (cacheKeyOf, pathOf, paramsOf = () => ({})) => async (req, res) => {
+/**
+ * শুধু শেল (`game-data`) এর ফলাফল মেইনটেন্যান্সে গোনা হয় — ওটা ছাড়া সাইটের
+ * কিছুই দেখানো যায় না। একটা গেম না পাওয়া (404) বা খোঁজ ব্যর্থ হওয়ায়
+ * পুরো সাইট বন্ধ হওয়া ঠিক নয়।
+ */
+const proxy = (cacheKeyOf, pathOf, paramsOf = () => ({}), watch = false) => async (req, res) => {
   try {
     const { apiKey, reason } = await loadUsableKey();
     if (!apiKey) return notConfigured(res, reason);
@@ -32,10 +39,12 @@ const proxy = (cacheKeyOf, pathOf, paramsOf = () => ({})) => async (req, res) =>
 
     const body = await masterGet(pathOf(req), apiKey, paramsOf(req));
     setCached(cacheKey, body.data);
+    if (watch) noteApiSuccess();
 
     return successResponse(res, "Game data", { configured: true, cached: false, data: body.data });
   } catch (error) {
     const status = error.status === 404 ? 404 : 502;
+    if (watch && status === 502) noteApiFailure(`Game API: ${error.message || "not reachable"}`);
     return errorResponse(res, error.message || "Master is not reachable", status);
   }
 };
@@ -46,6 +55,8 @@ router.get(
   proxy(
     () => "data",
     () => "/game-data",
+    () => ({}),
+    true,
   ),
 );
 
@@ -75,5 +86,14 @@ router.get(
     (req) => `/game/${encodeURIComponent(text(req.params.gameUId))}`,
   ),
 );
+
+/** প্রোভাইডারের নাম-আইকন — টার্নওভারের অগ্রগতিতে দেখাতে (না পেলে ফাঁকা) */
+router.get("/providers", async (req, res) => {
+  try {
+    return successResponse(res, "Providers loaded", { providers: await loadProviderCatalog() });
+  } catch {
+    return successResponse(res, "Providers unavailable", { providers: [] });
+  }
+});
 
 export default router;
