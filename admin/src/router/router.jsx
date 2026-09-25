@@ -21,6 +21,8 @@ import ManualDeposit from "../pages/ManualDeposit/ManualDeposit";
 import DepositRequests from "../pages/DepositRequests/DepositRequests";
 import WithdrawMethods from "../pages/WithdrawMethods/WithdrawMethods";
 import WithdrawRequests from "../pages/WithdrawRequests/WithdrawRequests";
+import Verification from "../pages/Verification/Verification";
+import AffiliateVerification from "../pages/Verification/AffiliateVerification";
 import TurnoverHistory from "../pages/TurnoverHistory/TurnoverHistory";
 import Placeholder from "../pages/Placeholder/Placeholder";
 import NotFoundPage from "../pages/NotFoundPage/NotFoundPage";
@@ -51,6 +53,8 @@ const REAL_PAGES = {
   "/deposit-requests": <DepositRequests />,
   "/withdraw-methods": <WithdrawMethods />,
   "/withdraw-requests": <WithdrawRequests />,
+  "/verification": <Verification />,
+  "/affiliate-verification": <AffiliateVerification />,
   "/turnover-history": <TurnoverHistory />,
   "/game-launch-key": <GameLaunchKey />,
   "/maintenance": <Maintenance />,
