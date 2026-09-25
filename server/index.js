@@ -29,6 +29,9 @@ import accountRecordRoutes from "./routes/accountRecordRoutes.js";
 import profileRoutes from "./routes/profileRoutes.js";
 import verificationRoutes from "./routes/verificationRoutes.js";
 import turnoverRoutes from "./routes/turnoverRoutes.js";
+import referralRoutes from "./routes/referralRoutes.js";
+import vipRoutes from "./routes/vipRoutes.js";
+import { startReferralPayouts } from "./utils/referral.js";
 
 dotenv.config();
 
@@ -40,6 +43,9 @@ if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
 }
 
 await connectDB();
+
+// বন্ধুদের বাজির কমিশন ১৫ মিনিট পরপর ব্যালেন্সে (মূল সাইটের মতো)
+startReferralPayouts();
 
 const app = express();
 
@@ -111,6 +117,10 @@ app.use("/api/callback", callbackRoutes);
 // খেলার ইতিহাস (বেটিং রেকর্ড) আর টার্নওভার — খেলোয়াড় ও admin
 app.use("/api/game-history", gameHistoryRoutes);
 app.use("/api/turnover", turnoverRoutes);
+
+// বন্ধুদের আমন্ত্রণ (খেলোয়াড়ের রেফারেল প্রোগ্রাম) আর VIP/ম্যানুয়াল রিবেট
+app.use("/api/referral", referralRoutes);
+app.use("/api/vip", vipRoutes);
 
 // ম্যানুয়াল ডিপোজিট — মেথড, ফর্মের ঘর, বোনাস-টার্নওভার, রিকোয়েস্ট, admin এর সরাসরি জমা
 app.use("/api/deposit-methods", depositMethodRoutes);

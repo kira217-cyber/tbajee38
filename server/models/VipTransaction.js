@@ -19,7 +19,7 @@ const vipTransactionSchema = new Schema(
 
     type: {
       type: String,
-      enum: ["earn", "convert", "upgrade", "bonus", "adjust"],
+      enum: ["earn", "convert", "upgrade", "bonus", "adjust", "rebate"],
       required: true,
       index: true,
     },
@@ -39,6 +39,13 @@ const vipTransactionSchema = new Schema(
 );
 
 vipTransactionSchema.index({ user: 1, createdAt: -1 });
+vipTransactionSchema.index({ type: 1, createdAt: -1 });
+
+// একই ধাপের বোনাস দুবার নয় — BetChokkor এ একসাথে দুটো বাজিতে দুবার পেত
+vipTransactionSchema.index(
+  { user: 1, levelTo: 1 },
+  { unique: true, partialFilterExpression: { type: "upgrade" } },
+);
 
 const VipTransaction =
   mongoose.models.VipTransaction ||

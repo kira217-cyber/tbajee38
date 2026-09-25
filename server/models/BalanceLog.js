@@ -15,6 +15,8 @@ export const LOG_TYPES = [
   "withdraw", // উত্তোলনের আবেদনে কাটা
   "withdraw-refund", // বাতিল উত্তোলনের ফেরত
   "rebate", // রিবেট/ক্যাশব্যাক
+  "referral", // বন্ধুদের আমন্ত্রণের পুরস্কার/কমিশন
+  "vip", // VIP ধাপে ওঠার বোনাস
   "admin-adjust", // admin এর সরাসরি বদল
 ];
 

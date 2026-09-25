@@ -38,7 +38,8 @@ const TYPE_TABS = {
   deposit: ["deposit"],
   withdraw: ["withdraw", "withdraw-refund"],
   rebate: ["rebate"],
-  promotion: ["promotion"],
+  // রেফারেল পুরস্কার আর VIP বোনাসও প্রমোশনের টাকা
+  promotion: ["promotion", "referral", "vip"],
 };
 
 /** বেটিং রেকর্ডের একই ট্যাব → খেলার ক্যাটাগরি */
@@ -110,7 +111,7 @@ router.get("/profit-loss/my", protectUser, async (req, res) => {
       allTab
         ? DepositRequest.aggregate([
             { $match: { user: req.user._id, status: "approved", approvedAt: range } },
-            { $group: { _id: dayOf("approvedAt"), deposit: { $sum: "$amount" }, promotion: { $sum: "$calc.totalBonus" } } },
+            { $group: { _id: dayOf("approvedAt"), deposit: { $sum: "$amount" } } },
           ])
         : [],
       allTab
@@ -121,8 +122,15 @@ router.get("/profit-loss/my", protectUser, async (req, res) => {
         : [],
       allTab
         ? BalanceLog.aggregate([
-            { $match: { user: req.user._id, type: "rebate", createdAt: range } },
-            { $group: { _id: dayOf("createdAt"), rebate: { $sum: "$amount" } } },
+            // রিবেট আর প্রমোশন খাতা থেকে — ডিপোজিট বোনাস, রেফারেল, VIP বোনাস সব
+            { $match: { user: req.user._id, type: { $in: ["rebate", "promotion", "referral", "vip"] }, createdAt: range } },
+            {
+              $group: {
+                _id: dayOf("createdAt"),
+                rebate: { $sum: { $cond: [{ $eq: ["$type", "rebate"] }, "$amount", 0] } },
+                promotion: { $sum: { $cond: [{ $eq: ["$type", "rebate"] }, 0, "$amount"] } },
+              },
+            },
           ])
         : [],
     ]);
@@ -133,9 +141,9 @@ router.get("/profit-loss/my", protectUser, async (req, res) => {
       return days.get(day);
     };
     games.forEach((g) => Object.assign(row(g._id), { bet: g.bet, win: g.win }));
-    deposits.forEach((d) => Object.assign(row(d._id), { deposit: d.deposit, promotion: d.promotion }));
+    deposits.forEach((d) => Object.assign(row(d._id), { deposit: d.deposit }));
     withdraws.forEach((w) => Object.assign(row(w._id), { withdraw: w.withdraw }));
-    rebates.forEach((r) => Object.assign(row(r._id), { rebate: r.rebate }));
+    rebates.forEach((r) => Object.assign(row(r._id), { rebate: r.rebate, promotion: r.promotion }));
 
     // লাভ ও হার = আয় − ব্যয় + রিবেট + প্রমোশন (জমা-উত্তোলন নিজের টাকা, লাভ নয়)
     const rows = [...days.values()]

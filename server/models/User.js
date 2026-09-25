@@ -108,6 +108,17 @@ const userSchema = new Schema(
     },
     referredBy: { type: Schema.Types.ObjectId, ref: "User", default: null },
     referralCount: { type: Number, default: 0, min: 0 },
+    /**
+     * কবে "যোগ্য বন্ধু" হলেন (জমা + বাজির শর্ত পূরণ) — রেফারকারীর আমন্ত্রণ
+     * পুরস্কার একবারই, তাই null থেকে তারিখে বসানোটা এক ধাপে (atomic)।
+     */
+    referralQualifiedAt: { type: Date, default: null },
+
+    /**
+     * ম্যানুয়াল রিবেট এই সময়ের পরের বাজি থেকে গোনা হয় — দাবি করলে
+     * "এখন" এ সরে। শর্তসাপেক্ষ বদলে একই বাজির রিবেট দুবার নয়।
+     */
+    rebateFrom: { type: Date, default: null },
 
     /* ── কমিশনের হার (%) — অ্যাডমিন প্রতিটা অ্যাফিলিয়েটের জন্য বসায় ── */
     /* ── অ্যাফিলিয়েট অনুমোদন ──
@@ -209,7 +220,8 @@ userSchema.index(
 userSchema.index({ referralCode: 1 }, { unique: true, sparse: true });
 userSchema.index({ userGamePlayName: 1 }, { unique: true, sparse: true });
 userSchema.index({ role: 1, isActive: 1 });
-userSchema.index({ referredBy: 1 });
+userSchema.index({ referredBy: 1, createdAt: -1 });
+userSchema.index({ referredBy: 1, referralQualifiedAt: 1 });
 
 /** অ্যাফিলিয়েটের মোট তোলার মতো কমিশন */
 userSchema.methods.totalCommissionBalance = function totalCommissionBalance() {

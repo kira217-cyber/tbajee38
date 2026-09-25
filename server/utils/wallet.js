@@ -43,6 +43,8 @@ const PREFIX = {
   withdraw: "W",
   "withdraw-refund": "R",
   rebate: "B",
+  referral: "F",
+  vip: "V",
   "admin-adjust": "A",
 };
 

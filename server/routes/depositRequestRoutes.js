@@ -14,6 +14,7 @@ import { successResponse, errorResponse } from "../utils/response.js";
 import { verificationGate } from "../utils/verificationGate.js";
 import { buildDepositCalc, normalizePromoScope, num, money } from "../utils/depositCalc.js";
 import { addCommission, creditUser, debitUser, writeLogs } from "../utils/wallet.js";
+import { onReferralDeposit } from "../utils/referral.js";
 
 const router = express.Router();
 
@@ -421,6 +422,12 @@ router.patch("/admin/:id/approve", protectAdmin, requireWrite, requirePermission
         { type: "promotion", amount: bonus, refType: "DepositRequest", refId: claimed._id, note: claimed.display?.promoName?.en || "Deposit bonus" },
       ],
       { by: req.admin._id },
+    );
+
+    // বন্ধুদের আমন্ত্রণ — উপরের রেফারকারীদের জমার রিবেট আর "যোগ্য বন্ধু" যাচাই
+    // (শুধু আসল জমা, বোনাস নয়); ব্যর্থ হলেও জমার অনুমোদন টিকে থাকে
+    await onReferralDeposit({ userId: claimed.user, amount: num(claimed.amount), requestId: claimed._id }).catch((error) =>
+      console.error("Referral deposit rebate failed:", error.message),
     );
 
     const request = await DepositRequest.findById(claimed._id)

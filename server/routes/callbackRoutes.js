@@ -8,6 +8,8 @@ import GameLaunchSetting from "../models/GameLaunchSetting.js";
 import { applyTurnoverProgress } from "../utils/turnoverProgress.js";
 import { peekGameInfo, resolveGameInfo } from "../utils/gameInfo.js";
 import { num } from "../utils/money.js";
+import { checkQualified, onReferralBet } from "../utils/referral.js";
+import { onVipBet } from "../utils/vip.js";
 
 /**
  * গেমের callback — প্রতিটা বাজি আর তার ফলের খবর এখানে আসে (seamless
@@ -199,7 +201,7 @@ const handleCallback = async (req, res) => {
           },
         },
       ],
-      { returnDocument: "before", projection: "userId balance currency referredBy" },
+      { returnDocument: "before", projection: "userId balance currency referredBy referralQualifiedAt" },
     ).lean();
 
     if (!before) {
@@ -272,7 +274,17 @@ const handleCallback = async (req, res) => {
 
     reply({ success: true, balance: balanceAfter, message: "OK" });
 
-    // VIP আর খেলোয়াড়ের রেফারেল কমিশন এখানে যোগ হবে (সেই ধাপে)।
+    // VIP এর XP আর বন্ধুদের বাজির কমিশন — উত্তরের পরে, যাতে গেম অপেক্ষা
+    // না করে; ভুল হলে শুধু লগে (বাজিটা ইতিমধ্যে ঠিকঠাক হয়ে গেছে)
+    if (betAmount > 0) {
+      (async () => {
+        await onVipBet({ userId: before._id, betAmount });
+        if (before.referredBy) {
+          await onReferralBet({ referredBy: before.referredBy, betAmount });
+          if (!before.referralQualifiedAt) await checkQualified(before._id);
+        }
+      })().catch((error) => console.error("VIP/referral after bet failed:", error.message));
+    }
 
     // গেমের নাম ক্যাশে ছিল না — উত্তর পাঠিয়ে তারপর এনে বসানো
     if (!info.name || !info.code || !info.category) {
