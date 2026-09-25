@@ -14,6 +14,7 @@ import {
   verifyOtp,
 } from "../utils/otp.js";
 import { createCaptcha, checkCaptcha } from "../utils/captcha.js";
+import { onRegisterReward } from "../utils/reward.js";
 import { makeGamePlayName } from "./playGameRoutes.js";
 import {
   displayPhone,
@@ -359,6 +360,9 @@ router.post("/register", authLimiter, async (req, res) => {
       lastName: text(req.body?.lastName),
       email: text(req.body?.email).toLowerCase(),
     });
+
+    // নিবন্ধনের টিকিট (admin সেট করলে) — খেলোয়াড়ের সাইটে
+    if (user.role === "user") await onRegisterReward(user).catch((error) => console.error("Register reward failed:", error.message));
 
     if (referrer) {
       referrer.referralCount = Number(referrer.referralCount || 0) + 1;

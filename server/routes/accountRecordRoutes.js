@@ -39,7 +39,7 @@ const TYPE_TABS = {
   withdraw: ["withdraw", "withdraw-refund"],
   rebate: ["rebate"],
   // রেফারেল পুরস্কার আর VIP বোনাসও প্রমোশনের টাকা
-  promotion: ["promotion", "referral", "vip"],
+  promotion: ["promotion", "referral", "vip", "reward"],
 };
 
 /** বেটিং রেকর্ডের একই ট্যাব → খেলার ক্যাটাগরি */
@@ -123,7 +123,7 @@ router.get("/profit-loss/my", protectUser, async (req, res) => {
       allTab
         ? BalanceLog.aggregate([
             // রিবেট আর প্রমোশন খাতা থেকে — ডিপোজিট বোনাস, রেফারেল, VIP বোনাস সব
-            { $match: { user: req.user._id, type: { $in: ["rebate", "promotion", "referral", "vip"] }, createdAt: range } },
+            { $match: { user: req.user._id, type: { $in: ["rebate", "promotion", "referral", "vip", "reward"] }, createdAt: range } },
             {
               $group: {
                 _id: dayOf("createdAt"),

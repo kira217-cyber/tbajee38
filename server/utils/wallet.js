@@ -45,6 +45,7 @@ const PREFIX = {
   rebate: "B",
   referral: "F",
   vip: "V",
+  reward: "G",
   "admin-adjust": "A",
 };
 

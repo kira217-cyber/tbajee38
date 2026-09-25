@@ -28,6 +28,8 @@ const sendLimiter = rateLimit({
   standardHeaders: "draft-7",
   legacyHeaders: false,
   keyGenerator: (req) => String(req.user?._id || req.ip),
+  // protectUser আগে চলে, তাই আইপিতে পড়ার পথ কার্যত আসে না
+  validate: { keyGeneratorIpFallback: false },
   message: { success: false, message: "Too many feedbacks — please try later", code: "tooMany" },
 });
 

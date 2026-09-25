@@ -2,6 +2,7 @@ import User from "../models/User.js";
 import ReferralReward from "../models/ReferralReward.js";
 import ReferralSetting from "../models/ReferralSetting.js";
 import { money, num } from "./money.js";
+import { onTemuTask } from "./reward.js";
 import { creditUser, writeLogs } from "./wallet.js";
 
 /**
@@ -201,6 +202,9 @@ export const checkQualified = async (userId) => {
     { $set: { referralQualifiedAt: new Date() } },
   );
   if (!marked.modifiedCount || !referrer.isActive) return;
+
+  // টেমু টিকিটের "বন্ধু আমন্ত্রণ" কাজ
+  await onTemuTask(referrer._id, "invite").catch((error) => console.error("TEMU invite failed:", error.message));
 
   if (inv.enabled && inv.amount > 0) {
     await grant(

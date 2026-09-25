@@ -5,6 +5,7 @@ import EWallet from "../models/EWallet.js";
 import WithdrawMethod from "../models/WithdrawMethod.js";
 import { protectUser } from "../middleware/protectUser.js";
 import { successResponse, errorResponse } from "../utils/response.js";
+import { onTemuTask } from "../utils/reward.js";
 import { normalizePhone } from "../utils/phone.js";
 import { checkTxPassword } from "../utils/txPassword.js";
 
@@ -85,6 +86,8 @@ router.post("/", protectUser, async (req, res) => {
       return errorResponse(res, `You can bind at most ${WALLET_CAP} e-wallets`, 400, "walletCap");
     }
 
+    // টেমু টিকিটের "উত্তোলনের তথ্য আবদ্ধ করুন" কাজ
+    await onTemuTask(req.user._id, "wallet").catch((error) => console.error("TEMU wallet failed:", error.message));
     return successResponse(res, "E-wallet added", { wallets: await listOf(req.user._id) }, 201);
   } catch (error) {
     if (error?.code === 11000) {

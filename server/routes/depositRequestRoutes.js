@@ -15,6 +15,7 @@ import { verificationGate } from "../utils/verificationGate.js";
 import { buildDepositCalc, normalizePromoScope, num, money } from "../utils/depositCalc.js";
 import { addCommission, creditUser, debitUser, writeLogs } from "../utils/wallet.js";
 import { onReferralDeposit } from "../utils/referral.js";
+import { onTemuTask } from "../utils/reward.js";
 
 const router = express.Router();
 
@@ -426,6 +427,7 @@ router.patch("/admin/:id/approve", protectAdmin, requireWrite, requirePermission
 
     // বন্ধুদের আমন্ত্রণ — উপরের রেফারকারীদের জমার রিবেট আর "যোগ্য বন্ধু" যাচাই
     // (শুধু আসল জমা, বোনাস নয়); ব্যর্থ হলেও জমার অনুমোদন টিকে থাকে
+    await onTemuTask(claimed.user, "deposit").catch((error) => console.error("TEMU deposit failed:", error.message));
     await onReferralDeposit({ userId: claimed.user, amount: num(claimed.amount), requestId: claimed._id }).catch((error) =>
       console.error("Referral deposit rebate failed:", error.message),
     );

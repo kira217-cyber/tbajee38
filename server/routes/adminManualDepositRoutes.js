@@ -12,6 +12,7 @@ import { successResponse, errorResponse } from "../utils/response.js";
 import { buildDepositCalc, num, money } from "../utils/depositCalc.js";
 import { addCommission, creditUser, debitUser, writeLogs } from "../utils/wallet.js";
 import { onReferralDeposit } from "../utils/referral.js";
+import { onTemuTask } from "../utils/reward.js";
 
 const router = express.Router();
 
@@ -218,6 +219,7 @@ router.post("/credit", protectAdmin, requireWrite, requirePermission("manual-dep
     );
 
     // আসল জমা — ক্লায়েন্টের জমার মতোই রেফারকারীদের রিবেট আর যোগ্যতা যাচাই
+    await onTemuTask(user._id, "deposit").catch((error) => console.error("TEMU deposit failed:", error.message));
     await onReferralDeposit({ userId: user._id, amount, requestId: request._id }).catch((error) =>
       console.error("Referral deposit rebate failed:", error.message),
     );
