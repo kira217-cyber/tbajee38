@@ -335,7 +335,6 @@ export const navItems = [
       { key: "admins", path: "/admins", label: "Admin Accounts", icon: "UserCog", motherOnly: true },
       { key: "contact-links", path: "/contact-links", label: "Contact Links", icon: "Phone", motherOnly: true },
       { key: "app-download", path: "/app-download", label: "App Download", icon: "Smartphone", motherOnly: true },
-      { key: "app-download-content", path: "/app-download-content", label: "App Download Content", icon: "Smartphone", motherOnly: true },
       { key: "notifications", path: "/notifications", label: "Inbox Messages", icon: "Bell", perm: "notifications" },
       { key: "feedback", path: "/feedback", label: "Feedback", icon: "MessageSquareWarning", perm: "feedback" },
       { key: "otp-setting", path: "/otp-setting", label: "OTP Setting", icon: "MessageSquareLock", motherOnly: true },

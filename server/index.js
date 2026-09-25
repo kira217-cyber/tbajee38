@@ -36,6 +36,7 @@ import inboxRoutes from "./routes/inboxRoutes.js";
 import feedbackRoutes from "./routes/feedbackRoutes.js";
 import rewardRoutes from "./routes/rewardRoutes.js";
 import helpRoutes from "./routes/helpRoutes.js";
+import appRoutes from "./routes/appRoutes.js";
 import { startReferralPayouts } from "./utils/referral.js";
 
 dotenv.config();
@@ -135,6 +136,7 @@ app.use("/api/inbox", inboxRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/rewards", rewardRoutes);
 app.use("/api/help", helpRoutes);
+app.use("/api/app", appRoutes);
 
 // ম্যানুয়াল ডিপোজিট — মেথড, ফর্মের ঘর, বোনাস-টার্নওভার, রিকোয়েস্ট, admin এর সরাসরি জমা
 app.use("/api/deposit-methods", depositMethodRoutes);

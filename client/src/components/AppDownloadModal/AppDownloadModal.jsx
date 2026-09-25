@@ -1,9 +1,15 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { QRCodeCanvas } from "qrcode.react";
 
 import Icon from "../Icon/Icon";
 import { useLanguage } from "../../Context/LanguageProvider";
 import { useIsDesktop } from "../../hook/useIsDesktop";
 import { m } from "../../hook/useUnits";
+import api, { API_URL } from "../../api/axios";
+import { notify } from "../../utils/notify";
+
+/** APK এর ঠিকানা — server আসল নামটা `Content-Disposition` এ দেয় */
+const DOWNLOAD_URL = `${API_URL}/api/app/download`;
 
 /**
  * অ্যাপ ডাউনলোডের মডাল।
@@ -17,8 +23,25 @@ import { m } from "../../hook/useUnits";
  *   APP বোতামের উপরে ছোট ট্যাগ ১২৬ × ৩০ bg #EA4E3D
  */
 const AppDownloadModal = ({ onClose }) => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const isDesktop = useIsDesktop();
+  // admin এর "App Download" — APK আছে কিনা, নাম, বর্ণনা
+  const [app, setApp] = useState(null);
+  useEffect(() => {
+    api
+      .get("/api/app/public")
+      .then(({ data }) => setApp(data?.data || null))
+      .catch(() => setApp(null));
+  }, []);
+  const desc = (lang === "en" ? app?.description?.en || app?.description?.bn : app?.description?.bn || app?.description?.en) || t.download.desc;
+  const hasApk = Boolean(app?.hasApk);
+
+  const downloadApk = (e) => {
+    if (hasApk) return;
+    e.preventDefault();
+    notify.info(t.download.notReady);
+  };
+  const webApp = () => notify.info(t.download.webAppHint);
 
   const panel = isDesktop
     ? { width: 520, borderRadius: 16, padding: 28 }
@@ -81,9 +104,25 @@ const AppDownloadModal = ({ onClose }) => {
               color: "#222",
             }}
           >
-            {t.download.desc}
+            {desc}
           </div>
         </div>
+
+        {/* ডেস্কটপে ফোন দিয়ে স্ক্যান করে নামানোর QR */}
+        {isDesktop && hasApk && (
+          <div className="flex items-center" style={{ marginTop: 18, gap: 14, padding: 12, borderRadius: 10, background: "#f5f7fb" }}>
+            <div style={{ background: "#fff", padding: 6, lineHeight: 0 }}>
+              <QRCodeCanvas value={DOWNLOAD_URL} size={96} marginSize={0} />
+            </div>
+            <div style={{ fontSize: 13, color: "#555", lineHeight: 1.5 }}>
+              {t.download.scan}
+              <div style={{ marginTop: 4, color: "#999", fontSize: 12, wordBreak: "break-all" }}>
+                {app.fileName}
+                {app.version ? ` · v${app.version}` : ""}
+              </div>
+            </div>
+          </div>
+        )}
 
         <div
           className="text-center"
@@ -121,8 +160,11 @@ const AppDownloadModal = ({ onClose }) => {
             >
               {t.download.tag}
             </span>
-            <button
-              type="button"
+            {/* admin এর আপলোড করা APK — ঠিক সেই নামেই নামে */}
+            <a
+              href={hasApk ? DOWNLOAD_URL : "#"}
+              download={hasApk ? app.fileName : undefined}
+              onClick={downloadApk}
               className="flex cursor-pointer items-center justify-center"
               style={{
                 width: isDesktop ? 200 : m(300),
@@ -132,15 +174,18 @@ const AppDownloadModal = ({ onClose }) => {
                 color: "#fff",
                 fontSize: isDesktop ? 16 : m(24),
                 gap: 8,
+                opacity: app && !hasApk ? 0.55 : 1,
               }}
             >
               <Icon name="icon-android" size={isDesktop ? 20 : m(40)} />
               APP
-            </button>
+            </a>
           </span>
 
+          {app?.showWebApp !== false && (
           <button
             type="button"
+            onClick={webApp}
             className="flex cursor-pointer items-center justify-center"
             style={{
               width: isDesktop ? 200 : m(300),
@@ -156,6 +201,7 @@ const AppDownloadModal = ({ onClose }) => {
             <Icon name="icon-apple" size={isDesktop ? 20 : m(40)} />
             {t.download.webApp}
           </button>
+          )}
         </div>
       </div>
     </div>

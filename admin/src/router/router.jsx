@@ -39,6 +39,7 @@ import ContactLinks from "../pages/SiteContent/ContactLinks";
 import InboxMessages from "../pages/SiteContent/InboxMessages";
 import HelpContent from "../pages/SiteContent/HelpContent";
 import HomeEvents from "../pages/SiteContent/HomeEvents";
+import AppDownload from "../pages/SiteContent/AppDownload";
 import Feedback from "../pages/Feedback/Feedback";
 import Placeholder from "../pages/Placeholder/Placeholder";
 import NotFoundPage from "../pages/NotFoundPage/NotFoundPage";
@@ -91,6 +92,8 @@ const REAL_PAGES = {
   "/notifications": <InboxMessages />,
   "/help-content": <HelpContent />,
   "/home-events": <HomeEvents />,
+  "/app-download": <AppDownload />,
+  "/app-download-content": <AppDownload />,
   "/feedback": <Feedback />,
 };
 

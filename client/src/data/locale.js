@@ -827,6 +827,9 @@ export const locale = {
     promo: { all: "সমস্ত", more: "আরও", moreMobile: "অধিক", join: "যোগ দিন", close: "বন্ধ", empty: "এখন কোনো প্রমোশন নেই" },
 
     download: {
+      notReady: "অ্যাপটি এখনো পাওয়া যাচ্ছে না, শীঘ্রই আসছে",
+      webAppHint: "ব্রাউজারের মেনু (⋮ বা শেয়ার) থেকে \"হোম স্ক্রিনে যোগ করুন\" চাপুন",
+      scan: "ফোনের ক্যামেরা দিয়ে স্ক্যান করে অ্যাপ ডাউনলোড করুন",
       desc: "আমরা নতুনত্ব ফ্রি বেট এবং বোনাস আপডেটের জন্য এটিকে আপনার হোম স্ক্রিনে যুক্ত করতে চাই।",
       continueBrowser: "ব্রাউজার ব্যবহার চালিয়ে যান",
       tag: "অধিক সুবিধা",
@@ -1759,6 +1762,9 @@ export const locale = {
     promo: { all: "All", more: "More", moreMobile: "More", join: "Join now", close: "Close", empty: "No promotions right now" },
 
     download: {
+      notReady: "The app is not available yet, coming soon",
+      webAppHint: "Open the browser menu (⋮ or Share) and tap \"Add to Home screen\"",
+      scan: "Scan with your phone camera to download the app",
       desc: "We would like to add this to your home screen for free bet and bonus updates.",
       continueBrowser: "Continue using the browser",
       tag: "More benefits",
