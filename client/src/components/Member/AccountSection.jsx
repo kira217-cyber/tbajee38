@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useIsDesktop } from "../../hook/useIsDesktop";
 import Icon from "../Icon/Icon";
 import { useLanguage } from "../../Context/LanguageProvider";
@@ -6,6 +6,18 @@ import { selectUser } from "../../features/auth/authSelectors";
 import { m } from "../../hook/useUnits";
 import MemberShell from "./MemberShell";
 import { useSelector } from "react-redux";
+import { useUI } from "../../Context/uiContext";
+import { useLogout } from "../../features/auth/useLogout";
+import { useProfile } from "../../features/profile/useProfile";
+import { ProfileSheet } from "./ProfileForms";
+import { notify } from "../../utils/notify";
+
+const pad = (n) => String(n).padStart(2, "0");
+const fmtDateTime = (value) => {
+  if (!value) return "—";
+  const d = new Date(value);
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+};
 
 /**
  * "আমার অ্যাকাউন্ট" — ডেস্কটপে মডালের ট্যাব, মোবাইলে `/member/account`।
@@ -29,19 +41,39 @@ import { useSelector } from "react-redux";
  */
 const Desktop = ({ user }) => {
   const { t } = useLanguage();
+  const p = t.profileFlow;
+  const { openMember } = useUI();
+  const signOut = useLogout();
+  const profile = useProfile();
+  const [sheet, setSheet] = useState(null);
 
+  const ov = profile.overview;
+  const items = ov?.security?.items || {};
+  const percent = ov?.security?.percent ?? 0;
+  const level = ov?.security?.level || "low";
+
+  // মূল সাইটের মতো: "0 জমা দেওয়া অনুরোধ প্রস্তুতি চলছে" — অপেক্ষমাণ সংখ্যা
   const rows = [
-    { icon: "deposit", label: t.member.todayDeposit, value: "0" },
-    { icon: "withdraw", label: t.member.todayWithdraw, value: "0" },
+    { icon: "deposit", label: p.pendingDeposit, value: String(ov?.pendingDeposits ?? 0) },
+    { icon: "withdraw", label: p.pendingWithdraw, value: String(ov?.pendingWithdraws ?? 0) },
   ];
 
   const actions = [
-    { key: "profile", icon: "icon-avatar", color: "#f5a623" },
-    { key: "loginPassword", icon: "form-icon-password", color: "#35c1d6" },
-    { key: "wallet", icon: "cashback", color: "#e34fb2" },
-    { key: "payPassword", icon: "security-center", color: "#c8a15a" },
+    { key: "profile", icon: "icon-avatar", color: "#f5a623", done: items.profile },
+    { key: "loginPassword", icon: "form-icon-password", color: "#35c1d6", done: true },
+    { key: "wallet", icon: "cashback", color: "#e34fb2", done: items.wallet },
+    { key: "payPassword", icon: "security-center", color: "#c8a15a", done: items.payPassword },
+    { key: "phone", icon: "form-icon-phone", color: "#6c8cff", done: items.phone, title: p.phoneTitle, desc: p.phoneHint },
+    { key: "verification", icon: "member", color: "#22b573", done: items.verification, title: p.kycTitle, desc: `${p.kycDesc} (${p.kycStatus[ov?.kycStatus || "none"]})` },
     { key: "logout", icon: "icon-logout", color: "#f04b4b" },
   ];
+
+  const onAction = (key) => {
+    if (key === "logout") return signOut();
+    // ই-ওয়ালেট বাঁধা হয় উত্তোলনের ট্যাবে (মূল সাইটের মতো)
+    if (key === "wallet") return openMember("withdraw");
+    return setSheet(key);
+  };
 
   return (
     <div className="flex" style={{ width: 1110, height: 620, background: "#f7f7f7", gap: 18, padding: 18 }}>
@@ -81,7 +113,11 @@ const Desktop = ({ user }) => {
           </div>
         </div>
 
-        <div style={{ fontSize: 26, fontWeight: 700, color: "#333", marginTop: 22 }}>
+        <div style={{ fontSize: 13, color: "#999", marginTop: 12 }}>
+          {p.joined} {user.joinedAt || "—"}
+        </div>
+
+        <div style={{ fontSize: 26, fontWeight: 700, color: "#333", marginTop: 16 }}>
           {user.currency} {user.balance.toFixed(2)}
         </div>
 
@@ -104,6 +140,15 @@ const Desktop = ({ user }) => {
               <span style={{ fontSize: 14, color: "#333" }}>{row.value}</span>
             </div>
           ))}
+        </div>
+
+        <div style={{ marginTop: 22, paddingTop: 14, borderTop: "1px solid #f0f0f0", fontSize: 13, color: "#888", lineHeight: "22px" }}>
+          <div>
+            {p.lastLoginTime} <span style={{ color: "#333" }}>{fmtDateTime(ov?.user?.lastLoginAt)}</span>
+          </div>
+          <div>
+            {p.lastLoginIp} <span style={{ color: "#333" }}>{ov?.user?.lastLoginIp || "—"}</span>
+          </div>
         </div>
       </div>
 
@@ -130,11 +175,13 @@ const Desktop = ({ user }) => {
             color: "#f5455b",
           }}
         >
-          <div style={{ fontSize: 30, fontWeight: 700 }}>{t.member.securityLow}</div>
+          <div style={{ fontSize: 30, fontWeight: 700 }}>{p.levels[level]}</div>
           <div style={{ fontSize: 13 }}>{t.member.securityLabel}</div>
         </div>
-        <div style={{ marginTop: 22, fontSize: 15 }}>{t.member.securityScore}</div>
-        <div style={{ marginTop: 6, fontSize: 14, opacity: 0.9 }}>{t.member.securityHint}</div>
+        <div style={{ marginTop: 22, fontSize: 15 }}>{p.scoreText.replace("{n}", percent)}</div>
+        <div style={{ marginTop: 6, fontSize: 14, opacity: 0.9 }}>
+          {p.levelText} {p.levels[level]}
+        </div>
       </div>
 
       {/* ডানে — করণীয় */}
@@ -143,7 +190,14 @@ const Desktop = ({ user }) => {
         style={{ flex: 1, background: "#fff", borderRadius: 8, padding: 18, overflowY: "auto" }}
       >
         {actions.map((action) => (
-          <div key={action.key} className="flex" style={{ gap: 14, marginBottom: 22 }}>
+          <div
+            key={action.key}
+            role="button"
+            tabIndex={0}
+            onClick={() => onAction(action.key)}
+            className="tb-hover-fade flex cursor-pointer"
+            style={{ gap: 14, marginBottom: 20 }}
+          >
             <span
               style={{
                 width: 40,
@@ -157,17 +211,24 @@ const Desktop = ({ user }) => {
             >
               <Icon name={action.icon} size={22} />
             </span>
-            <div>
-              <div style={{ fontSize: 15, color: "#333", fontWeight: 600 }}>
-                {t.member.actions[action.key].title}
+            <div className="flex-1">
+              <div className="flex items-center" style={{ gap: 8, fontSize: 15, color: "#333", fontWeight: 600 }}>
+                {action.title || t.member.actions[action.key]?.title}
+                {action.done !== undefined && (
+                  <span style={{ fontSize: 11, fontWeight: 500, color: action.done ? "#16a34a" : "#f04b4b", border: `1px solid ${action.done ? "#16a34a" : "#f04b4b"}`, borderRadius: 10, padding: "0 7px" }}>
+                    {action.done ? p.done : p.todo}
+                  </span>
+                )}
               </div>
               <div style={{ fontSize: 13, color: "#999", marginTop: 4, lineHeight: "18px" }}>
-                {t.member.actions[action.key].desc}
+                {action.desc || t.member.actions[action.key]?.desc}
               </div>
             </div>
           </div>
         ))}
       </div>
+
+      {sheet && <ProfileSheet which={sheet} profile={profile} onClose={() => setSheet(null)} />}
     </div>
   );
 };
@@ -181,98 +242,101 @@ const Desktop = ({ user }) => {
  * → ইমেইল → ফোন), নিচে নীল শিরোনামে গোপনীয়তার নোট, শেষে লাল
  * "জমা দিন" বোতাম (গ্লো সহ)।
  */
-const FIELDS = [
-  { key: "payee", icon: "form-icon-id", warn: true },
-  { key: "nickname", icon: "form-icon-name" },
-  { key: "google", icon: "form-icon-name" },
-  { key: "email", icon: "form-icon-email" },
-  { key: "phone", icon: "form-icon-phone" },
-];
+/** মূল সাইটের ধূসর ইনপুটের সারি */
+const Row = ({ icon, children, onClick }) => (
+  <div
+    className="relative flex items-center"
+    onClick={onClick}
+    style={{ height: m(100), marginBottom: m(22), borderRadius: m(12), background: "#f2f2f4", padding: `0 ${m(24)}`, gap: m(20), cursor: onClick ? "pointer" : "default" }}
+  >
+    <span style={{ color: "#b4b4bc", display: "grid", placeItems: "center" }}>
+      <Icon name={icon} size={m(44)} />
+    </span>
+    {children}
+  </div>
+);
+
+const inputStyle = (disabled) => ({
+  flex: 1,
+  minWidth: 0,
+  height: "100%",
+  background: "transparent",
+  border: "none",
+  outline: "none",
+  fontSize: m(30),
+  color: disabled ? "#999" : "#333",
+});
+
 
 const Mobile = () => {
   const { t } = useLanguage();
-  const user = useSelector(selectUser);
+  const user = useSelector(selectUser) || {};
   const page = t.memberPage.pages.account;
+  const p = t.profileFlow;
+  const profile = useProfile();
+  const [sheet, setSheet] = useState(null);
+  const [form, setForm] = useState({
+    fullName: user.fullName || "",
+    email: user.email || "",
+    dateOfBirth: user.dateOfBirth ? String(user.dateOfBirth).slice(0, 10) : "",
+  });
+  const set = (key) => (e) => setForm((v) => ({ ...v, [key]: e.target.value }));
+
+  const submit = async () => {
+    const body = {};
+    if (!user.fullName && form.fullName) body.fullName = form.fullName;
+    if (!user.dateOfBirth && form.dateOfBirth) body.dateOfBirth = form.dateOfBirth;
+    if (form.email !== (user.email || "")) body.email = form.email;
+    if (!Object.keys(body).length) return notify.info(p.saved);
+    await profile.saveInfo(body);
+    return undefined;
+  };
 
   return (
     <MemberShell title={page.title}>
       <div style={{ padding: `${m(30)} ${m(30)} ${m(60)}` }}>
         <div style={{ fontSize: m(34), color: "#222", marginBottom: m(24) }}>
-          {page.usernameLabel}{" "}
-          <span style={{ marginInlineStart: m(10) }}>{user?.username ?? "-"}</span>
+          {page.usernameLabel} <span style={{ marginInlineStart: m(10) }}>{user.username ?? "-"}</span>
         </div>
 
-        {FIELDS.map((field) => (
-          <React.Fragment key={field.key}>
-            <div
-              className="relative flex items-center"
-              style={{
-                height: m(100),
-                marginBottom: m(22),
-                borderRadius: m(12),
-                background: "#f2f2f4",
-                padding: `0 ${m(24)}`,
-                gap: m(20),
-              }}
-            >
-              <span style={{ color: "#b4b4bc", display: "grid", placeItems: "center" }}>
-                <Icon name={field.icon} size={m(44)} />
-              </span>
-              <input
-                placeholder={page[field.key]}
-                style={{
-                  flex: 1,
-                  height: "100%",
-                  background: "transparent",
-                  border: "none",
-                  outline: "none",
-                  fontSize: m(30),
-                  color: "#333",
-                }}
-              />
-            </div>
+        {/* প্রত্যাহারকারীর নাম = পুরো নাম, একবারই */}
+        <Row icon="form-icon-id">
+          <input value={form.fullName} onChange={set("fullName")} disabled={Boolean(user.fullName)} placeholder={page.payee} maxLength={60} style={inputStyle(Boolean(user.fullName))} />
+        </Row>
+        <div style={{ color: "#e60012", fontSize: m(28), fontWeight: 700, lineHeight: 1.45, marginBottom: m(26) }}>{page.payeeWarn}</div>
 
-            {field.warn && (
-              <div
-                style={{
-                  color: "#e60012",
-                  fontSize: m(28),
-                  fontWeight: 700,
-                  lineHeight: 1.45,
-                  marginBottom: m(26),
-                }}
-              >
-                {page.payeeWarn}
-              </div>
-            )}
-          </React.Fragment>
-        ))}
+        <Row icon="form-icon-name">
+          <input value={user.username || ""} disabled placeholder={page.nickname} style={inputStyle(true)} />
+        </Row>
+        <Row icon="form-icon-email">
+          <input type="email" value={form.email} onChange={set("email")} placeholder={page.email} maxLength={80} style={inputStyle(false)} />
+        </Row>
+        {/* ফোন আলাদা শিটে — বদলাতে পাসওয়ার্ড/OTP লাগে */}
+        <Row icon="form-icon-phone" onClick={() => setSheet("phone")}>
+          <span style={{ ...inputStyle(!user.phone), display: "flex", alignItems: "center" }}>{user.phone ? `0${user.phone}` : page.phone}</span>
+          <Icon name="common-arrow" size={m(30)} />
+        </Row>
+        <Row icon="discount-calender">
+          <input type="date" value={form.dateOfBirth} onChange={set("dateOfBirth")} disabled={Boolean(user.dateOfBirth)} style={inputStyle(Boolean(user.dateOfBirth))} />
+        </Row>
 
         <div style={{ marginTop: m(16) }}>
           <div style={{ color: "#4a9df5", fontSize: m(32) }}>{page.privacyTitle}</div>
-          <div
-            style={{ color: "#888", fontSize: m(24), marginTop: m(10), lineHeight: 1.5 }}
-          >
-            {page.privacyDesc}
-          </div>
+          <div style={{ color: "#888", fontSize: m(24), marginTop: m(10), lineHeight: 1.5 }}>{page.privacyDesc}</div>
         </div>
 
         <button
           type="button"
+          onClick={submit}
+          disabled={profile.busy}
           className="w-full cursor-pointer"
-          style={{
-            marginTop: m(40),
-            height: m(100),
-            borderRadius: m(14),
-            background: "#f5333f",
-            color: "#fff",
-            fontSize: m(34),
-            boxShadow: `0 0 ${m(24)} rgb(245 51 63 / 0.45)`,
-          }}
+          style={{ marginTop: m(40), height: m(100), borderRadius: m(14), background: "#f5333f", color: "#fff", fontSize: m(34), boxShadow: `0 0 ${m(24)} rgb(245 51 63 / 0.45)` }}
         >
           {page.submit}
         </button>
       </div>
+
+      {sheet && <ProfileSheet which={sheet} profile={profile} onClose={() => setSheet(null)} />}
     </MemberShell>
   );
 };

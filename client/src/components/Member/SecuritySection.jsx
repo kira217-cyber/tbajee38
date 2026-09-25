@@ -1,9 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router";
 import Icon from "../Icon/Icon";
 import { useLanguage } from "../../Context/LanguageProvider";
 import { m } from "../../hook/useUnits";
 import { useLogout } from "../../features/auth/useLogout";
 import MemberShell from "./MemberShell";
+import { useProfile } from "../../features/profile/useProfile";
+import { ProfileSheet } from "./ProfileForms";
+
+/** "২০২৬-০৯-২৫ ১৫:০৮:০৬" এর মতো */
+const fmtDateTime = (value) => {
+  if (!value) return "—";
+  const d = new Date(value);
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+};
 
 /**
  * সুরক্ষা কেন্দ্র — মূল সাইটে এটা **শুধু মোবাইলে** আছে,
@@ -17,18 +28,41 @@ import MemberShell from "./MemberShell";
  * শিরোনামের পাশে অবস্থার ব্যাজ (❗ লাল / ✅ সবুজ) ও পেন্সিল, নিচে বর্ণনা,
  * ডানে তীর।
  */
+// অবস্থা server এর নিরাপত্তা স্কোর থেকে (`item` = কোন কাজটা হয়েছে কিনা)
 const ROWS = [
-  { key: "profile", icon: "member", status: "warn" },
-  { key: "wallet", icon: "cashback", status: "warn" },
-  { key: "loginPassword", icon: "form-icon-password", status: "ok" },
-  { key: "payPassword", icon: "security-center", status: "warn" },
+  { key: "profile", icon: "member", item: "profile" },
+  { key: "wallet", icon: "cashback", item: "wallet" },
+  { key: "loginPassword", icon: "form-icon-password", item: "always" },
+  { key: "payPassword", icon: "security-center", item: "payPassword" },
+  { key: "verification", icon: "user_info", item: "verification" },
   { key: "logout", icon: "icon-logout" },
 ];
 
 const SecuritySection = () => {
   const { t } = useLanguage();
   const signOut = useLogout();
+  const navigate = useNavigate();
   const page = t.memberPage.pages.security;
+  const p = t.profileFlow;
+  const profile = useProfile();
+  const [sheet, setSheet] = useState(null);
+
+  const ov = profile.overview;
+  const percent = ov?.security?.percent ?? 0;
+  const level = ov?.security?.level || "low";
+  const items = ov?.security?.items || {};
+  const statusOf = (row) => (!row.item ? null : row.item === "always" || items[row.item] ? "ok" : "warn");
+
+  const rowTitle = (key) => page.rows[key]?.title || (key === "verification" ? p.kycTitle : key);
+  const rowDesc = (key) =>
+    key === "verification" ? `${p.kycDesc} (${p.kycStatus[ov?.kycStatus || "none"]})` : page.rows[key]?.desc;
+
+  const open = (key) => {
+    if (key === "logout") return signOut();
+    if (key === "profile") return navigate("/member/account");
+    if (key === "wallet") return navigate("/member/withdraw");
+    return setSheet(key);
+  };
 
   return (
     <MemberShell title={page.title}>
@@ -54,29 +88,29 @@ const SecuritySection = () => {
             }}
           >
             <span style={{ fontSize: m(56) }}>
-              0<span style={{ fontSize: m(24), color: "#8ab4f8" }}>%</span>
+              {percent}<span style={{ fontSize: m(24), color: "#8ab4f8" }}>%</span>
             </span>
           </span>
 
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: m(32), color: "#222", fontWeight: 700 }}>
-              {page.scoreLabel} {page.low}
+              {page.scoreLabel} {p.levels[level]}
             </div>
             <div className="flex" style={{ marginTop: m(12), gap: m(8) }}>
               {[0, 1, 2, 3, 4].map((i) => (
                 <span
                   key={i}
-                  style={{ fontSize: m(34), opacity: i === 0 ? 1 : 0.25 }}
+                  style={{ fontSize: m(34), opacity: i < Math.max(1, Math.round(percent / 20)) ? 1 : 0.25 }}
                 >
                   ⚡
                 </span>
               ))}
             </div>
             <div style={{ fontSize: m(24), color: "#666", marginTop: m(14) }}>
-              {page.lastIp} <span style={{ color: "#333" }}>103.178.187.116</span>
+              {page.lastIp} <span style={{ color: "#333" }}>{ov?.user?.lastLoginIp || "—"}</span>
             </div>
             <div style={{ fontSize: m(24), color: "#666", marginTop: m(6) }}>
-              {page.lastTime} <span style={{ color: "#333" }}>—</span>
+              {page.lastTime} <span style={{ color: "#333" }}>{fmtDateTime(ov?.user?.lastLoginAt)}</span>
             </div>
           </div>
         </div>
@@ -90,7 +124,7 @@ const SecuritySection = () => {
             padding: `${m(30)} ${m(10)}`,
           }}
         >
-          {page.warn}
+          {level === "high" ? "" : page.warn}
         </div>
 
         {/* করণীয়ের সারি */}
@@ -99,9 +133,7 @@ const SecuritySection = () => {
             <button
               key={row.key}
               type="button"
-              onClick={() => {
-                if (row.key === "logout") signOut();
-              }}
+              onClick={() => open(row.key)}
               className="flex w-full cursor-pointer items-center text-left"
               style={{
                 padding: `${m(26)} ${m(24)}`,
@@ -119,25 +151,25 @@ const SecuritySection = () => {
               <span style={{ flex: 1 }}>
                 <span className="flex items-center" style={{ gap: m(12) }}>
                   <span style={{ fontSize: m(32), color: "#222", fontWeight: 600 }}>
-                    {page.rows[row.key].title}
+                    {rowTitle(row.key)}
                   </span>
-                  {row.status && (
+                  {statusOf(row) && (
                     <span
                       className="grid place-items-center"
                       style={{
                         width: m(36),
                         height: m(36),
                         borderRadius: "50%",
-                        background: row.status === "ok" ? "#22c55e" : "#e60012",
+                        background: statusOf(row) === "ok" ? "#22c55e" : "#e60012",
                         color: "#fff",
                         fontSize: m(24),
                         fontWeight: 700,
                       }}
                     >
-                      {row.status === "ok" ? "✓" : "!"}
+                      {statusOf(row) === "ok" ? "✓" : "!"}
                     </span>
                   )}
-                  {row.status && (
+                  {statusOf(row) && (
                     <span style={{ color: "#b9b9c2", fontSize: m(28) }}>✎</span>
                   )}
                 </span>
@@ -145,11 +177,11 @@ const SecuritySection = () => {
                   className="block"
                   style={{ fontSize: m(24), color: "#999", marginTop: m(8), lineHeight: 1.4 }}
                 >
-                  {page.rows[row.key].desc}
+                  {rowDesc(row.key)}
                 </span>
               </span>
 
-              {row.status && (
+              {statusOf(row) && (
                 <span style={{ color: "#c8c8d0" }}>
                   <Icon name="common-arrow" size={m(34)} />
                 </span>
@@ -158,6 +190,7 @@ const SecuritySection = () => {
           ))}
         </div>
       </div>
+      {sheet && <ProfileSheet which={sheet} profile={profile} onClose={() => setSheet(null)} />}
     </MemberShell>
   );
 };

@@ -57,3 +57,6 @@ export const clearSession = () =>
       s.removeItem(USER_KEY);
     }),
   );
+
+/** এই লগইন "মনে রাখুন" দিয়ে (localStorage) কিনা — নতুন টোকেন একই জায়গায় রাখতে */
+export const isRemembered = () => safe(() => Boolean(window.localStorage.getItem(TOKEN_KEY)), false);
