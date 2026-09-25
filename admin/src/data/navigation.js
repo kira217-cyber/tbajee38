@@ -334,6 +334,7 @@ export const navItems = [
       { key: "app-download", path: "/app-download", label: "App Download", icon: "Smartphone", motherOnly: true },
       { key: "app-download-content", path: "/app-download-content", label: "App Download Content", icon: "Smartphone", motherOnly: true },
       { key: "notifications", path: "/notifications", label: "Inbox Messages", icon: "Bell", perm: "notifications" },
+      { key: "feedback", path: "/feedback", label: "Feedback", icon: "MessageSquareWarning", perm: "feedback" },
       { key: "otp-setting", path: "/otp-setting", label: "OTP Setting", icon: "MessageSquareLock", motherOnly: true },
       { key: "maintenance", path: "/maintenance", label: "Site Maintenance", icon: "Wrench", motherOnly: true },
     ],
@@ -377,6 +378,7 @@ export const allPermissions = [
   { key: "vip-history", label: "VIP History", path: "/vip-history" },
   { key: "referral-rewards", label: "Referral Rewards", path: "/referral-rewards" },
   { key: "notifications", label: "Inbox Messages", path: "/notifications" },
+  { key: "feedback", label: "Feedback", path: "/feedback" },
   {
     key: "aff-withdraw-requests",
     label: "Affiliate Withdraws",

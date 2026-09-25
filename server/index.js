@@ -33,6 +33,7 @@ import referralRoutes from "./routes/referralRoutes.js";
 import vipRoutes from "./routes/vipRoutes.js";
 import siteContentRoutes from "./routes/siteContentRoutes.js";
 import inboxRoutes from "./routes/inboxRoutes.js";
+import feedbackRoutes from "./routes/feedbackRoutes.js";
 import { startReferralPayouts } from "./utils/referral.js";
 
 dotenv.config();
@@ -127,6 +128,9 @@ app.use("/api/vip", vipRoutes);
 // হোমের ব্যানার/নোটিশ/প্রমোশন/পপআপ/গ্রাহক সেবা আর খেলোয়াড়ের ইনবক্স
 app.use("/api/site-content", siteContentRoutes);
 app.use("/api/inbox", inboxRoutes);
+
+// "অভিযোগ / পরামর্শ" — খেলোয়াড় পাঠান, admin উত্তর দেন (ইনবক্সে যায়)
+app.use("/api/feedback", feedbackRoutes);
 
 // ম্যানুয়াল ডিপোজিট — মেথড, ফর্মের ঘর, বোনাস-টার্নওভার, রিকোয়েস্ট, admin এর সরাসরি জমা
 app.use("/api/deposit-methods", depositMethodRoutes);

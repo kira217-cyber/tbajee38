@@ -34,6 +34,7 @@ import Notices from "../pages/SiteContent/Notices";
 import SitePromotions from "../pages/SiteContent/Promotions";
 import ContactLinks from "../pages/SiteContent/ContactLinks";
 import InboxMessages from "../pages/SiteContent/InboxMessages";
+import Feedback from "../pages/Feedback/Feedback";
 import Placeholder from "../pages/Placeholder/Placeholder";
 import NotFoundPage from "../pages/NotFoundPage/NotFoundPage";
 import { navItems } from "../data/navigation";
@@ -80,6 +81,7 @@ const REAL_PAGES = {
   "/promotions": <SitePromotions />,
   "/contact-links": <ContactLinks />,
   "/notifications": <InboxMessages />,
+  "/feedback": <Feedback />,
 };
 
 /** নেস্টেড তালিকাটা সমতল করে — গ্রুপের নামও সাথে রাখি */

@@ -366,6 +366,16 @@ export const locale = {
       "eWallet": "E wallet"
     },
 
+    feedbackFlow: {
+      types: { deposit: "আমানত", withdraw: "উত্তোলন", game: "খেলা", service: "গ্রাহক সেবা", agent: "এজেন্ট আবেদন", other: "অন্যান্য" },
+      sent: "পাঠানো হয়েছে",
+      sentHint: "উত্তর আসলে ইনবক্সে পাবেন",
+      tooBig: "ছবি ৮MB এর বেশি হতে পারবে না",
+      removeImage: "ছবি সরান",
+      newCaptcha: "নতুন কোড",
+      err: { captchaWrong: "যাচাই কোড সঠিক নয়", captchaExpired: "যাচাই কোডের মেয়াদ শেষ, নতুনটা দিন", tooMany: "অনেকবার পাঠিয়েছেন, কিছুক্ষণ পরে চেষ্টা করুন", tooShort: "আরেকটু বিস্তারিত লিখুন", badType: "সমস্যার ধরন বাছুন" },
+    },
+
     cardsPage: {
       "added": "ই-ওয়ালেট যোগ করা হয়েছে",
       "empty": "খালি ই-ওয়ালেট",
@@ -1203,6 +1213,16 @@ export const locale = {
         "rejected": "Rejected"
       },
       "eWallet": "E wallet"
+    },
+
+    feedbackFlow: {
+      types: { deposit: "Deposit", withdraw: "Withdraw", game: "Game", service: "Customer service", agent: "Agent application", other: "Other" },
+      sent: "Sent",
+      sentHint: "You will find the reply in your inbox",
+      tooBig: "Image must be under 8MB",
+      removeImage: "Remove image",
+      newCaptcha: "New code",
+      err: { captchaWrong: "Captcha is not correct", captchaExpired: "Captcha expired, enter the new one", tooMany: "Too many feedbacks, please try later", tooShort: "Please write a little more", badType: "Choose the problem type" },
     },
 
     cardsPage: {
