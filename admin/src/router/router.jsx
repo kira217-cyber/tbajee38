@@ -42,6 +42,17 @@ import HomeEvents from "../pages/SiteContent/HomeEvents";
 import AppDownload from "../pages/SiteContent/AppDownload";
 import AffWithdrawRequests from "../pages/AffWithdrawRequests/AffWithdrawRequests";
 import AffWithdrawMethods from "../pages/AffWithdrawMethods/AffWithdrawMethods";
+import IdentityPage from "../pages/SiteSettings/SiteIdentity";
+import FooterPage from "../pages/SiteSettings/FooterSetting";
+import AffiliateHomeContent from "../pages/Affiliate/AffiliateHomeContent";
+import AffiliateAuthPage from "../pages/Affiliate/AffiliateAuthPage";
+import { Handshake, UserRoundCheck } from "lucide-react";
+
+const AFF_FOOTER_FIELDS = [
+  { key: "description", label: "Description / CTA", textarea: true, rows: 3 },
+  { key: "copyright", label: "Copyright" },
+  { key: "ageNotice", label: "Age notice" },
+];
 import Feedback from "../pages/Feedback/Feedback";
 import Placeholder from "../pages/Placeholder/Placeholder";
 import NotFoundPage from "../pages/NotFoundPage/NotFoundPage";
@@ -97,6 +108,12 @@ const REAL_PAGES = {
   "/app-download": <AppDownload />,
   "/aff-withdraw-requests": <AffWithdrawRequests />,
   "/aff-withdraw-methods": <AffWithdrawMethods />,
+  "/aff-identity": <IdentityPage title="Affiliate Identity" subtitle="Affiliate site name, logo and favicon." endpoint="aff-identify" Icon={UserRoundCheck} />,
+  "/aff-footer": <FooterPage title="Affiliate Footer" subtitle="Affiliate footer logo, description and copyright." endpoint="aff-footer" logoKey="logo" fields={AFF_FOOTER_FIELDS} Icon={Handshake} />,
+  "/affiliate-home-content": <AffiliateHomeContent />,
+  "/affiliate-login-page": <AffiliateAuthPage page="login" title="Affiliate Login Page" />,
+  "/affiliate-register-page": <AffiliateAuthPage page="register" title="Affiliate Register Page" />,
+  "/affiliate-forgot-page": <AffiliateAuthPage page="forgot" title="Affiliate Forgot Password Page" />,
   "/app-download-content": <AppDownload />,
   "/feedback": <Feedback />,
 };

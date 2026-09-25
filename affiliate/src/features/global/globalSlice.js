@@ -32,11 +32,13 @@ export const fetchAffiliateData = createAsyncThunk(
       const { identify, footer } = res?.data?.data || {};
 
       if (identify) {
+        // admin যা বসাননি সেটা স্ট্যাটিক থেকেই — নইলে খালি ঘর লোগো মুছে দিত
+        const own = affiliateData.siteIdentify;
         base.siteIdentify = {
-          siteName: identify.siteName || "",
-          logo: identify.logo ? img(identify.logo) : "",
-          brandLogo: identify.brandLogo ? img(identify.brandLogo) : "",
-          favicon: identify.favicon ? img(identify.favicon) : "",
+          siteName: identify.siteName || own.siteName,
+          logo: identify.logo ? img(identify.logo) : own.logo,
+          brandLogo: identify.brandLogo ? img(identify.brandLogo) : own.brandLogo,
+          favicon: identify.favicon ? img(identify.favicon) : own.favicon,
         };
       }
 

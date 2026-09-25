@@ -10,7 +10,6 @@ import { store } from "./app/store";
 import { routes } from "./router/router";
 import { LanguageProvider } from "./Context/LanguageProvider";
 import { rehydrateAuth } from "./features/auth/authSlice";
-import ThemeApplier from "./components/ThemeApplier/ThemeApplier";
 
 const queryClient = new QueryClient();
 
@@ -30,7 +29,6 @@ createRoot(document.getElementById("root")).render(
       <QueryClientProvider client={queryClient}>
         <LanguageProvider>
           <BootstrapAuth>
-            <ThemeApplier />
             <RouterProvider router={routes} />
 
           </BootstrapAuth>

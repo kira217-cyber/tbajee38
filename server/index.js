@@ -39,6 +39,9 @@ import helpRoutes from "./routes/helpRoutes.js";
 import appRoutes from "./routes/appRoutes.js";
 import affiliateRoutes from "./routes/affiliateRoutes.js";
 import affWithdrawRoutes from "./routes/affWithdrawRoutes.js";
+import affSiteSettingsRoutes from "./routes/affSiteSettingsRoutes.js";
+import affiliateHomeRoutes from "./routes/affiliateHomeRoutes.js";
+import affiliateAuthRoutes from "./routes/affiliateAuthRoutes.js";
 import { startReferralPayouts } from "./utils/referral.js";
 
 dotenv.config();
@@ -141,6 +144,9 @@ app.use("/api/help", helpRoutes);
 app.use("/api/app", appRoutes);
 app.use("/api/affiliate", affiliateRoutes);
 app.use("/api/aff-withdraw", affWithdrawRoutes);
+app.use("/api/site-settings", affSiteSettingsRoutes);
+app.use("/api/affiliate-home", affiliateHomeRoutes);
+app.use("/api/affiliate-auth", affiliateAuthRoutes);
 
 // ম্যানুয়াল ডিপোজিট — মেথড, ফর্মের ঘর, বোনাস-টার্নওভার, রিকোয়েস্ট, admin এর সরাসরি জমা
 app.use("/api/deposit-methods", depositMethodRoutes);
