@@ -80,3 +80,45 @@ export const SiteBanner = mongoose.models.SiteBanner || mongoose.model("SiteBann
 export const SiteNotice = mongoose.models.SiteNotice || mongoose.model("SiteNotice", noticeSchema);
 export const Promotion = mongoose.models.Promotion || mongoose.model("Promotion", promotionSchema);
 export const SitePopup = mongoose.models.SitePopup || mongoose.model("SitePopup", popupSchema);
+
+/**
+ * হোমের ভাসমান ইভেন্ট আইকন — মূল সাইটের `.entry-count-wrap` (ডান-নিচে
+ * LOGIN / TEMU / RAFFLE এর চলন্ত ছবি, তীরে চাপলে সব একসাথে খোলে)।
+ *
+ * `kind` ঠিক করে চাপলে কোথায় যাবে; টিকিটের ধরন (`temu`, `redPacket`,
+ * `wheel`) হলে `onlyWithTicket` দিলে শুধু সেই টিকিট থাকলেই দেখায়।
+ * `image` ফাঁকা থাকলে ধরনের নিজের ছবি (মূল সাইটের)।
+ */
+export const HOME_EVENT_KINDS = ["signin", "claim", "temu", "redPacket", "wheel", "referral", "promotion", "link"];
+
+const homeEventSchema = new mongoose.Schema(
+  {
+    kind: { type: String, enum: HOME_EVENT_KINDS, required: true },
+    title: { bn: { type: String, default: "", trim: true }, en: { type: String, default: "", trim: true } },
+    image: { type: String, default: "" },
+    link: { type: String, default: "" },
+    platform: { type: String, enum: ["all", "desktop", "mobile"], default: "all" },
+    onlyWithTicket: { type: Boolean, default: false },
+    isActive: { type: Boolean, default: true },
+    order: { type: Number, default: 0 },
+  },
+  { timestamps: true },
+);
+
+/** ভাসমান অংশের নিজের নিয়ম — একটাই ডকুমেন্ট */
+const homeEventSettingSchema = new mongoose.Schema(
+  {
+    key: { type: String, default: "main", unique: true },
+    enabled: { type: Boolean, default: true },
+    position: { type: String, enum: ["RIGHT_BOTTOM", "RIGHT_MIDDLE", "LEFT_BOTTOM", "LEFT_MIDDLE"], default: "RIGHT_BOTTOM" },
+    direction: { type: String, enum: ["vertical", "horizontal"], default: "vertical" },
+    /** বন্ধ অবস্থায় কত সেকেন্ড পরপর পরের ছবি */
+    interval: { type: Number, default: 3, min: 1, max: 30 },
+    /** লগইন না করা দর্শকেও দেখাবে কিনা (চাপলে লগইন খোলে) */
+    showGuests: { type: Boolean, default: false },
+  },
+  { timestamps: true },
+);
+
+export const HomeEvent = mongoose.models.HomeEvent || mongoose.model("HomeEvent", homeEventSchema);
+export const HomeEventSetting = mongoose.models.HomeEventSetting || mongoose.model("HomeEventSetting", homeEventSettingSchema);

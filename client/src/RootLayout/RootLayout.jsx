@@ -10,6 +10,7 @@ import DownloadBar from "../components/DownloadBar/DownloadBar";
 import AuthModal from "../components/AuthModal/AuthModal";
 import MemberModal from "../components/MemberModal/MemberModal";
 import NoticeModal from "../components/NoticeModal/NoticeModal";
+import HomeEvents from "../components/HomeEvents/HomeEvents";
 import { SpriteLoader } from "../components/Icon/Icon";
 import AppDownloadModal from "../components/AppDownloadModal/AppDownloadModal";
 import { UIContext } from "../Context/uiContext";
@@ -293,6 +294,9 @@ const RootLayout = () => {
         )}
 
         {downloadOpen && <AppDownloadModal onClose={() => setDownloadOpen(false)} />}
+
+        {/* ভাসমান ইভেন্ট আইকন (admin এর "Home Events") — খেলার পাতায় নয় */}
+        {!isGameCenter && <HomeEvents />}
 
       </div>
     </UIContext.Provider>

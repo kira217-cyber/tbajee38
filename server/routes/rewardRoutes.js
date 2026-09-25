@@ -51,11 +51,14 @@ const fail = (res, result) => errorResponse(res, result.code, 400, result.code);
 router.get("/summary", protectUser, async (req, res) => {
   try {
     await expireTickets(req.user._id);
-    const [available, sign] = await Promise.all([
-      RewardTicket.countDocuments({ user: req.user._id, status: "available" }),
+    const [byKind, sign] = await Promise.all([
+      RewardTicket.aggregate([{ $match: { user: req.user._id, status: "available" } }, { $group: { _id: "$kind", n: { $sum: 1 } } }]),
       signInState(req.user._id),
     ]);
-    return successResponse(res, "Reward summary", { available, claimedToday: sign.claimedToday, signInEnabled: sign.enabled });
+    const kinds = Object.fromEntries(byKind.map((k) => [k._id, k.n]));
+    const available = byKind.reduce((sum, k) => sum + k.n, 0);
+    // kinds — হোমের ভাসমান আইকনের "টিকিট থাকলেই দেখাও" এর জন্য
+    return successResponse(res, "Reward summary", { available, kinds, claimedToday: sign.claimedToday, signInEnabled: sign.enabled });
   } catch (error) {
     return errorResponse(res, error.message, 500);
   }

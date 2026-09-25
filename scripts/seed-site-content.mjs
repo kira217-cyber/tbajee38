@@ -111,3 +111,14 @@ if (await empty("popups")) {
   for (const p of MOBILE_POPUPS) await call("POST", "/admin/popups", form({ title: { bn: p.bn, en: p.en }, platform: "mobile", link: p.link }, { image: p.image }));
   console.log("popups:", popups.length, "desktop +", MOBILE_POPUPS.length, "mobile");
 } else console.log("popups: already there, skipped");
+
+// হোমের ভাসমান ইভেন্ট আইকন — মূল সাইটের LOGIN / TEMU / RAFFLE; ছবি ফাঁকা মানে ধরনের নিজের ছবি
+if (await empty("events")) {
+  const EVENTS = [
+    { kind: "signin", title: { bn: "সাইন ইন", en: "Sign in" }, onlyWithTicket: false },
+    { kind: "temu", title: { bn: "টেমু টিকিট", en: "TEMU ticket" }, onlyWithTicket: true },
+    { kind: "redPacket", title: { bn: "লাল প্যাকেট", en: "Red packet" }, onlyWithTicket: true },
+  ];
+  for (const e of EVENTS) await call("POST", "/admin/events", form({ ...e, platform: "all" }, {}));
+  console.log("events:", EVENTS.length);
+} else console.log("events: already there, skipped");

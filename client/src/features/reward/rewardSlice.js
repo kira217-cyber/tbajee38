@@ -14,20 +14,23 @@ export const fetchRewardSummary = createAsyncThunk("reward/summary", async () =>
 
 const rewardSlice = createSlice({
   name: "reward",
-  initialState: { available: 0, claimedToday: false },
+  initialState: { available: 0, kinds: {}, claimedToday: false },
   reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchRewardSummary.fulfilled, (state, action) => {
         state.available = Number(action.payload.available) || 0;
+        state.kinds = action.payload.kinds || {};
         state.claimedToday = Boolean(action.payload.claimedToday);
       })
       .addCase(logout, (state) => {
         state.available = 0;
+        state.kinds = {};
         state.claimedToday = false;
       });
   },
 });
 
 export const selectRewardAvailable = (state) => state.reward.available;
+export const selectRewardKinds = (state) => state.reward.kinds;
 export default rewardSlice.reducer;

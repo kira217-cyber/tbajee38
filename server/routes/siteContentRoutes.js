@@ -4,7 +4,7 @@ import express from "express";
 import mongoose from "mongoose";
 
 import upload from "../config/multer.js";
-import { Promotion, SiteBanner, SiteNotice, SitePopup } from "../models/SiteContent.js";
+import { HOME_EVENT_KINDS, HomeEvent, HomeEventSetting, Promotion, SiteBanner, SiteNotice, SitePopup } from "../models/SiteContent.js";
 import ContactSetting from "../models/ContactSetting.js";
 import { protectAdmin, requireMother, requireWrite } from "../middleware/protectAdmin.js";
 import { successResponse, errorResponse } from "../utils/response.js";
@@ -58,12 +58,16 @@ const forget = () => {
   cache = { value: null, at: 0 };
 };
 
+/** ভাসমান ইভেন্টের নিয়ম — না থাকলে মূল সাইটের মতো ডিফল্ট দিয়ে তৈরি */
+const eventSettingOf = () =>
+  HomeEventSetting.findOneAndUpdate({ key: "main" }, { $setOnInsert: { key: "main" } }, { upsert: true, returnDocument: "after", setDefaultsOnInsert: true, lean: true });
+
 const loadPublic = async () => {
   if (cache.value && Date.now() - cache.at < 30000) return cache.value;
   const now = new Date();
   const live = { isActive: true };
   const sort = { order: 1, createdAt: 1 };
-  const [banners, notices, promotions, popups, contact] = await Promise.all([
+  const [banners, notices, promotions, popups, contact, events, eventSetting] = await Promise.all([
     SiteBanner.find(live).sort(sort).select("title image platform link").lean(),
     SiteNotice.find(live).sort(sort).select("text").lean(),
     Promotion.find({
@@ -78,8 +82,18 @@ const loadPublic = async () => {
       .lean(),
     SitePopup.find(live).sort(sort).select("title image platform link").lean(),
     ContactSetting.current(),
+    HomeEvent.find(live).sort(sort).select("kind title image link platform onlyWithTicket").lean(),
+    eventSettingOf(),
   ]);
-  const value = { banners, notices, promotions, popups, contact: contact.toPublic() };
+  const value = {
+    banners,
+    notices,
+    promotions,
+    popups,
+    contact: contact.toPublic(),
+    events: eventSetting.enabled ? events : [],
+    eventSetting: { position: eventSetting.position, direction: eventSetting.direction, interval: eventSetting.interval, showGuests: eventSetting.showGuests },
+  };
   cache = { value, at: Date.now() };
   return value;
 };
@@ -235,6 +249,66 @@ crud({
     return out;
   },
   images: (doc) => [doc.image],
+});
+
+crud({
+  name: "events",
+  Model: HomeEvent,
+  uploader: upload.single("image"),
+  build: (body, files, current) => {
+    const out = {};
+    const file = files.image?.[0];
+    if (file) out.image = fileUrl(file);
+    else if (body.clearImage === "true") out.image = "";
+    if (body.kind !== undefined || !current) {
+      if (!HOME_EVENT_KINDS.includes(body.kind)) return { error: "Choose what the icon opens" };
+      out.kind = body.kind;
+    }
+    if (body.title !== undefined) out.title = lang(parse(body.title), 60);
+    if (body.link !== undefined) {
+      const link = cleanLink(body.link);
+      if (link === null) return { error: "Link must be a promotion number or an http(s) address" };
+      out.link = link;
+    }
+    const kind = out.kind || current?.kind;
+    if ((kind === "link" || kind === "promotion") && !(out.link ?? current?.link)) return { error: "This icon needs a link" };
+    if (body.platform !== undefined) out.platform = ["desktop", "mobile"].includes(body.platform) ? body.platform : "all";
+    if (body.onlyWithTicket !== undefined) out.onlyWithTicket = bool(body.onlyWithTicket, false);
+    if (body.isActive !== undefined) out.isActive = bool(body.isActive, true);
+    return out;
+  },
+  images: (doc) => [doc.image],
+});
+
+router.get("/admin/event-setting", ...guard, async (req, res) => {
+  try {
+    return successResponse(res, "Event setting", { setting: await eventSettingOf() });
+  } catch (error) {
+    return errorResponse(res, error.message, 500);
+  }
+});
+
+router.put("/admin/event-setting", ...writeGuard, async (req, res) => {
+  try {
+    const b = req.body || {};
+    const setting = await HomeEventSetting.findOneAndUpdate(
+      { key: "main" },
+      {
+        $set: {
+          enabled: b.enabled !== false,
+          position: ["RIGHT_BOTTOM", "RIGHT_MIDDLE", "LEFT_BOTTOM", "LEFT_MIDDLE"].includes(b.position) ? b.position : "RIGHT_BOTTOM",
+          direction: b.direction === "horizontal" ? "horizontal" : "vertical",
+          interval: Math.min(30, Math.max(1, num(b.interval) || 3)),
+          showGuests: Boolean(b.showGuests),
+        },
+      },
+      { upsert: true, returnDocument: "after", setDefaultsOnInsert: true },
+    );
+    forget();
+    return successResponse(res, "Saved", { setting });
+  } catch (error) {
+    return errorResponse(res, error.message, 500);
+  }
 });
 
 crud({

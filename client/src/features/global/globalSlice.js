@@ -30,6 +30,9 @@ const shape = (d) => ({
     content: both(p.content),
   })),
   popups: d.popups.map((p) => ({ id: p._id, title: both(p.title).bn, titleEn: both(p.title).en, image: assetUrl(p.image), link: p.link || "" })),
+  // হোমের ভাসমান ইভেন্ট আইকন (admin এর "Home Events")
+  events: (d.events || []).map((e) => ({ id: e._id, kind: e.kind, title: both(e.title), image: e.image ? assetUrl(e.image) : "", link: e.link || "", platform: e.platform || "all", onlyWithTicket: Boolean(e.onlyWithTicket) })),
+  eventSetting: d.eventSetting || null,
 });
 
 export const fetchGlobalClientData = createAsyncThunk("global/fetchGlobalClientData", async (platform = "desktop") => {
@@ -47,6 +50,8 @@ const initialState = {
   notices: [],
   promotions: [],
   popups: [],
+  events: [],
+  eventSetting: null,
   platform: "",
   loading: false,
   loaded: false,
