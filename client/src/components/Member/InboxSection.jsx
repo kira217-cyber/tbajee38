@@ -26,6 +26,26 @@ const Trash = ({ size = 16 }) => (
 const pick = (value, lang) => (lang === "en" && value?.en) || value?.bn || value?.en || "";
 
 /* ─────────────────── ডেস্কটপ (মডালের ভিতরে) ─────────────────── */
+/** মূল সাইটের চেকবক্স — ২০ এর সাদা গোলচে বাক্স, বাছলে লাল টিক */
+const Box = ({ on }) => (
+  <span className="grid shrink-0 place-items-center" style={{ width: 20, height: 20, borderRadius: 4, border: `1px solid ${on ? "#fd2f2f" : "#dcdde2"}`, background: on ? "#fd2f2f" : "#fff" }}>
+    {on && (
+      <svg viewBox="0 0 10 8" style={{ width: 10, height: 8 }} aria-hidden="true">
+        <path d="M1 4l3 3 5-6" fill="none" stroke="#fff" strokeWidth="1.8" />
+      </svg>
+    )}
+  </span>
+);
+
+/** খামের উপর টিক — "সব পড়া হয়েছে" */
+const MailRead = () => (
+  <svg viewBox="0 0 24 20" style={{ width: 22, height: 18 }} aria-hidden="true">
+    <path d="M2 2h18v8.5a6 6 0 0 0-8 6.5H2z" fill="currentColor" />
+    <path d="M2 2l9 7 9-7" fill="none" stroke="#eef0f4" strokeWidth="1.6" />
+    <path d="M14 16l2.5 2.5L22 13" fill="none" stroke="currentColor" strokeWidth="2" />
+  </svg>
+);
+
 const Desktop = () => {
   const { t, lang } = useLanguage();
   const page = t.member.desk.inbox;
@@ -53,38 +73,43 @@ const Desktop = () => {
 
   return (
     <div className="flex flex-col" style={{ width: 1110, height: 620, background: "#fff" }}>
-      <div className="flex items-center" style={{ height: 52, borderBottom: "1px solid #eee", padding: "0 56px 0 20px" }}>
-        <span className="relative h-full" style={{ display: "grid", placeItems: "center", padding: "0 18px", fontSize: 14, color: "#e8474c" }}>
+      {/* মূল সাইটের মতো — লেখা গাঢ়, শুধু দাগটা লাল */}
+      <div className="flex items-center" style={{ height: 47, padding: "0 60px 0 30px" }}>
+        <span className="relative h-full" style={{ display: "grid", placeItems: "center", padding: "0 12px", fontSize: 14, color: "#333" }}>
           {page.inbox}
-          <span className="absolute bottom-0 left-1/2 -translate-x-1/2" style={{ width: "70%", height: 2, background: "#e8474c" }} />
+          <span className="absolute bottom-0 left-0 right-0" style={{ height: 2, background: "#fd2f2f" }} />
         </span>
       </div>
 
       <div className="flex" style={{ flex: 1, minHeight: 0 }}>
         {/* বাঁ — বার্তার তালিকা */}
-        <div className="flex flex-col" style={{ width: 450, background: "#f5f5f5", borderRight: "1px solid #eee" }}>
-          <div className="flex items-center" style={{ height: 42, background: "#fff", padding: "0 14px", gap: 12, fontSize: 13, color: "#555" }}>
-            <label className="flex cursor-pointer items-center" style={{ gap: 8 }}>
-              <input type="checkbox" checked={allChecked} onChange={() => setSelected(allChecked ? [] : inbox.messages.map((msg) => msg._id))} style={{ width: 14, height: 14 }} />
+        <div className="relative flex flex-col" style={{ width: 452, background: "#f4f5f9", boxShadow: "2px 0 6px rgba(0,0,0,.06)", zIndex: 1 }}>
+          {/* ধূসর টুলবার — সব নির্বাচন | মুছুন, সব পড়া | সময় অনুযায়ী সাজান */}
+          <div className="flex items-center" style={{ height: 39, background: "#eef0f4", padding: "0 30px", gap: 14, fontSize: 14, color: "#888", boxShadow: "0 1px 3px rgba(0,0,0,.06)" }}>
+            <label className="flex cursor-pointer items-center" style={{ gap: 16 }}>
+              <input type="checkbox" className="hidden" checked={allChecked} onChange={() => setSelected(allChecked ? [] : inbox.messages.map((msg) => msg._id))} />
+              <Box on={allChecked} />
               {page.selectAll}
             </label>
-            <span className="flex-1" />
-            <button type="button" title={f.markAllRead} onClick={inbox.markAllRead} className="cursor-pointer" style={{ color: "#999" }}>
-              <Icon name="mailcen" size={16} />
+            <span style={{ width: 1, height: 20, background: "#dcdde2" }} />
+            <button type="button" title={f.delete} onClick={removeSelected} disabled={!selected.length} className="cursor-pointer" style={{ color: selected.length ? "#fd2f2f" : "#666" }}>
+              <Trash size={20} />
             </button>
-            <button type="button" title={f.delete} onClick={removeSelected} disabled={!selected.length} className="cursor-pointer" style={{ color: selected.length ? "#e8474c" : "#ccc" }}>
-              <Trash size={16} />
+            <button type="button" title={f.markAllRead} onClick={inbox.markAllRead} className="cursor-pointer" style={{ color: "#666" }}>
+              <MailRead />
             </button>
-            <button type="button" onClick={() => inbox.setSort(inbox.sort === "desc" ? "asc" : "desc")} className="flex cursor-pointer items-center" style={{ gap: 6 }}>
-              {inbox.sort === "desc" ? f.newest : f.oldest}
-              <Icon name="arrow-down" size={12} />
+            <button type="button" onClick={() => inbox.setSort(inbox.sort === "desc" ? "asc" : "desc")} className="flex cursor-pointer items-center" style={{ gap: 8, fontSize: 13, color: "#666", marginLeft: 12 }}>
+              {f.sortByTime}
+              <span className="grid place-items-center" style={{ width: 16, height: 16, borderRadius: "50%", background: "#d8d9de", transform: inbox.sort === "asc" ? "rotate(180deg)" : "none" }}>
+                <svg viewBox="0 0 10 6" style={{ width: 8, height: 5 }} aria-hidden="true">
+                  <path d="M1 1l4 4 4-4" fill="none" stroke="#555" strokeWidth="1.5" />
+                </svg>
+              </span>
             </button>
           </div>
 
           <div className="hide-scrollbar" style={{ flex: 1, overflowY: "auto" }}>
-            {inbox.loaded && inbox.messages.length === 0 ? (
-              <div className="text-center" style={{ padding: "80px 0", color: "#aaa", fontSize: 13 }}>{f.empty}</div>
-            ) : (
+            {inbox.loaded && inbox.messages.length === 0 ? null : (
               inbox.messages.map((msg) => (
                 <div
                   key={msg._id}
@@ -92,9 +117,19 @@ const Desktop = () => {
                   tabIndex={0}
                   onClick={() => show(msg)}
                   className="flex cursor-pointer items-start"
-                  style={{ padding: "12px 14px", gap: 10, borderBottom: "1px solid #ececec", background: msg._id === openId ? "#fff" : "transparent" }}
+                  style={{ padding: "12px 30px", gap: 14, borderBottom: "1px solid #e8e9ee", background: msg._id === openId ? "#fff" : "transparent" }}
                 >
-                  <input type="checkbox" checked={selected.includes(msg._id)} onClick={(e) => e.stopPropagation()} onChange={() => toggle(msg._id)} style={{ width: 14, height: 14, marginTop: 3 }} />
+                  <span
+                    role="checkbox"
+                    aria-checked={selected.includes(msg._id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggle(msg._id);
+                    }}
+                    style={{ marginTop: 1 }}
+                  >
+                    <Box on={selected.includes(msg._id)} />
+                  </span>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center" style={{ gap: 6 }}>
                       {!msg.read && <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#e8474c", flexShrink: 0 }} />}
@@ -106,6 +141,14 @@ const Desktop = () => {
                 </div>
               ))
             )}
+          </div>
+
+          {/* নিচের বার — মুছুন */}
+          <div className="flex items-center" style={{ height: 48, background: "#fff", borderTop: "1px solid #eee", padding: "0 30px", gap: 16 }}>
+            <button type="button" title={f.delete} onClick={removeSelected} disabled={!selected.length} className="cursor-pointer" style={{ color: selected.length ? "#fd2f2f" : "#666" }}>
+              <Trash size={20} />
+            </button>
+            <span style={{ width: 1, height: 20, background: "#e5e5e5" }} />
           </div>
         </div>
 

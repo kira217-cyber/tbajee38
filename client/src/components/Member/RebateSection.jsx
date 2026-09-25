@@ -83,26 +83,32 @@ const History = ({ u }) => {
 
 /* ─────────────────── ডেস্কটপ (মডালের ভিতরে) ─────────────────── */
 const Desktop = () => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const page = t.member.desk.rebate;
   const rb = t.rebateFlow;
   const [tab, setTab] = useState(0);
   const { data, loading, busy, load, claim, canClaim } = useRebate();
   const u = (desk) => `${desk}px`;
+  // মূল সাইটের মতো শুধু আজকের তারিখ, বাংলায় বাংলা অঙ্কে
+  const today = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  const ymd = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
+  const bnNum = (text) => (lang === "bn" ? String(text).replace(/[0-9]/g, (d) => "০১২৩৪৫৬৭৮৯"[d]) : text);
 
   const rows = [
-    { key: "date", label: `${rb.date}:`, value: windowText(data) },
-    ...REBATE_KINDS.map((k) => ({ key: k, label: `${rb.kinds[k]}:`, value: Number(data?.totals?.[k] || 0).toFixed(2), rate: data?.rates?.[k] })),
+    { key: "date", label: `${rb.date}:`, value: bnNum(ymd) },
+    ...REBATE_KINDS.map((k) => ({ key: k, label: `${rb.kinds[k]}:`, value: Number(data?.totals?.[k] || 0).toFixed(2) })),
     { key: "total", label: `${rb.total}:`, value: Number(data?.totals?.total || 0).toFixed(2) },
   ];
 
   return (
     <div className="flex flex-col" style={{ width: 1110, height: 620, background: "#fff" }}>
-      <div className="flex items-center" style={{ height: 52, borderBottom: "1px solid #eee", padding: "0 56px 0 20px" }}>
+      {/* মূল সাইটের `.tab-nav` — ৪৭ উঁচু, বাঁয়ে ৩০ */}
+      <div className="flex items-center" style={{ height: 47, borderBottom: "1px solid #eee", padding: "0 60px 0 30px", gap: 20 }}>
         {page.tabs.map((item, index) => (
-          <button key={item} type="button" onClick={() => setTab(index)} className="relative h-full cursor-pointer" style={{ padding: "0 18px", fontSize: 14, color: index === tab ? "#e8474c" : "#666" }}>
+          <button key={item} type="button" onClick={() => setTab(index)} className="relative h-full cursor-pointer" style={{ padding: "0 10px", fontSize: 14, color: index === tab ? "#fd2f2f" : "#666" }}>
             {item}
-            {index === tab && <span className="absolute bottom-0 left-1/2 -translate-x-1/2" style={{ width: "70%", height: 2, background: "#e8474c" }} />}
+            {index === tab && <span className="absolute bottom-0 left-0 right-0" style={{ height: 3, background: "#fd2f2f" }} />}
           </button>
         ))}
       </div>
@@ -112,30 +118,25 @@ const Desktop = () => {
           <History u={u} />
         </div>
       ) : (
-        <div style={{ flex: 1, padding: "18px 20px", overflowY: "auto" }}>
+        <div style={{ flex: 1, padding: "16px 34px", overflowY: "auto" }}>
           {rows.map((row) => (
-            <div key={row.key} className="flex items-center" style={{ marginBottom: 8, gap: 14 }}>
-              <span style={{ width: 90, textAlign: "left", fontSize: 13, color: "#555" }}>{row.label}</span>
-              <span className="flex items-center" style={{ width: row.key === "date" ? 240 : 188, height: 30, background: "#f5f5f5", border: "1px solid #eee", borderRadius: 4, padding: "0 10px", fontSize: 13, color: row.key === "total" && Number(row.value) > 0 ? "#e8474c" : "#666" }}>
+            <div key={row.key} className="flex items-center" style={{ marginBottom: 4 }}>
+              <span style={{ width: 90, fontSize: 14, color: "#666" }}>{row.label}</span>
+              <span
+                className="flex items-center"
+                style={{ width: 190, height: 34, background: "#f7f7f7", border: "1px solid #eee", borderRadius: 5, padding: "0 5px", fontSize: 12, color: row.key === "total" && Number(row.value) > 0 ? "#fd2f2f" : "#b5b5b5" }}
+              >
                 {row.value}
               </span>
-              {row.rate !== undefined ? <span style={{ fontSize: 12, color: "#aaa" }}>{row.rate}%</span> : null}
             </div>
           ))}
-          {data ? (
-            <div style={{ marginTop: 14, fontSize: 12, color: "#999", lineHeight: 1.6 }}>
-              {rb.level}: <b style={{ color: "#c8a15a" }}>{data.level?.name || "VIP0"}</b>
-              <br />
-              {rb.rateNote.replace("{d}", data.maxDays ?? 7)}
-              {!data.enabled ? <div style={{ color: "#e8474c" }}>{rb.err.rebateOff}</div> : null}
-            </div>
-          ) : null}
+          {data && !data.enabled ? <div style={{ marginTop: 12, fontSize: 12, color: "#fd2f2f" }}>{rb.err.rebateOff}</div> : null}
         </div>
       )}
 
       {tab === 0 ? (
-        <div className="flex items-center" style={{ height: 60, borderTop: "1px solid #eee", padding: "0 20px", gap: 12 }}>
-          <button type="button" onClick={load} disabled={loading} className="cursor-pointer" style={{ height: 32, padding: "0 22px", borderRadius: 16, border: "1px solid #ddd", background: "#fff", color: "#555", fontSize: 13 }}>
+        <div className="flex items-center" style={{ height: 48, borderTop: "1px solid #eee", margin: "0 0 0 34px", padding: "0 30px", gap: 10 }}>
+          <button type="button" onClick={load} disabled={loading} className="cursor-pointer" style={{ width: 98, height: 34, borderRadius: 17, background: "#fff", boxShadow: "0 2px 8px rgba(0,0,0,.15)", color: "#555", fontSize: 14 }}>
             {loading ? "…" : rb.refresh}
           </button>
           <button
@@ -143,13 +144,11 @@ const Desktop = () => {
             onClick={claim}
             disabled={!canClaim || busy}
             className={canClaim ? "cursor-pointer" : ""}
-            style={{ height: 32, padding: "0 22px", borderRadius: 16, background: canClaim ? "#e8474c" : "#e2e2e8", color: "#fff", fontSize: 13 }}
+            style={{ width: 98, height: 34, borderRadius: 17, background: canClaim ? "#fd2f2f" : "#d9d9d9", color: "#fff", fontSize: 14, fontWeight: 700 }}
           >
             {rb.claim}
           </button>
-          {data && !canClaim && data.totals?.total > 0 ? (
-            <span style={{ fontSize: 12, color: "#999" }}>{rb.err.rebateTooLow.replace("{n}", data.minClaim)}</span>
-          ) : null}
+          {data && !canClaim && data.totals?.total > 0 ? <span style={{ fontSize: 12, color: "#999" }}>{rb.err.rebateTooLow.replace("{n}", data.minClaim)}</span> : null}
         </div>
       ) : null}
     </div>

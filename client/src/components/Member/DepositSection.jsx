@@ -8,6 +8,7 @@ import { useLanguage } from "../../Context/LanguageProvider";
 import { m } from "../../hook/useUnits";
 import MemberShell from "./MemberShell";
 import { assetUrl, useDepositFlow } from "../../features/deposit/useDepositFlow";
+import { useUI } from "../../Context/uiContext";
 
 /**
  * ম্যানুয়াল ডিপোজিট — মূল সাইটের নকশায়, BetChokkor এর কাজে।
@@ -62,11 +63,12 @@ const DeskChip = ({ active, onClick, children, width }) => (
     className="cursor-pointer"
     style={{
       width,
-      height: 40,
-      padding: width ? 0 : "0 18px",
-      borderRadius: 4,
-      border: `1px solid ${active ? DRED : "#ddd"}`,
-      color: active ? DRED : "#666",
+      minWidth: 116,
+      height: 48,
+      padding: width ? 0 : "0 25px",
+      borderRadius: 6,
+      border: `1px solid ${active ? DRED : "#eee"}`,
+      color: active ? "#646464" : "#8f8f8f",
       fontSize: 14,
       background: "#fff",
     }}
@@ -76,14 +78,15 @@ const DeskChip = ({ active, onClick, children, width }) => (
 );
 
 const DeskRow = ({ label, children, wide }) => (
-  <div className="flex items-start" style={{ gap: 14, marginBottom: 18 }}>
-    <span style={{ width: wide ? 190 : 96, flexShrink: 0, fontSize: 14, color: "#333", lineHeight: wide ? "20px" : "40px", paddingTop: wide ? 10 : 0 }}>{label}</span>
+  <div className="flex items-start" style={{ marginBottom: 18 }}>
+    <span style={{ width: wide ? 190 : 100, flexShrink: 0, fontSize: 14, color: "#222", lineHeight: wide ? "20px" : "38px", paddingTop: wide ? 10 : 0 }}>{label}</span>
     <div className="min-w-0 flex-1">{children}</div>
   </div>
 );
 
 const Desktop = () => {
   const { t } = useLanguage();
+  const { openMember } = useUI();
   const d = t.depositFlow;
   const f = useDepositFlow();
 
@@ -102,7 +105,7 @@ const Desktop = () => {
             type="button"
             disabled={payStep}
             onClick={() => f.chooseMethod(item.methodId)}
-            className="flex w-full cursor-pointer items-center"
+            className="relative flex w-full cursor-pointer items-center"
             style={{
               width: 205,
               height: 68,
@@ -119,18 +122,49 @@ const Desktop = () => {
           >
             <MethodLogo method={item} size={38} radius={6} />
             <span className="truncate">{f.tv(item.methodName)}</span>
+            {/* মূল সাইটের মতো বেছে নেওয়া কার্ডের ডান-নিচে লাল টিক */}
+            {item.methodId === f.methodId && (
+              <span className="absolute" style={{ right: 0, bottom: 0, width: 20, height: 20, background: `linear-gradient(135deg, transparent 50%, ${DRED} 50%)`, borderBottomRightRadius: 5 }}>
+                <svg viewBox="0 0 10 8" className="absolute" style={{ right: 2, bottom: 3, width: 8, height: 6 }} aria-hidden="true">
+                  <path d="M1 4l3 3 5-6" fill="none" stroke="#fff" strokeWidth="1.6" />
+                </svg>
+              </span>
+            )}
           </button>
         ))}
       </div>
 
       {/* ডানের ফর্ম */}
       <div className="flex flex-col" style={{ width: 855, height: 620, background: "#fff" }}>
-        <div className="flex items-center" style={{ height: 47, padding: "0 20px", gap: 10, flexShrink: 0 }}>
-          <span style={{ width: 4, height: 16, background: "#3fbf6e", borderRadius: 2 }} />
-          <span style={{ fontSize: 15, color: "#333" }}>{payStep ? d.payTitle : t.member.depositInfo}</span>
+        <div className="flex items-center" style={{ height: 47, padding: "0 61px 0 20px", gap: 8, flexShrink: 0, borderBottom: "1px solid #eee" }}>
+          <span style={{ width: 4, height: 16, background: "#23e63a" }} />
+          <span style={{ fontSize: 16, color: "#000" }}>{payStep ? d.payTitle : t.member.depositInfo}</span>
+          <span className="flex-1" />
+          {/* "জমা রেকর্ড" — অ্যাকাউন্ট রেকর্ডের জমা ট্যাব খোলে */}
+          <button
+            type="button"
+            onClick={() => {
+              try {
+                sessionStorage.setItem("tb_rec_sub", "1");
+              } catch {
+                /* private mode */
+              }
+              openMember("accountRecord");
+            }}
+            className="flex cursor-pointer items-center"
+            style={{ height: 32, padding: "0 14px 0 10px", gap: 8, borderRadius: 16, border: "2px solid #c9d5fb", color: "#5076f3", fontSize: 14 }}
+          >
+            <svg viewBox="0 0 18 20" style={{ width: 17, height: 19 }} aria-hidden="true">
+              <rect x="1" y="2" width="12" height="16" rx="2" fill="#5076f3" />
+              <path d="M4 7h6M4 10h6M4 13h4" stroke="#fff" strokeWidth="1.4" />
+              <circle cx="13.5" cy="15" r="4" fill="#fff" stroke="#5076f3" strokeWidth="1.4" />
+              <path d="M13.5 13v4M11.5 15h4" stroke="#5076f3" strokeWidth="1.4" />
+            </svg>
+            {d.recordBtn}
+          </button>
         </div>
 
-        <div className="hide-scrollbar min-h-0 flex-1" style={{ padding: "0 20px", overflowY: "auto" }}>
+        <div className="hide-scrollbar min-h-0 flex-1" style={{ padding: "18px 20px 0", overflowY: "auto" }}>
           {f.loading && <div style={{ color: "#999", fontSize: 13, padding: 20 }}>{d.loading}</div>}
           {!f.loading && !f.methods.length && <div style={{ color: "#999", fontSize: 13, padding: 20 }}>{d.noMethods}</div>}
 
@@ -138,20 +172,23 @@ const Desktop = () => {
             <>
               <div
                 style={{
-                  border: "1px solid #ffb3b5",
-                  borderRadius: 4,
-                  background: "#fff6f6",
+                  display: "inline-block",
+                  border: "1px solid #f9dacb",
+                  borderRadius: 10,
+                  background: "#fdeee6",
                   color: DRED,
-                  fontSize: 13,
-                  padding: "10px 14px",
-                  marginBottom: 18,
+                  fontSize: 14,
+                  lineHeight: "20px",
+                  padding: "9px 15px",
+                  marginBottom: 20,
                 }}
               >
                 {t.member.depositWarning}
               </div>
 
-              <DeskRow label={d.channel}>
-                <div className="flex flex-wrap" style={{ gap: 12 }}>
+              {/* মূল সাইটে চ্যানেলের পাশে লেবেল নেই */}
+              <div style={{ marginBottom: 18 }}>
+                <div className="flex flex-wrap" style={{ gap: 15 }}>
                   {f.method.channels.map((item) => (
                     <DeskChip key={item.id} active={item.id === f.channelId} onClick={() => f.setChannelId(item.id)}>
                       {f.tv(item.name)}
@@ -159,7 +196,7 @@ const Desktop = () => {
                     </DeskChip>
                   ))}
                 </div>
-              </DeskRow>
+              </div>
 
               {f.method.promotions?.length > 0 && (
                 <DeskRow label={d.promoTitle}>
@@ -177,7 +214,7 @@ const Desktop = () => {
               )}
 
               <DeskRow label={t.member.amountLabel}>
-                <div className="flex flex-wrap" style={{ gap: 10 }}>
+                <div className="flex flex-wrap" style={{ columnGap: 6, rowGap: 17, maxWidth: 650 }}>
                   {f.presets.map((value) => (
                     <button
                       key={value}
@@ -186,11 +223,11 @@ const Desktop = () => {
                       className="cursor-pointer"
                       style={{
                         width: 66,
-                        height: 34,
-                        borderRadius: 4,
-                        border: `1px solid ${String(value) === f.amount ? DRED : "#ddd"}`,
-                        color: String(value) === f.amount ? DRED : "#666",
-                        fontSize: 13,
+                        height: 38,
+                        borderRadius: 6,
+                        border: `1px solid ${String(value) === f.amount ? DRED : "rgba(236,37,55,.25)"}`,
+                        color: String(value) === f.amount ? DRED : "#646464",
+                        fontSize: 14,
                         background: "#fff",
                       }}
                     >
@@ -204,19 +241,20 @@ const Desktop = () => {
                   inputMode="decimal"
                   placeholder={t.member.amountPlaceholder}
                   style={{
-                    width: 222,
+                    width: 223,
                     height: 34,
-                    marginTop: 16,
-                    border: "1px solid #ddd",
-                    borderRadius: 4,
-                    padding: "0 10px",
+                    marginTop: 10,
+                    border: "1px solid #e5e5e5",
+                    borderRadius: 5,
+                    background: "#f5f5f5",
+                    padding: "0 12px",
                     fontSize: 13,
-                    color: "#333",
+                    color: "#646464",
                     outline: "none",
                     display: "block",
                   }}
                 />
-                <div style={{ marginTop: 10, fontSize: 13, color: DRED }}>
+                <div style={{ marginTop: 14, fontSize: 14, color: "#f00", wordSpacing: 3 }}>
                   {t.member.limit} ৳ {fmt(f.min)} - ৳ {fmt(f.max)}
                 </div>
                 {f.preview.totalBonus > 0 && (
@@ -231,7 +269,7 @@ const Desktop = () => {
           {f.method && payStep && <DeskPay f={f} />}
         </div>
 
-        <div className="flex items-center" style={{ height: 48, padding: "0 20px", gap: 12, flexShrink: 0 }}>
+        <div className="flex items-center" style={{ height: 48, padding: "0 30px", gap: 12, flexShrink: 0, borderTop: "1px solid #eee" }}>
           {payStep && (
             <button
               type="button"
@@ -248,12 +286,14 @@ const Desktop = () => {
             onClick={payStep ? f.submit : f.next}
             className="tb-hover-fade cursor-pointer"
             style={{
-              height: 36,
-              padding: "0 20px",
-              borderRadius: 18,
+              height: 34,
+              padding: "0 10px",
+              minWidth: 171,
+              borderRadius: 17,
               background: DRED,
               color: "#fff",
-              fontSize: 14,
+              fontSize: 13,
+              fontWeight: 700,
               opacity: f.busy || !f.method ? 0.6 : 1,
             }}
           >

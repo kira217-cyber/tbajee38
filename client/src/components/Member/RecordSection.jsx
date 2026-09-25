@@ -62,13 +62,24 @@ const RANGES = ["today", "yesterday", "days7", "custom"];
 
 /** "স্থিতি: সব ▾" — মূল সাইটের ফিল্টারের ড্রপডাউন */
 const FilterSelect = ({ label, value, onChange, options }) => (
-  <span className="flex items-center" style={{ gap: 8 }}>
+  <span className="flex items-center" style={{ gap: 4, marginRight: 10 }}>
     {label}:
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="cursor-pointer"
-      style={{ height: 30, minWidth: 100, padding: "0 8px", border: "1px solid #ddd", borderRadius: 4, color: "#333", background: "#fff", fontSize: 13, outline: "none" }}
+      className="cursor-pointer appearance-none"
+      style={{
+        height: 34,
+        minWidth: 111,
+        padding: "0 34px 0 5px",
+        border: "1px solid #e5e5e5",
+        borderRadius: 5,
+        color: "#646464",
+        fontSize: 14,
+        outline: "none",
+        // মূল সাইটের `.select-control` — ডানে ধূসর চেভরন
+        background: `#fbfbfb url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23555' stroke-width='1.8'/%3E%3C/svg%3E") right 12px center / 12px 8px no-repeat`,
+      }}
     >
       {options.map(([key, text]) => (
         <option key={key} value={key}>
@@ -79,13 +90,59 @@ const FilterSelect = ({ label, value, onChange, options }) => (
   </span>
 );
 
+/** মূল সাইটের কলাম — `w` চওড়া, `pad` ভিতরের ফাঁক, `align` */
+const COL_SPECS = {
+  betRecord: [
+    { w: 95, pad: "0 0 0 5px" },
+    { w: 130, pad: "0 0 0 20px" },
+    { w: 130, pad: "0 0 0 20px" },
+    { w: 130, pad: "0 0 0 20px" },
+    { w: 187, pad: "0 0 0 60px" },
+    { w: 200, pad: "0 0 0 20px" },
+    { w: 65 },
+  ],
+  profitLoss: [{ w: 110, pad: "0 12px 0 8px", align: "right" }, ...Array(7).fill({ w: 110, pad: "0 12px 0 0", align: "right" })],
+};
+
+const BN_DIGITS = "০১২৩৪৫৬৭৮৯";
+
+const CalendarIcon = () => (
+  <svg viewBox="0 0 16 17" style={{ position: "absolute", left: 9, width: 15, height: 17 }} aria-hidden="true">
+    <rect x="1" y="2.5" width="14" height="13.5" rx="1.5" fill="none" stroke="#555" strokeWidth="1.4" />
+    <rect x="1" y="2.5" width="14" height="4" fill="#555" />
+    <path d="M4.5 1v3M11.5 1v3" stroke="#555" strokeWidth="1.4" />
+    <text x="8" y="14" fontSize="6.5" textAnchor="middle" fill="#555" fontWeight="700">31</text>
+  </svg>
+);
+
+const GearIcon = () => (
+  <svg viewBox="0 0 24 24" style={{ width: 22, height: 22 }} aria-hidden="true">
+    <path
+      fill="currentColor"
+      d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1l-.4-2.7h-4l-.4 2.7a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L4.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1l.4 2.7h4l.4-2.7a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"
+    />
+  </svg>
+);
+
 const Desktop = ({ tab }) => {
   const { t } = useLanguage();
   const [range, setRange] = useState("today");
-  const [gameTab, setGameTab] = useState(0);
+  // ডিপোজিটের "জমা রেকর্ড" বোতাম থেকে এলে সরাসরি জমার ট্যাব
+  const [gameTab, setGameTab] = useState(() => {
+    try {
+      const sub = sessionStorage.getItem("tb_rec_sub");
+      sessionStorage.removeItem("tb_rec_sub");
+      return tab === "accountRecord" && sub ? Number(sub) || 0 : 0;
+    } catch {
+      return 0;
+    }
+  });
   const [decimal, setDecimal] = useState(false);
 
   const { lang } = useLanguage();
+  // মূল সাইটের ডেস্কটপে বাংলায় সংখ্যাও বাংলা (৭ দিন, ০৯/২৬ …)
+  const bnNum = (text) => (lang === "bn" ? String(text).replace(/[0-9]/g, (d) => BN_DIGITS[d]) : text);
+  const [vendor, setVendor] = useState("all");
   const config = t.member.desk[tab];
   const dr = t.deskRec;
   const isAccTab = tab === "accountRecord";
@@ -121,6 +178,8 @@ const Desktop = ({ tab }) => {
   const pl = useProfitLoss({ range, tab: PL_TABS[gameTab], enabled: isPL });
   const typeLabel = (type) => t.records.types[type] || type;
 
+  const vendorOptions = [...new Set(bet.rows.map((row) => row.providerCode).filter(Boolean))];
+
   const betCells = (row) => [
     row.providerCode || "—",
     fmt(row.bet, decimal),
@@ -135,13 +194,13 @@ const Desktop = ({ tab }) => {
   const table = isBet
     ? {
         loading: bet.loading,
-        rows: bet.rows.map((row) => ({ key: row.gameUId, cells: betCells(row) })),
+        rows: bet.rows.filter((row) => vendor === "all" || row.providerCode === vendor).map((row) => ({ key: row.gameUId, cells: betCells(row) })),
         totals: [
           t.member.desk.total,
-          fmt(bet.totals.bet, decimal),
-          fmt(bet.totals.validBet, decimal),
-          fmt(bet.totals.win, decimal),
-          <span key="pl" style={{ color: plColor(bet.totals.net) }}>{fmt(bet.totals.net, decimal)}</span>,
+          fmt(bet.totals.bet, true),
+          fmt(bet.totals.validBet, true),
+          fmt(bet.totals.win, true),
+          <span key="pl" style={{ color: plColor(bet.totals.net) }}>{fmt(bet.totals.net, true)}</span>,
           "",
           bet.totals.count,
         ],
@@ -239,16 +298,20 @@ const Desktop = ({ tab }) => {
           }
         : null;
 
+  // মূল সাইটের কলামের মাপ — বেটিং রেকর্ডে চওড়া আলাদা আর লেখা বাঁয়ে,
+  // লাভ ও ক্ষতিতে ১১০ করে আর লেখা ডানে; বাকিগুলো সমান ভাগে মাঝখানে
+  const spec = COL_SPECS[tab];
+  const cellStyle = (index) => {
+    const s = spec?.[index];
+    if (!s) return { flex: 1, textAlign: "center", padding: "0 4px" };
+    return { width: s.w, flex: "none", textAlign: s.align || "left", padding: s.pad || "0" };
+  };
+  const dateText = isPL ? `${from}~${to}` : `${from} 00:00:00~${to} 23:59:59`;
+
   return (
-    <div
-      className="flex flex-col"
-      style={{ width: 1110, height: 620, background: "#fff" }}
-    >
-      {/* গেমের ট্যাব */}
-      <div
-        className="flex items-center"
-        style={{ height: 52, borderBottom: "1px solid #eee", padding: "0 56px 0 20px" }}
-      >
+    <div className="flex flex-col" style={{ width: 1110, height: 620, background: "#fff" }}>
+      {/* গেমের ট্যাব — মূল সাইটের `.tab-nav` (৪৭ উঁচু, বাঁয়ে ৩০) */}
+      <div className="flex items-center" style={{ height: 47, borderBottom: "1px solid #eee", padding: "0 60px 0 30px", gap: 20 }}>
         {tabs.map((label, index) => (
           <button
             key={label}
@@ -259,155 +322,73 @@ const Desktop = ({ tab }) => {
               setMethod("all");
             }}
             className="relative h-full cursor-pointer"
-            style={{
-              padding: "0 18px",
-              fontSize: 14,
-              color: index === gameTab ? "#e8474c" : "#666",
-            }}
+            style={{ padding: "0 10px", fontSize: 14, color: index === gameTab ? "#fd2f2f" : "#666" }}
           >
             {label}
-            {index === gameTab && (
-              <span
-                className="absolute bottom-0 left-1/2 -translate-x-1/2"
-                style={{ width: "70%", height: 2, background: "#e8474c" }}
-              />
-            )}
+            {index === gameTab && <span className="absolute bottom-0 left-0 right-0" style={{ height: 3, background: "#fd2f2f" }} />}
           </button>
         ))}
 
         <span className="flex-1" />
 
         {config.action && (
-          <span
-            className="flex cursor-pointer items-center justify-center"
-            style={{
-              height: 28,
-              padding: "0 14px",
-              borderRadius: 14,
-              background: "#e8474c",
-              color: "#fff",
-              fontSize: 12,
-            }}
-          >
+          <span className="flex cursor-pointer items-center justify-center" style={{ height: 30, padding: "0 10px", borderRadius: 20, background: "#f28989", color: "#fff", fontSize: 13 }}>
             {config.action}
           </span>
         )}
       </div>
 
-      {/* ফিল্টার সারি */}
-      <div
-        className="flex items-center"
-        style={{ height: 52, padding: "0 20px", gap: 14, fontSize: 13, color: "#666" }}
-      >
+      {/* ফিল্টার সারি — ৩৪ উঁচু ঘর, রেডিও ২০ */}
+      <div className="flex items-center" style={{ height: 55, padding: "0 15px", fontSize: 14, color: "#666" }}>
         {RANGES.map((key) => (
-          <label
-            key={key}
-            className="flex cursor-pointer items-center"
-            style={{ gap: 6 }}
-          >
-            <input
-              type="radio"
-              checked={range === key}
-              onChange={() => setRange(key)}
-              style={{ accentColor: "#e8474c" }}
-            />
-            {key !== "custom" && (
-              <span>{key === "days7" ? t.member.pages.days7 : t.member.ranges[key]}</span>
-            )}
+          <label key={key} className="flex cursor-pointer items-center" style={{ gap: 5, marginRight: 15 }}>
+            <input type="radio" className="hidden" checked={range === key} onChange={() => setRange(key)} />
+            <span className="grid place-items-center" style={{ width: 20, height: 20, borderRadius: "50%", border: `2px solid ${range === key ? "#fb3232" : "#eaeaea"}`, background: "#fff" }}>
+              {range === key && <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#fb3232" }} />}
+            </span>
+            {key !== "custom" && <span>{bnNum(key === "days7" ? t.member.pages.days7 : t.member.ranges[key])}</span>}
           </label>
         ))}
 
         <span
           className="flex items-center"
-          style={{
-            height: 30,
-            padding: "0 10px",
-            border: "1px solid #ddd",
-            borderRadius: 4,
-            gap: 8,
-            color: "#333",
-          }}
+          style={{ height: 34, width: isPL ? 136 : 235, marginLeft: -10, padding: "0 5px 0 30px", position: "relative", borderRadius: 5, border: "1px solid #e5e5e5", background: "#f5f5f5", color: "#646464", whiteSpace: "nowrap", overflow: "hidden" }}
         >
-          <Icon name="discount-calender" size={16} />
-          {from} 00:00:00~{to} 23:59
+          <CalendarIcon />
+          {bnNum(dateText)}
         </span>
 
-        {isAccTab && gameTab === 0 && (
-          <FilterSelect label={dr.orderType} value={accType} onChange={setAccType} options={dr.typeKeys.map((k) => [k, dr.types[k]])} />
-        )}
-        {isAccTab && gameTab > 0 && (
-          <FilterSelect label={dr.statusLabel} value={status} onChange={setStatus} options={["all", "pending", "approved", "rejected"].map((k) => [k, k === "all" ? t.promo.all : dr.status[k]])} />
-        )}
-        {isAccTab && gameTab === 1 && (
-          <FilterSelect label={dr.methodLabel} value={method} onChange={setMethod} options={[["all", t.promo.all], ...methodOptions.map((k) => [k, k.toUpperCase()])]} />
-        )}
+        <span style={{ width: 1, height: 30, background: "#e5e5e5", margin: "0 10px" }} />
 
+        {isAccTab && gameTab === 0 && <FilterSelect label={dr.orderType} value={accType} onChange={setAccType} options={dr.typeKeys.map((k) => [k, dr.types[k]])} />}
+        {isAccTab && gameTab > 0 && (
+          <FilterSelect label={dr.statusLabel} value={status} onChange={setStatus} options={["all", "pending", "approved", "rejected"].map((k) => [k, k === "all" ? dr.types.all : dr.status[k]])} />
+        )}
+        {isAccTab && gameTab === 1 && <FilterSelect label={dr.methodLabel} value={method} onChange={setMethod} options={[["all", dr.types.all], ...methodOptions.map((k) => [k, k.toUpperCase()])]} />}
         {config.vendorSelect && !isAccTab && (
-          <span className="flex items-center" style={{ gap: 8 }}>
-            {t.member.desk.vendorLabel}
-            <span
-              className="flex items-center"
-              style={{
-                height: 30,
-                padding: "0 10px",
-                border: "1px solid #ddd",
-                borderRadius: 4,
-                gap: 18,
-                color: "#333",
-              }}
-            >
-              {t.promo.all}
-              <Icon name="arrow-down" size={12} />
-            </span>
-          </span>
+          <FilterSelect label={t.member.desk.vendorLabel.replace(/[:：]\s*$/, "")} value={vendor} onChange={setVendor} options={[["all", dr.types.all], ...vendorOptions.map((k) => [k, k])]} />
         )}
 
         <button
           type="button"
+          onClick={() => setRange("today")}
           className="tb-hover-fade cursor-pointer"
-          style={{
-            height: 30,
-            padding: "0 18px",
-            borderRadius: 4,
-            background: "#e8474c",
-            color: "#fff",
-            fontSize: 13,
-          }}
+          style={{ width: 98, height: 34, marginLeft: 10, borderRadius: 17, background: "linear-gradient(180deg,#ff4040,#f21d1d)", boxShadow: "0 3px 8px rgba(242,29,29,.35)", color: "#fff", fontSize: 14, fontWeight: 700 }}
         >
           {t.member.desk.other}
         </button>
 
         {config.gear && (
-          <span
-            className="grid cursor-pointer place-items-center"
-            style={{
-              width: 30,
-              height: 30,
-              borderRadius: 4,
-              border: "1px solid #ddd",
-              color: "#888",
-            }}
-          >
-            <Icon name="security-center" size={16} />
+          <span className="grid cursor-pointer place-items-center" style={{ width: 36, height: 36, marginLeft: 10, borderRadius: "50%", background: "#e5e5e5", color: "#8a8a8a" }}>
+            <GearIcon />
           </span>
         )}
       </div>
 
-      {/* টেবিলের শিরোনাম */}
-      <div
-        className="flex items-center"
-        style={{
-          height: 38,
-          background: "#fafafa",
-          borderTop: "1px solid #eee",
-          borderBottom: "1px solid #eee",
-          padding: "0 20px",
-          fontSize: 12,
-          color: "#666",
-        }}
-      >
+      {/* টেবিলের শিরোনাম — ২৯ উঁচু, #f6f6f6 */}
+      <div className="flex items-center" style={{ height: 29, background: "#f6f6f6", padding: "0 25px", fontSize: 12, color: "#818181" }}>
         {columns.map((column, index) => (
-          <span key={`${column}-${index}`} style={{ flex: 1, textAlign: "center" }}>
+          <span key={`${column}-${index}`} className="truncate" style={cellStyle(index)}>
             {column}
           </span>
         ))}
@@ -415,15 +396,11 @@ const Desktop = ({ tab }) => {
 
       {/* সারিগুলো, নয়তো খালি অবস্থা */}
       {table && table.rows.length > 0 ? (
-        <div className="flex-1 overflow-y-auto" style={{ background: "#fff" }}>
+        <div className="flex-1 overflow-y-auto" style={{ background: "#fff", padding: "0 25px" }}>
           {table.rows.map((row) => (
-            <div
-              key={row.key}
-              className="flex items-center"
-              style={{ height: 40, padding: "0 20px", borderBottom: "1px solid #f0f0f0", fontSize: 12, color: "#333" }}
-            >
+            <div key={row.key} className="flex items-center" style={{ height: 40, borderBottom: "1px solid #f0f0f0", fontSize: 12, color: "#333" }}>
               {row.cells.map((cell, index) => (
-                <span key={index} className="truncate" style={{ flex: 1, textAlign: "center", padding: "0 4px" }}>
+                <span key={index} className="truncate" style={cellStyle(index)}>
                   {cell}
                 </span>
               ))}
@@ -431,66 +408,31 @@ const Desktop = ({ tab }) => {
           ))}
         </div>
       ) : (
-        <div
-          className="flex flex-1 items-center justify-center"
-          style={{ color: "#999", fontSize: 13, background: "#f5f5f5" }}
-        >
+        <div className="flex-1 text-center" style={{ color: "#666", fontSize: 12, background: "#efefef", paddingTop: 190 }}>
           {table?.loading ? t.auth.wait : t.member.desk.noMatch}
         </div>
       )}
 
-      {/* মোট সারি */}
-      <div
-        className="flex items-center"
-        style={{
-          height: 38,
-          borderTop: "1px solid #eee",
-          padding: "0 20px",
-          fontSize: 12,
-          color: "#666",
-        }}
-      >
-        {(table
-          ? table.totals
-          : columns.map((_, index) => (index === 0 ? t.member.desk.total : (config.zero ?? "0.00")))
-        ).map((cell, index) => (
-          <span key={`total-${index}`} style={{ flex: 1, textAlign: "center" }}>
+      {/* মোট সারি — ৩০ উঁচু, #e3e2e2 */}
+      <div className="flex items-center" style={{ height: 30, background: "#e3e2e2", padding: "0 25px", fontSize: 12, color: "#666" }}>
+        {(table ? table.totals : columns.map((_, index) => (index === 0 ? t.member.desk.total : (config.zero ?? "0.00")))).map((cell, index) => (
+          <span key={`total-${index}`} className="truncate" style={cellStyle(index)}>
             {cell}
           </span>
         ))}
       </div>
 
-      {/* নিচের বার */}
-      <div
-        className="flex items-center justify-end"
-        style={{ height: 40, padding: "0 20px", gap: 12, fontSize: 12, color: "#888" }}
-      >
-        {config.note && <span>{config.note}</span>}
+      {/* নিচের বার — ৪৬ উঁচু */}
+      <div className="flex items-center justify-end" style={{ height: 46, padding: "0 20px", gap: 10, fontSize: 12, color: "#666" }}>
+        {config.note && <span style={{ color: "#fc5449" }}>{config.note}</span>}
         <span>{t.member.desk.decimal}</span>
         <button
           type="button"
           onClick={() => setDecimal((v) => !v)}
           className="relative cursor-pointer"
-          style={{
-            width: 38,
-            height: 20,
-            borderRadius: 10,
-            background: decimal ? "#e8474c" : "#dcdce0",
-            transition: "background .2s",
-          }}
+          style={{ width: 40, height: 24, borderRadius: 12, background: decimal ? "#fd2f2f" : "#dcdce0", transition: "background .2s" }}
         >
-          <span
-            className="absolute"
-            style={{
-              top: 2,
-              left: decimal ? 20 : 2,
-              width: 16,
-              height: 16,
-              borderRadius: "50%",
-              background: "#fff",
-              transition: "left .2s",
-            }}
-          />
+          <span className="absolute" style={{ top: 2, left: decimal ? 18 : 2, width: 20, height: 20, borderRadius: "50%", background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,.25)", transition: "left .2s" }} />
         </button>
       </div>
     </div>

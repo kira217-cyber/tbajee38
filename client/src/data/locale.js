@@ -216,6 +216,7 @@ export const locale = {
     },
 
     inboxFlow: {
+      sortByTime: "সময় অনুযায়ী সাজান",
       "selectAll": "সব নির্বাচন করুন",
       "markAllRead": "সব পড়া হয়েছে",
       "delete": "মুছুন",
@@ -543,6 +544,7 @@ export const locale = {
     },
 
     depositFlow: {
+      recordBtn: "জমা রেকর্ড",
       promoTitle: "প্রমোশন",
       noPromo: "কোনো প্রমোশন নয়",
       payTitle: "টাকা পাঠান",
@@ -1146,6 +1148,7 @@ export const locale = {
     },
 
     inboxFlow: {
+      sortByTime: "Sort by time",
       "selectAll": "Select all",
       "markAllRead": "Mark all read",
       "delete": "Delete",
@@ -1473,6 +1476,7 @@ export const locale = {
     },
 
     depositFlow: {
+      recordBtn: "Deposit records",
       promoTitle: "Promotion",
       noPromo: "No promotion",
       payTitle: "Send the money",
