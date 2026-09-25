@@ -8,6 +8,20 @@ import Profile from "../pages/Profile/Profile";
 import Admins from "../pages/Admins/Admins";
 import GameApiKey from "../pages/GameApiKey/GameApiKey";
 import GameLaunchKey from "../pages/GameLaunchKey/GameLaunchKey";
+import Maintenance from "../pages/Maintenance/Maintenance";
+import OtpSetting from "../pages/OtpSetting/OtpSetting";
+import Users from "../pages/Users/Users";
+import Affiliates from "../pages/Users/Affiliates";
+import UserDetails from "../pages/Users/UserDetails";
+import GameHistory from "../pages/GameHistory/GameHistory";
+import DepositMethods from "../pages/DepositMethods/DepositMethods";
+import DepositField from "../pages/DepositField/DepositField";
+import DepositBonusTurnover from "../pages/DepositBonusTurnover/DepositBonusTurnover";
+import ManualDeposit from "../pages/ManualDeposit/ManualDeposit";
+import DepositRequests from "../pages/DepositRequests/DepositRequests";
+import WithdrawMethods from "../pages/WithdrawMethods/WithdrawMethods";
+import WithdrawRequests from "../pages/WithdrawRequests/WithdrawRequests";
+import TurnoverHistory from "../pages/TurnoverHistory/TurnoverHistory";
 import Placeholder from "../pages/Placeholder/Placeholder";
 import NotFoundPage from "../pages/NotFoundPage/NotFoundPage";
 import { navItems } from "../data/navigation";
@@ -26,8 +40,21 @@ import { navItems } from "../data/navigation";
 const REAL_PAGES = {
   "/": <Dashboard />,
   "/admins": <Admins />,
+  "/users": <Users />,
+  "/affiliates": <Affiliates />,
   "/game-api-key": <GameApiKey />,
+  "/game-history": <GameHistory />,
+  "/deposit-methods": <DepositMethods />,
+  "/deposit-field": <DepositField />,
+  "/deposit-bonus-turnover": <DepositBonusTurnover />,
+  "/manual-deposit": <ManualDeposit />,
+  "/deposit-requests": <DepositRequests />,
+  "/withdraw-methods": <WithdrawMethods />,
+  "/withdraw-requests": <WithdrawRequests />,
+  "/turnover-history": <TurnoverHistory />,
   "/game-launch-key": <GameLaunchKey />,
+  "/maintenance": <Maintenance />,
+  "/otp-setting": <OtpSetting />,
 };
 
 /** নেস্টেড তালিকাটা সমতল করে — গ্রুপের নামও সাথে রাখি */
@@ -74,6 +101,25 @@ export const routes = createBrowserRouter(
 
         // নিজের প্রোফাইল সাইডবারে নেই — হেডারের আইকন থেকে খোলে
         { path: "profile", element: <Profile /> },
+
+        // একজনের বিস্তারিত — সাইডবারে নেই, তালিকার সারিতে চাপলে খোলে।
+        // তালিকার পেজের একই পারমিশন (server ও একই নিয়মে আটকায়)
+        {
+          path: "users/:id",
+          element: (
+            <PrivateRoute perm="users">
+              <UserDetails kind="users" />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: "affiliates/:id",
+          element: (
+            <PrivateRoute perm="affiliates">
+              <UserDetails kind="affiliates" />
+            </PrivateRoute>
+          ),
+        },
 
         ...pages
           .filter((item) => item.path && item.path !== "/")
