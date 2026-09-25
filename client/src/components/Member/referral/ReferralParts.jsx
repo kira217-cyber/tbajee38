@@ -55,12 +55,12 @@ export const ShareBox = ({ code, domain, title }) => {
 
   return (
     <div style={{ background: isDesktop ? "#fff" : "#f5f6fa", border: isDesktop ? "1px solid #eee" : "none", borderRadius: u(8, 16), padding: u(12, 26) }}>
-      <div style={{ fontSize: u(12, 28), fontWeight: isDesktop ? 400 : 700, color: isDesktop ? "#666" : "#222", marginBottom: u(8, 22) }}>{title}</div>
+      <div style={{ fontSize: u(12, 28), fontWeight: isDesktop ? 400 : 700, color: isDesktop ? "#666" : "#3b2785", marginBottom: u(8, 14) }}>{title}</div>
 
       <div className="flex" style={{ gap: u(12, 24) }}>
-        <button type="button" onClick={saveQr} className="shrink-0 cursor-pointer" title={r.myCode}>
-          <div style={{ background: "#fff", padding: u(3, 16), lineHeight: 0 }}>
-            <QRCodeCanvas id="tb-invite-qr" value={link || " "} size={isDesktop ? 58 : 248} marginSize={0} style={{ width: u(58, 248), height: u(58, 248) }} />
+        <button type="button" onClick={saveQr} className="shrink-0 cursor-pointer self-start" title={r.myCode}>
+          <div style={{ background: "#fff", padding: u(3, 8), lineHeight: 0 }}>
+            <QRCodeCanvas id="tb-invite-qr" value={link || " "} size={isDesktop ? 58 : 132} marginSize={0} style={{ width: u(58, 116), height: u(58, 116) }} />
           </div>
           <div className="text-center" style={{ background: "#4c2a85", color: "#fff", fontSize: u(8, 20), padding: `${u(2, 8)} 0`, lineHeight: 1.3 }}>
             {t.member.desk.referral.saveCode}
@@ -70,21 +70,21 @@ export const ShareBox = ({ code, domain, title }) => {
         <div style={{ flex: 1, minWidth: 0 }}>
           <div
             className="flex items-center"
-            style={{ height: u(30, 76), borderRadius: u(15, 38), border: isDesktop ? "1px solid #eee" : "none", background: "#fff", padding: isDesktop ? "0 4px 0 12px" : `0 ${m(10)} 0 ${m(24)}`, gap: u(6, 12), overflow: "hidden" }}
+            style={{ height: u(30, 48), borderRadius: u(15, 24), border: isDesktop ? "1px solid #eee" : "none", background: "#fff", padding: isDesktop ? "0 4px 0 12px" : `0 ${m(6)} 0 ${m(20)}`, gap: u(6, 10), overflow: "hidden" }}
           >
-            <span className="flex-1 truncate" style={{ fontSize: u(11, 22), color: "#444" }}>{link}</span>
+            <span className="flex-1 truncate" style={{ fontSize: u(11, 20), color: "#444", fontWeight: isDesktop ? 400 : 600 }}>{link}</span>
             <button
               type="button"
               aria-label={t.memberPage.pages.referral.copy}
               onClick={() => copy(link, r.copied)}
               className="grid shrink-0 cursor-pointer place-items-center"
-              style={{ width: u(22, 56), height: u(22, 56), borderRadius: "50%", background: "#4c2a85", color: "#fff", fontSize: u(11, 26) }}
+              style={{ width: u(22, 38), height: u(22, 38), borderRadius: "50%", background: "#4c2a85", color: "#fff", fontSize: u(11, 20) }}
             >
               ⧉
             </button>
           </div>
 
-          <div className="flex flex-wrap" style={{ marginTop: u(10, 22), gap: u(6, 14) }}>
+          <div className={isDesktop ? "flex flex-wrap" : "hide-scrollbar flex overflow-x-auto"} style={{ marginTop: u(10, 16), gap: u(6, 10) }}>
             {SOCIALS.map((s) => (
               <a
                 key={s.key}
@@ -92,15 +92,16 @@ export const ShareBox = ({ code, domain, title }) => {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={s.key}
-                className="grid place-items-center"
-                style={{ width: u(28, 84), height: u(28, 84), borderRadius: u(6, 14), background: s.bg, color: "#fff", fontSize: u(15, 44), fontWeight: 700 }}
+                className="grid shrink-0 place-items-center"
+                style={{ width: u(28, 66), height: u(28, 66), borderRadius: u(6, 12), background: s.bg, color: "#fff", fontSize: u(15, 36), fontWeight: 700 }}
               >
                 {s.icon ? <img src={`/assets/referral/${s.icon}.png`} alt="" style={{ width: "62%", height: "62%" }} /> : "f"}
               </a>
             ))}
           </div>
 
-          {code ? (
+          {/* মোবাইলে মূল সাইটের মতো শুধু লিংক আর বোতাম — কোড লিংকেই আছে */}
+          {code && isDesktop ? (
             <button
               type="button"
               onClick={() => copy(code, r.codeCopied)}
