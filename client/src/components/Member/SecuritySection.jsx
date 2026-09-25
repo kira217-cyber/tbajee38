@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
-import Icon from "../Icon/Icon";
 import { useLanguage } from "../../Context/LanguageProvider";
 import { m } from "../../hook/useUnits";
 import { useLogout } from "../../features/auth/useLogout";
@@ -29,13 +28,16 @@ const fmtDateTime = (value) => {
  * ডানে তীর।
  */
 // অবস্থা server এর নিরাপত্তা স্কোর থেকে (`item` = কোন কাজটা হয়েছে কিনা)
+// আইকন মূল সাইটের স্প্রাইট থেকে তোলা SVG (নীল→বেগুনি গ্রেডিয়েন্ট রেখা);
+// "পরিচয় যাচাই" মূল সাইটে নেই, তাই ওটার আইকন একই ধাঁচে আঁকা
+const IMG = "/assets/security";
 const ROWS = [
-  { key: "profile", icon: "member", item: "profile" },
-  { key: "wallet", icon: "cashback", item: "wallet" },
-  { key: "loginPassword", icon: "form-icon-password", item: "always" },
-  { key: "payPassword", icon: "security-center", item: "payPassword" },
-  { key: "verification", icon: "user_info", item: "verification" },
-  { key: "logout", icon: "icon-logout" },
+  { key: "profile", icon: "profile", item: "profile" },
+  { key: "wallet", icon: "wallet", item: "wallet" },
+  { key: "loginPassword", icon: "lock", item: "always" },
+  { key: "payPassword", icon: "pay-password", item: "payPassword" },
+  { key: "verification", icon: "verify", item: "verification" },
+  { key: "logout", icon: "logout" },
 ];
 
 const SecuritySection = () => {
@@ -96,14 +98,14 @@ const SecuritySection = () => {
             <div style={{ fontSize: m(32), color: "#222", fontWeight: 700 }}>
               {page.scoreLabel} {p.levels[level]}
             </div>
-            <div className="flex" style={{ marginTop: m(12), gap: m(8) }}>
+            <div className="flex" style={{ marginTop: m(16), gap: m(1) }}>
               {[0, 1, 2, 3, 4].map((i) => (
-                <span
+                <img
                   key={i}
-                  style={{ fontSize: m(34), opacity: i < Math.max(1, Math.round(percent / 20)) ? 1 : 0.25 }}
-                >
-                  ⚡
-                </span>
+                  src={`${IMG}/lightning-${i < Math.max(1, Math.round(percent / 20)) ? "on" : "off"}.svg`}
+                  alt=""
+                  style={{ width: m(35), height: m(35) }}
+                />
               ))}
             </div>
             <div style={{ fontSize: m(24), color: "#666", marginTop: m(14) }}>
@@ -124,7 +126,7 @@ const SecuritySection = () => {
             padding: `${m(30)} ${m(10)}`,
           }}
         >
-          {level === "high" ? "" : page.warn}
+          {level === "low" ? page.warn : ""}
         </div>
 
         {/* করণীয়ের সারি */}
@@ -136,42 +138,23 @@ const SecuritySection = () => {
               onClick={() => open(row.key)}
               className="flex w-full cursor-pointer items-center text-left"
               style={{
-                padding: `${m(26)} ${m(24)}`,
-                gap: m(24),
-                borderTop: index ? "1px solid #f2f2f6" : "none",
+                padding: `${m(26)} ${m(30)} ${m(26)} ${m(10)}`,
+                gap: m(40),
+                borderTop: index ? `${m(4)} solid #efeff2` : "none",
               }}
             >
-              <span
-                className="grid shrink-0 place-items-center"
-                style={{ width: m(90), height: m(90), color: "#9b8cf5" }}
-              >
-                <Icon name={row.icon} size={m(72)} />
+              <span className="grid shrink-0 place-items-center" style={{ width: m(140) }}>
+                <img src={`${IMG}/${row.icon}.svg`} alt="" style={{ width: m(81), height: m(81) }} />
               </span>
 
               <span style={{ flex: 1 }}>
-                <span className="flex items-center" style={{ gap: m(12) }}>
-                  <span style={{ fontSize: m(32), color: "#222", fontWeight: 600 }}>
-                    {rowTitle(row.key)}
-                  </span>
+                {/* ব্যাজ ও পেন্সিল লেখার সাথেই — লম্বা শিরোনাম ভাঙলে শেষ লাইনের পরে বসে */}
+                <span className="block" style={{ fontSize: m(32), color: "#222", fontWeight: 600, lineHeight: 1.5 }}>
+                  {rowTitle(row.key)}
                   {statusOf(row) && (
-                    <span
-                      className="grid place-items-center"
-                      style={{
-                        width: m(36),
-                        height: m(36),
-                        borderRadius: "50%",
-                        background: statusOf(row) === "ok" ? "#22c55e" : "#e60012",
-                        color: "#fff",
-                        fontSize: m(24),
-                        fontWeight: 700,
-                      }}
-                    >
-                      {statusOf(row) === "ok" ? "✓" : "!"}
-                    </span>
+                    <img src={`${IMG}/${statusOf(row)}.svg`} alt="" className="inline-block" style={{ width: m(37), height: m(37), marginLeft: m(12), verticalAlign: "-0.15em" }} />
                   )}
-                  {statusOf(row) && (
-                    <span style={{ color: "#b9b9c2", fontSize: m(28) }}>✎</span>
-                  )}
+                  {statusOf(row) && <img src={`${IMG}/edit.svg`} alt="" className="inline-block" style={{ width: m(33), height: m(33), marginLeft: m(12), verticalAlign: "-0.1em" }} />}
                 </span>
                 <span
                   className="block"
@@ -182,9 +165,7 @@ const SecuritySection = () => {
               </span>
 
               {statusOf(row) && (
-                <span style={{ color: "#c8c8d0" }}>
-                  <Icon name="common-arrow" size={m(34)} />
-                </span>
+                <img src={`${IMG}/arrow.svg`} alt="" className="shrink-0" style={{ width: m(44), height: m(44) }} />
               )}
             </button>
           ))}
