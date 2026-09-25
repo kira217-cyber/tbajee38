@@ -101,13 +101,15 @@ const BlockPanel = ({ f }) => {
   const { u, isDesktop } = useSize();
   const reason = f.block;
 
-  const title = reason === "pendingWithdraw" ? w.pendingTitle : reason === "verification" ? w.verifyTitle : w.turnoverTitle;
+  const title = reason === "pendingWithdraw" ? w.pendingTitle : reason === "verification" ? w.verifyTitle : reason === "dailyLimit" ? w.dailyTitle : w.turnoverTitle;
   const hint =
     reason === "pendingWithdraw"
       ? w.pendingHint.replace("{amount}", fmt(f.elig?.pendingAmount))
       : reason === "verification"
         ? w.verifyHint
-        : w.turnoverHint.replace("{amount}", fmt(f.elig?.remaining));
+        : reason === "dailyLimit"
+          ? w.dailyHint.replace("{n}", f.elig?.limit ?? 0)
+          : w.turnoverHint.replace("{amount}", fmt(f.elig?.remaining));
 
   return (
     <div style={{ marginTop: u(16, 30), borderRadius: u(8, 16), background: "#fff6f6", border: `${u(1, 2)} solid #ffd0d1`, padding: isDesktop ? "16px 18px" : `${m(30)} ${m(30)}` }}>

@@ -359,13 +359,15 @@ const DeskWithdraw = () => {
 
             {turnoverBlock && (
               <div style={{ width: 288, marginLeft: 47, marginTop: 14, borderRadius: 10, border: "1px solid #ffd0d1", background: "#fff6f6", padding: 14 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: RED }}>{f.block === "pendingWithdraw" ? wf.pendingTitle : f.block === "verification" ? wf.verifyTitle : wf.turnoverTitle}</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: RED }}>{f.block === "pendingWithdraw" ? wf.pendingTitle : f.block === "verification" ? wf.verifyTitle : f.block === "dailyLimit" ? wf.dailyTitle : wf.turnoverTitle}</div>
                 <div style={{ marginTop: 6, fontSize: 12, color: "#555", lineHeight: 1.5 }}>
                   {f.block === "pendingWithdraw"
                     ? wf.pendingHint.replace("{amount}", two(f.elig?.pendingAmount))
                     : f.block === "verification"
                       ? wf.verifyHint
-                      : wf.turnoverHint.replace("{amount}", two(f.elig?.remaining))}
+                      : f.block === "dailyLimit"
+                        ? wf.dailyHint.replace("{n}", f.elig?.limit ?? 0)
+                        : wf.turnoverHint.replace("{amount}", two(f.elig?.remaining))}
                 </div>
                 {f.block === "turnover" &&
                   (f.elig?.turnovers || []).map((item, index) => (
@@ -396,6 +398,13 @@ const DeskWithdraw = () => {
             >
               {w.submit}
             </button>
+            {/* মূল সাইটের মতো — আজ আর কতবার তোলা যাবে (admin এর দিনের সীমা) */}
+            {f.elig?.today?.remaining != null && (
+              <span className="flex items-center" style={{ marginLeft: 15, gap: 8, fontSize: 14, color: "#666" }}>
+                {wf.todayLeft}
+                <b style={{ fontSize: 18, color: "#fd4b4b" }}>{f.elig.today.remaining}</b>
+              </span>
+            )}
           </div>
         </>
       )}

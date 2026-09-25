@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 import { api } from "../../api/axios";
+import DailyLimitCard from "./DailyLimitCard";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -231,6 +232,8 @@ const WithdrawMethods = () => {
           </button>
         </div>
       </div>
+
+      <DailyLimitCard />
 
       {editing && (
         <div className="ad-card mb-4">

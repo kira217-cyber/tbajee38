@@ -54,8 +54,8 @@ export const ShareBox = ({ code, domain, title }) => {
   };
 
   return (
-    <div style={{ background: isDesktop ? "#fff" : "#f5f6fa", border: isDesktop ? "1px solid #eee" : "none", borderRadius: u(8, 16), padding: u(12, 26) }}>
-      <div style={{ fontSize: u(12, 28), fontWeight: isDesktop ? 400 : 700, color: isDesktop ? "#666" : "#3b2785", marginBottom: u(8, 14) }}>{title}</div>
+    <div style={{ background: isDesktop ? "#eef1f7" : "#f5f6fa", borderRadius: isDesktop ? 0 : m(16), padding: isDesktop ? "4px 6px 6px" : m(26) }}>
+      <div style={{ fontSize: u(12, 28), fontWeight: 700, color: isDesktop ? "#2b2e83" : "#3b2785", marginBottom: u(2, 14) }}>{title}</div>
 
       <div className="flex" style={{ gap: u(12, 24) }}>
         <button type="button" onClick={saveQr} className="shrink-0 cursor-pointer self-start" title={r.myCode}>
@@ -70,7 +70,7 @@ export const ShareBox = ({ code, domain, title }) => {
         <div style={{ flex: 1, minWidth: 0 }}>
           <div
             className="flex items-center"
-            style={{ height: u(30, 48), borderRadius: u(15, 24), border: isDesktop ? "1px solid #eee" : "none", background: "#fff", padding: isDesktop ? "0 4px 0 12px" : `0 ${m(6)} 0 ${m(20)}`, gap: u(6, 10), overflow: "hidden" }}
+            style={{ height: u(28, 48), borderRadius: u(14, 24), background: "#fff", padding: isDesktop ? "0 4px 0 12px" : `0 ${m(6)} 0 ${m(20)}`, gap: u(6, 10), overflow: "hidden" }}
           >
             <span className="flex-1 truncate" style={{ fontSize: u(11, 20), color: "#444", fontWeight: isDesktop ? 400 : 600 }}>{link}</span>
             <button
@@ -84,7 +84,7 @@ export const ShareBox = ({ code, domain, title }) => {
             </button>
           </div>
 
-          <div className={isDesktop ? "flex flex-wrap" : "hide-scrollbar flex overflow-x-auto"} style={{ marginTop: u(10, 16), gap: u(6, 10) }}>
+          <div className="hide-scrollbar flex overflow-x-auto" style={{ marginTop: u(6, 16), gap: u(4, 10) }}>
             {SOCIALS.map((s) => (
               <a
                 key={s.key}
@@ -93,7 +93,7 @@ export const ShareBox = ({ code, domain, title }) => {
                 rel="noopener noreferrer"
                 aria-label={s.key}
                 className="grid shrink-0 place-items-center"
-                style={{ width: u(28, 66), height: u(28, 66), borderRadius: u(6, 12), background: s.bg, color: "#fff", fontSize: u(15, 36), fontWeight: 700 }}
+                style={{ width: u(40, 66), height: u(34, 66), borderRadius: u(4, 12), background: s.bg, color: "#fff", fontSize: u(15, 36), fontWeight: 700 }}
               >
                 {s.icon ? <img src={`/assets/referral/${s.icon}.png`} alt="" style={{ width: "62%", height: "62%" }} /> : "f"}
               </a>
@@ -101,7 +101,8 @@ export const ShareBox = ({ code, domain, title }) => {
           </div>
 
           {/* মোবাইলে মূল সাইটের মতো শুধু লিংক আর বোতাম — কোড লিংকেই আছে */}
-          {code && isDesktop ? (
+          {/* মূল সাইটে ডেস্কটপেও আলাদা কোডের লাইন নেই — কোড লিংকেই */}
+          {false ? (
             <button
               type="button"
               onClick={() => copy(code, r.codeCopied)}

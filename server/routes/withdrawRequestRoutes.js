@@ -6,6 +6,7 @@ import WithdrawMethod from "../models/WithdrawMethod.js";
 import EWallet from "../models/EWallet.js";
 import TurnOver from "../models/TurnOver.js";
 import User from "../models/User.js";
+import WithdrawSetting from "../models/WithdrawSetting.js";
 
 import { protectUser } from "../middleware/protectUser.js";
 import { protectAdmin, requirePermission, requireWrite } from "../middleware/protectAdmin.js";
@@ -15,6 +16,7 @@ import { isOtpRequired, isVerified, clearOtp } from "../utils/otp.js";
 import { verificationGate } from "../utils/verificationGate.js";
 import { checkTxPassword } from "../utils/txPassword.js";
 import { creditUser, writeLogs } from "../utils/wallet.js";
+import { dayStart } from "../utils/referral.js";
 
 const router = express.Router();
 
@@ -28,6 +30,14 @@ const isId = (value) => mongoose.Types.ObjectId.isValid(String(value));
  * শর্ত বাকি। দুটোই আলাদা করে বলা হয়, যাতে ব্যবহারকারী বুঝতে পারেন কী
  * করতে হবে।
  */
+/** আজ (বাংলাদেশের দিন) আর কতবার তোলা যাবে — `null` মানে সীমা নেই */
+const remainingToday = async (userId) => {
+  const { dailyCount } = await WithdrawSetting.current();
+  if (!dailyCount) return { limit: 0, remaining: null };
+  const used = await WithdrawRequest.countDocuments({ user: userId, createdAt: { $gte: dayStart() }, status: { $ne: "rejected" } });
+  return { limit: dailyCount, remaining: Math.max(0, dailyCount - used) };
+};
+
 const checkEligibility = async (userId) => {
   // পরিচয় যাচাই সবার আগে — টার্নওভার বা ঝুলে থাকা আবেদনের কথা বলার
   // আগে এটাই বলা উচিত, কারণ এটা না হলে বাকিগুলো মিটিয়েও লাভ নেই
@@ -55,6 +65,12 @@ const checkEligibility = async (userId) => {
       pendingAmount: pending.amount,
       remaining: 0,
     };
+  }
+
+  // দিনের সীমা (admin এর "Withdraw Methods → দিনে সর্বোচ্চ")
+  const today = await remainingToday(userId);
+  if (today.remaining === 0) {
+    return { eligible: false, reason: "dailyLimit", limit: today.limit, remaining: 0 };
   }
 
   const running = await TurnOver.find({ user: userId, status: "running" })
@@ -95,6 +111,7 @@ router.get("/eligibility", protectUser, async (req, res) => {
     // উত্তোলনের পাতা একবারেই সব জানে — শর্ত, ব্যালেন্স, লেনদেন পাসওয়ার্ড আছে কিনা
     return successResponse(res, "Eligibility checked", {
       ...(await checkEligibility(req.user._id)),
+      today: await remainingToday(req.user._id),
       balance: money(req.user.balance),
       hasTxPassword: Boolean(req.user.txPasswordSetAt),
     });
@@ -124,11 +141,13 @@ router.post("/", protectUser, async (req, res) => {
       const messages = {
         verification: "Please complete identity verification first",
         pendingWithdraw: "You already have a withdraw waiting for review",
+        dailyLimit: "You reached today's withdraw limit",
       };
 
       const codes = {
         verification: "needVerification",
         pendingWithdraw: "pendingWithdraw",
+        dailyLimit: "dailyLimit",
       };
 
       return errorResponse(
@@ -283,6 +302,26 @@ router.get("/my", protectUser, async (req, res) => {
 /* =========================
    অ্যাডমিন
    ========================= */
+
+/** দিনে সর্বোচ্চ কতবার উত্তোলন — admin (mother) */
+router.get("/admin/setting", protectAdmin, async (req, res) => {
+  try {
+    return successResponse(res, "Withdraw setting", { setting: await WithdrawSetting.current() });
+  } catch (error) {
+    return errorResponse(res, error.message, 500);
+  }
+});
+
+router.put("/admin/setting", protectAdmin, requireWrite, async (req, res) => {
+  try {
+    if (req.admin?.role !== "mother") return errorResponse(res, "Only the main admin can change this", 403);
+    const dailyCount = Math.min(1000, Math.max(0, Math.floor(num(req.body?.dailyCount))));
+    const setting = await WithdrawSetting.findOneAndUpdate({ key: "main" }, { $set: { dailyCount } }, { upsert: true, returnDocument: "after", setDefaultsOnInsert: true });
+    return successResponse(res, "Saved", { setting });
+  } catch (error) {
+    return errorResponse(res, error.message, 500);
+  }
+});
 
 router.get("/admin", protectAdmin, requirePermission("withdraw-requests"), async (req, res) => {
   try {

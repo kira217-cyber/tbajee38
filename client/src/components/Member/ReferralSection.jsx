@@ -58,69 +58,78 @@ const DeskOverview = ({ data }) => {
   const setting = data.setting || {};
 
   return (
-    <div className="hide-scrollbar flex" style={{ flex: 1, overflowY: "auto", padding: 18, gap: 18 }}>
-      <div style={{ width: 618, flexShrink: 0 }}>
-        <div className="relative flex items-center overflow-hidden" style={{ height: 148, borderRadius: 10, background: "linear-gradient(90deg,#2a1050,#4c1d95)", padding: "0 26px", gap: 22 }}>
-          <img src="/assets/referral/slot-side.png" alt="" style={{ position: "absolute", left: 0, top: 0, height: "100%", opacity: 0.55 }} />
-          <img src="/assets/referral/slot-side.png" alt="" style={{ position: "absolute", right: 0, top: 0, height: "100%", opacity: 0.55, transform: "scaleX(-1)" }} />
-          <span className="relative" style={{ fontSize: 26, fontWeight: 700, color: "#fff", marginLeft: 40 }}>{page.commission}</span>
-          <img src="/assets/referral/logo-coin.png" alt="" className="relative" style={{ width: 84, height: 84, objectFit: "contain" }} />
-          <div className="relative">
-            <div style={{ fontSize: 24, fontWeight: 700, color: "#fbbf24" }}>{tk(setting.estimatePerInvitee)}</div>
-            <div style={{ fontSize: 12, color: "#e9d5ff", marginTop: 6 }}>{page.commission}</div>
+    <div className="hide-scrollbar" style={{ flex: 1, overflowY: "auto", padding: "10px 25px 20px" }}>
+      <div className="flex" style={{ gap: 20 }}>
+        {/* বাঁ (৬১৮) — কমিশন ব্যানার, কারা পুরস্কার পেয়েছেন */}
+        <div style={{ width: 618, flexShrink: 0 }}>
+          <div className="relative flex items-center overflow-hidden" style={{ height: 152, borderRadius: 10, background: "linear-gradient(90deg,#1e0b3c,#3a1670 50%,#1e0b3c)", padding: "0 26px", gap: 22 }}>
+            <img src="/assets/referral/slot-side.png" alt="" style={{ position: "absolute", left: 0, top: 0, height: "100%", opacity: 0.6 }} />
+            <img src="/assets/referral/slot-side.png" alt="" style={{ position: "absolute", right: 0, top: 0, height: "100%", opacity: 0.6, transform: "scaleX(-1)" }} />
+            <span className="relative" style={{ fontSize: 26, fontWeight: 700, fontStyle: "italic", color: "#fff", marginLeft: 60, width: 180 }}>
+              {page.commission}
+            </span>
+            <img src="/assets/referral/logo-coin.png" alt="" className="relative" style={{ width: 88, height: 88, objectFit: "contain" }} />
+            <div className="relative">
+              <div style={{ fontSize: 24, fontWeight: 700, color: "#fbbf24" }}>{tk(setting.estimatePerInvitee)}</div>
+              <div style={{ fontSize: 13, color: "#fff", fontWeight: 700, marginTop: 8 }}>{page.commission}</div>
+            </div>
+          </div>
+
+          <div style={{ marginTop: 10, height: 248, borderRadius: 10, background: "linear-gradient(90deg,#cfe6ff,#e6c9f3)", padding: "22px 10px 10px" }}>
+            <div style={{ fontSize: 24, color: "#2b2e83", fontWeight: 700, marginBottom: 8, paddingLeft: 0 }}>{page.winnersTitle}</div>
+            <div className="hide-scrollbar" style={{ height: 170, overflowY: "auto" }}>
+              {(data.winners || []).length === 0 ? (
+                <div style={{ fontSize: 13, color: "#888", padding: "8px 4px" }}>{r.noWinners}</div>
+              ) : (
+                data.winners.map((w, i) => (
+                  <div key={i} className="flex items-center" style={{ height: 34, borderRadius: 17, background: "linear-gradient(180deg,#f4f6f9,#dfe5ec)", marginBottom: 10, fontSize: 14, color: "#444" }}>
+                    <span style={{ flex: 1, textAlign: "center" }}>{w.user}</span>
+                    <span style={{ flex: 1, textAlign: "center" }}>{page.received}</span>
+                    <span style={{ flex: 1, textAlign: "center", fontWeight: 600 }}>{tk(w.amount)}</span>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
 
-        <div style={{ marginTop: 16, borderRadius: 10, background: "linear-gradient(135deg,#f3e8ff,#dbeafe)", padding: 18 }}>
-          <div style={{ fontSize: 17, color: "#2b2e83", fontWeight: 700, marginBottom: 12 }}>{page.winnersTitle}</div>
-          <div className="hide-scrollbar" style={{ maxHeight: 130, overflowY: "auto" }}>
-            {(data.winners || []).length === 0 ? (
-              <div style={{ fontSize: 13, color: "#888", padding: "8px 0" }}>{r.noWinners}</div>
-            ) : (
-              data.winners.map((w, i) => (
-                <div key={i} className="flex items-center" style={{ height: 34, borderRadius: 17, background: "rgb(255 255 255 / 0.75)", padding: "0 18px", marginBottom: 8, fontSize: 13, color: "#444" }}>
-                  <span style={{ flex: 1, textAlign: "center" }}>{w.user}</span>
-                  <span style={{ flex: 1, textAlign: "center" }}>{page.received}</span>
-                  <span style={{ flex: 1, textAlign: "center" }}>{tk(w.amount)}</span>
-                </div>
-              ))
-            )}
+        {/* ডান (৪২০) — ২×২ টাইল, এজেন্ট লিংক, শেয়ার */}
+        <div className="flex flex-col" style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            {TILES.map((tile) => (
+              <div key={tile.key} className="flex flex-col items-center justify-center" style={{ height: 100, background: tile.bg, borderRadius: 10, color: "#fff" }}>
+                <div style={{ fontSize: 13, fontWeight: 700 }}>{page.stats[tile.key]}</div>
+                <div style={{ fontSize: 22, fontWeight: 700, marginTop: 6 }}>{tile.pick(ov)}</div>
+              </div>
+            ))}
+          </div>
+
+          <AgentLink href={setting.agentLink} style={{ marginTop: 40, fontSize: 15, fontWeight: 700, color: "#333" }} dot={18} />
+
+          <div style={{ marginTop: "auto" }}>
+            <ShareBox code={data.referralCode} domain={setting.inviteDomain} title={page.shareTitle} />
           </div>
         </div>
+      </div>
 
-        <div style={{ marginTop: 16, fontSize: 17, color: "#2b2e83", fontWeight: 700 }}>{page.rewardTitle}</div>
+      {/* নিচে পুরো চওড়ায় — এখন পর্যন্ত প্রাপ্ত পুরস্কার, তারপর নিয়ম */}
+      <div style={{ marginTop: 10, borderRadius: 8, background: "linear-gradient(180deg,#f4f6fb,#e4e9f1)", padding: "12px 10px" }}>
+        <div style={{ fontSize: 22, color: "#2b2e83", fontWeight: 700 }}>{page.rewardTitle}</div>
         <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
           {REWARD_TYPES.map((key) => (
-            <div key={key} className="flex items-center" style={{ background: "#f6f7fb", borderRadius: 8, padding: 10, gap: 8 }}>
+            <div key={key} className="flex items-center" style={{ background: "#fff", borderRadius: 8, padding: 10, gap: 8 }}>
               <img src={`/assets/referral/reward-${key}.png`} alt="" style={{ width: 34, height: 34, objectFit: "contain" }} />
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: 11, color: "#666" }}>{r.types[key]}</div>
-                <div className="truncate" style={{ fontSize: 13, color: "#4c1d95", fontWeight: 700, marginTop: 3 }}>{tk(data.site?.[key]?.amount)}</div>
-                <div style={{ fontSize: 10, color: "#999", marginTop: 2 }}>{r.claimedCount.replace("{n}", data.site?.[key]?.members ?? 0)}</div>
+                <div style={{ fontSize: 12, color: "#666" }}>{r.types[key]}</div>
+                <div className="truncate" style={{ fontSize: 14, color: "#4c1d95", fontWeight: 700, marginTop: 3 }}>{tk(data.site?.[key]?.amount)}</div>
+                <div style={{ fontSize: 11, color: "#999", marginTop: 2 }}>{r.claimedCount.replace("{n}", data.site?.[key]?.members ?? 0)}</div>
               </div>
             </div>
           ))}
         </div>
-
-        <Rules setting={setting} />
       </div>
 
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-          {TILES.map((tile) => (
-            <div key={tile.key} className="text-center" style={{ background: tile.bg, borderRadius: 10, padding: "18px 0", color: "#fff" }}>
-              <div style={{ fontSize: 13 }}>{page.stats[tile.key]}</div>
-              <div style={{ fontSize: 20, fontWeight: 700, marginTop: 8 }}>{tile.pick(ov)}</div>
-            </div>
-          ))}
-        </div>
-
-        <AgentLink href={setting.agentLink} style={{ marginTop: 16, fontSize: 13 }} dot={16} />
-
-        <div style={{ marginTop: 16 }}>
-          <ShareBox code={data.referralCode} domain={setting.inviteDomain} title={page.shareTitle} />
-        </div>
-      </div>
+      <Rules setting={setting} />
     </div>
   );
 };
@@ -177,17 +186,17 @@ const Desktop = () => {
 
   return (
     <div className="flex flex-col" style={{ width: 1110, height: 620, background: "#fff" }}>
-      <div className="flex items-center" style={{ height: 52, borderBottom: "1px solid #eee", padding: "0 56px 0 20px" }}>
+      <div className="flex items-center" style={{ height: 47, borderBottom: "1px solid #eee", padding: "0 60px 0 30px", gap: 20 }}>
         {page.tabs.map((label, index) => (
           <button
             key={label}
             type="button"
             onClick={() => setTab(index)}
             className="relative h-full cursor-pointer"
-            style={{ padding: "0 18px", fontSize: 14, color: index === tab ? "#e8474c" : "#666" }}
+            style={{ padding: "0 10px", fontSize: 14, color: index === tab ? "#fd2f2f" : "#666" }}
           >
             {label}
-            {index === tab && <span className="absolute bottom-0 left-1/2 -translate-x-1/2" style={{ width: "70%", height: 2, background: "#e8474c" }} />}
+            {index === tab && <span className="absolute bottom-0 left-0 right-0" style={{ height: 3, background: "#fd2f2f" }} />}
           </button>
         ))}
         {off ? <span style={{ marginLeft: "auto", fontSize: 12, color: "#e8474c" }}>{r.off}</span> : null}
