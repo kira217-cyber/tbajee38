@@ -257,6 +257,9 @@ export const navItems = [
       { key: "register-bonus", path: "/register-bonus", label: "Register Bonus", icon: "Gift", motherOnly: true },
       { key: "referral", path: "/referral", label: "Referral Program", icon: "Gift", motherOnly: true },
       { key: "referral-rewards", path: "/referral-rewards", label: "Referral Rewards", icon: "History", perm: "referral-rewards" },
+      { key: "reward-tickets", path: "/reward-tickets", label: "Reward Tickets", icon: "Ticket", perm: "rewards" },
+      { key: "reward-signin", path: "/reward-signin", label: "Sign-in Setting", icon: "CalendarCheck", perm: "rewards" },
+      { key: "reward-history", path: "/reward-history", label: "Ticket History", icon: "History", perm: "rewards" },
     ],
   },
 
@@ -377,6 +380,7 @@ export const allPermissions = [
   },
   { key: "vip-history", label: "VIP History", path: "/vip-history" },
   { key: "referral-rewards", label: "Referral Rewards", path: "/referral-rewards" },
+  { key: "rewards", label: "Reward Center (tickets, sign-in)", path: "/reward-tickets" },
   { key: "notifications", label: "Inbox Messages", path: "/notifications" },
   { key: "feedback", label: "Feedback", path: "/feedback" },
   {

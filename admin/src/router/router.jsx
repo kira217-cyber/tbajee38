@@ -26,6 +26,9 @@ import AffiliateVerification from "../pages/Verification/AffiliateVerification";
 import TurnoverHistory from "../pages/TurnoverHistory/TurnoverHistory";
 import ReferralProgram from "../pages/Referral/ReferralProgram";
 import ReferralRewards from "../pages/Referral/ReferralRewards";
+import RewardTemplates from "../pages/Rewards/RewardTemplates";
+import RewardTickets from "../pages/Rewards/RewardTickets";
+import SignInSetting from "../pages/Rewards/SignInSetting";
 import VipLevels from "../pages/Vip/VipLevels";
 import VipSettings from "../pages/Vip/VipSettings";
 import VipHistory from "../pages/Vip/VipHistory";
@@ -72,6 +75,9 @@ const REAL_PAGES = {
   "/otp-setting": <OtpSetting />,
   "/referral": <ReferralProgram />,
   "/referral-rewards": <ReferralRewards />,
+  "/reward-tickets": <RewardTemplates />,
+  "/reward-signin": <SignInSetting />,
+  "/reward-history": <RewardTickets />,
   "/vip-levels": <VipLevels />,
   "/vip-settings": <VipSettings />,
   "/vip-history": <VipHistory />,
