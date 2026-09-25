@@ -442,3 +442,9 @@ body::-webkit-scrollbar,
   width: calc(100% - 32px);
   box-shadow: none;
 }
+
+/* ডেস্কটপ অ্যাকাউন্টের ড্রয়ার — ডান থেকে ঢোকে (মূল সাইটের .setting-modal) */
+@keyframes tb-drawer-in {
+  from { transform: translateX(40px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
