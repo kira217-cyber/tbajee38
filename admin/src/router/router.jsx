@@ -29,6 +29,11 @@ import ReferralRewards from "../pages/Referral/ReferralRewards";
 import VipLevels from "../pages/Vip/VipLevels";
 import VipSettings from "../pages/Vip/VipSettings";
 import VipHistory from "../pages/Vip/VipHistory";
+import { Popups, Sliders } from "../pages/SiteContent/ImageListPage";
+import Notices from "../pages/SiteContent/Notices";
+import SitePromotions from "../pages/SiteContent/Promotions";
+import ContactLinks from "../pages/SiteContent/ContactLinks";
+import InboxMessages from "../pages/SiteContent/InboxMessages";
 import Placeholder from "../pages/Placeholder/Placeholder";
 import NotFoundPage from "../pages/NotFoundPage/NotFoundPage";
 import { navItems } from "../data/navigation";
@@ -69,6 +74,12 @@ const REAL_PAGES = {
   "/vip-levels": <VipLevels />,
   "/vip-settings": <VipSettings />,
   "/vip-history": <VipHistory />,
+  "/sliders": <Sliders />,
+  "/popups": <Popups />,
+  "/site-notice": <Notices />,
+  "/promotions": <SitePromotions />,
+  "/contact-links": <ContactLinks />,
+  "/notifications": <InboxMessages />,
 };
 
 /** নেস্টেড তালিকাটা সমতল করে — গ্রুপের নামও সাথে রাখি */

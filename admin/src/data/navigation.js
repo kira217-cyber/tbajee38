@@ -318,6 +318,7 @@ export const navItems = [
     children: [
       { key: "sliders", path: "/sliders", label: "Home Sliders", icon: "Images", motherOnly: true },
       { key: "site-notice", path: "/site-notice", label: "Notice", icon: "Megaphone", motherOnly: true },
+      { key: "popups", path: "/popups", label: "Popups", icon: "Image", motherOnly: true },
       { key: "home-events", path: "/home-events", label: "Home Events", icon: "CalendarClock", motherOnly: true },
       { key: "promotions", path: "/promotions", label: "Promotions", icon: "Gift", motherOnly: true },
     ],
@@ -332,7 +333,7 @@ export const navItems = [
       { key: "contact-links", path: "/contact-links", label: "Contact Links", icon: "Phone", motherOnly: true },
       { key: "app-download", path: "/app-download", label: "App Download", icon: "Smartphone", motherOnly: true },
       { key: "app-download-content", path: "/app-download-content", label: "App Download Content", icon: "Smartphone", motherOnly: true },
-      { key: "notifications", path: "/notifications", label: "Notifications", icon: "Bell", motherOnly: true },
+      { key: "notifications", path: "/notifications", label: "Inbox Messages", icon: "Bell", perm: "notifications" },
       { key: "otp-setting", path: "/otp-setting", label: "OTP Setting", icon: "MessageSquareLock", motherOnly: true },
       { key: "maintenance", path: "/maintenance", label: "Site Maintenance", icon: "Wrench", motherOnly: true },
     ],
@@ -375,6 +376,7 @@ export const allPermissions = [
   },
   { key: "vip-history", label: "VIP History", path: "/vip-history" },
   { key: "referral-rewards", label: "Referral Rewards", path: "/referral-rewards" },
+  { key: "notifications", label: "Inbox Messages", path: "/notifications" },
   {
     key: "aff-withdraw-requests",
     label: "Affiliate Withdraws",
