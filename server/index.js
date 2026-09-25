@@ -10,6 +10,22 @@ import dashboardRoutes from "./routes/dashboardRoutes.js";
 import gameApiKeyRoutes from "./routes/gameApiKeyRoutes.js";
 import gameRoutes from "./routes/gameRoutes.js";
 import playGameRoutes from "./routes/playGameRoutes.js";
+import maintenanceRoutes from "./routes/maintenanceRoutes.js";
+import userAuthRoutes from "./routes/userAuthRoutes.js";
+import otpSettingRoutes from "./routes/otpSettingRoutes.js";
+import adminUserRoutes from "./routes/adminUserRoutes.js";
+import callbackRoutes from "./routes/callbackRoutes.js";
+import gameHistoryRoutes from "./routes/gameHistoryRoutes.js";
+import depositMethodRoutes from "./routes/depositMethodRoutes.js";
+import depositFieldRoutes from "./routes/depositFieldRoutes.js";
+import depositBonusTurnoverRoutes from "./routes/depositBonusTurnoverRoutes.js";
+import depositRequestRoutes from "./routes/depositRequestRoutes.js";
+import adminManualDepositRoutes from "./routes/adminManualDepositRoutes.js";
+import withdrawMethodRoutes from "./routes/withdrawMethodRoutes.js";
+import withdrawRequestRoutes from "./routes/withdrawRequestRoutes.js";
+import eWalletRoutes from "./routes/eWalletRoutes.js";
+import txPasswordRoutes from "./routes/txPasswordRoutes.js";
+import turnoverRoutes from "./routes/turnoverRoutes.js";
 
 dotenv.config();
 
@@ -59,6 +75,9 @@ app.use(
     limit: 300,
     standardHeaders: "draft-7",
     legacyHeaders: false,
+    // গেমের callback সব খেলোয়াড়ের বাজি নিয়ে এক-দুটো IP থেকে আসে —
+    // সীমায় পড়লে বাজি আটকে যেত; ওটার পাহারা URL এর গোপন টোকেন
+    skip: (req) => req.path.startsWith("/callback"),
   }),
 );
 
@@ -74,11 +93,41 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/admin/game-api-key", gameApiKeyRoutes);
 
+// admin এর Users / Affiliates — তালিকা, বিস্তারিত, ইতিহাস, বদলানো
+app.use("/api/admin/manage", adminUserRoutes);
+
 // ক্লায়েন্টের গেম — White-label master থেকে প্রক্সি
 app.use("/api/games", gameRoutes);
 
 // গেম চালু — এখন শুধু ফ্রি ট্রায়াল (০ ব্যালেন্সে); অ্যাডমিনের launch key ও এখানে
 app.use("/api/play-game", playGameRoutes);
+
+// গেমের প্রতিটা বাজির কাটা-জমা (seamless wallet) — URL এ গোপন টোকেন লাগে
+app.use("/api/callback", callbackRoutes);
+
+// খেলার ইতিহাস (বেটিং রেকর্ড) আর টার্নওভার — খেলোয়াড় ও admin
+app.use("/api/game-history", gameHistoryRoutes);
+app.use("/api/turnover", turnoverRoutes);
+
+// ম্যানুয়াল ডিপোজিট — মেথড, ফর্মের ঘর, বোনাস-টার্নওভার, রিকোয়েস্ট, admin এর সরাসরি জমা
+app.use("/api/deposit-methods", depositMethodRoutes);
+app.use("/api/deposit-fields", depositFieldRoutes);
+app.use("/api/deposit-bonus-turnover", depositBonusTurnoverRoutes);
+app.use("/api/deposit-requests", depositRequestRoutes);
+app.use("/api/manual-deposit", adminManualDepositRoutes);
+
+// উত্তোলন — মেথড, রিকোয়েস্ট, খেলোয়াড়ের ই-ওয়ালেট, লেনদেন পাসওয়ার্ড
+app.use("/api/withdraw-methods", withdrawMethodRoutes);
+app.use("/api/withdraw-requests", withdrawRequestRoutes);
+app.use("/api/e-wallets", eWalletRoutes);
+app.use("/api/profile/tx-password", txPasswordRoutes);
+
+// সাইট রক্ষণাবেক্ষণ — অ্যাডমিন নিজে, বা গেম API পরপর ব্যর্থ হলে নিজে থেকে
+app.use("/api/maintenance", maintenanceRoutes);
+
+// খেলোয়াড় ও অ্যাফিলিয়েটের অ্যাকাউন্ট (একই রুট, `site` দিয়ে আলাদা)
+app.use("/api/user", userAuthRoutes);
+app.use("/api/otp-setting", otpSettingRoutes);
 
 app.use((req, res) => {
   res.status(404).json({
