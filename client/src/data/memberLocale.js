@@ -47,7 +47,7 @@ export const memberPagesLocale = {
     },
     referral: {
       title: "বন্ধুদের আমন্ত্রণ জানান",
-      tabs: ["সংক্ষিপ্ত বর্ণনা", "পুরস্কার", "আয়", "রেকর্ডস", "আমার দল"],
+      tabs: ["সংক্ষিপ্ত বর্ণনা", "পুরস্কার", "আয়", "রেকর্ডস", "আমন্ত্রিতদের তালিকা"],
       shareTitle: "আপনার বন্ধুদের সাথে ভাগ করুন",
       saveCode: "কোড সংরক্ষণ",
       copy: "কপি",
@@ -59,10 +59,6 @@ export const memberPagesLocale = {
       },
       commission: "বাজি কমিশন",
       rewardTitle: "প্রাপ্ত পুরস্কার",
-      rewards: [
-        { name: "আমন্ত্রণ পুরস্কার", amount: "412,866,288.00", claimed: "364524 দাবিত" },
-        { name: "সাফল্য পুরস্কার", amount: "245,783,304.00", claimed: "172968 দাবিত" },
-      ],
     },
     rebate: {
       title: "রিবেট",
@@ -137,7 +133,7 @@ export const memberPagesLocale = {
     },
     referral: {
       title: "Invite Friends",
-      tabs: ["Overview", "Rewards", "Income", "Records", "My Team"],
+      tabs: ["Overview", "Rewards", "Income", "Records", "Invitee list"],
       shareTitle: "Share with your friends",
       saveCode: "Save code",
       copy: "Copy",
@@ -149,10 +145,6 @@ export const memberPagesLocale = {
       },
       commission: "Bet commission",
       rewardTitle: "Rewards received",
-      rewards: [
-        { name: "Invitation reward", amount: "412,866,288.00", claimed: "364524 claimed" },
-        { name: "Achievement reward", amount: "245,783,304.00", claimed: "172968 claimed" },
-      ],
     },
     rebate: {
       title: "Rebate",

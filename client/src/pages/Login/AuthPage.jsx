@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { storedReferral } from "../../utils/referralLink";
 import { Navigate, useLocation, useNavigate, useSearchParams } from "react-router";
 import { useSelector } from "react-redux";
 
@@ -34,7 +35,8 @@ const AuthForm = ({ mode, onDone, onReset }) => {
   const location = useLocation();
   const [params] = useSearchParams();
   const isLogin = mode === "login";
-  const [refFromLink] = useState(() => params.get("ref") || "");
+  // আমন্ত্রণ লিংকের কোড — URL বা সাইট খোলার সময় রাখা কোড থেকে
+  const [refFromLink] = useState(() => params.get("referralCode") || params.get("ref") || storedReferral());
 
   // মোবাইলের চেকবক্স মূল সাইটে আগে থেকেই টিক দেওয়া
   const f = useAuthFlow(mode, { onDone, initialReferral: refFromLink, defaultRemember: true });

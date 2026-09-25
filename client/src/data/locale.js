@@ -115,6 +115,106 @@ export const locale = {
       }
     },
 
+    referralFlow: {
+      "types": {
+        "invitation": "আমন্ত্রণ পুরস্কার",
+        "achievement": "সাফল্য পুরস্কার",
+        "deposit": "ডিপোজিট রিবেট",
+        "betting": "বেটিং রিবেট"
+      },
+      "claimedCount": "{n} দাবিত",
+      "copied": "লিংক কপি হয়েছে",
+      "codeCopied": "আমন্ত্রণ কোড কপি হয়েছে",
+      "myCode": "আমার আমন্ত্রণ কোড",
+      "milestoneText": "মোট {n} টির বেশি বৈধ আমন্ত্রিত।",
+      "notExpired": "মেয়াদ শেষ হয়নি",
+      "state": {
+        "locked": "উপলব্ধ",
+        "claimable": "দাবি করুন",
+        "claimed": "দাবিত"
+      },
+      "todayIncome": "আজকের আয়:",
+      "totalIncome": "মোট আয়",
+      "members": "সূচিপত্রধারী",
+      "qualified": "যোগ্য পরিচায়করা",
+      "depositors": "জমাদানকারী",
+      "note": "নোট: বন্ধুদের বাজির কমিশন ১৫ মিনিট পরপর ব্যালেন্সে যোগ হয়।",
+      "cols": {
+        "registered": "নিবন্ধনের তারিখ",
+        "user": "ব্যবহারকারীর নাম",
+        "amount": "পরিমাণ",
+        "status": "অবস্থা",
+        "date": "তারিখ",
+        "detail": "বিবরণ"
+      },
+      "total": "মোট",
+      "ranges": {
+        "today": "আজ",
+        "yesterday": "গতকাল",
+        "7d": "৭ দিন",
+        "all": "সব"
+      },
+      "statusFilter": {
+        "all": "সব",
+        "qualified": "যোগ্য",
+        "unqualified": "অযোগ্য"
+      },
+      "isQualified": "যোগ্য",
+      "notQualified": "এখনো যোগ্য নয়",
+      "currentMonth": "বর্তমান মাস",
+      "friendsBets": "বন্ধুদের বাজি",
+      "tierLine": "স্তর {n}",
+      "programTitle": "TBAJEE এর রেফারেল প্রোগ্রাম",
+      "programSub": "বন্ধুদের আমন্ত্রণ জানান, আরও উপার্জন করুন",
+      "perInvite": "প্রতিটি আমন্ত্রণে",
+      "perDeposit": "প্রতি ডিপোজিট এ",
+      "betTiers": "৩ স্তরের বাজি কমিশন",
+      "milestoneMax": "অর্জন বোনাস",
+      "qualifyRule": "বন্ধু মোট ৳{d} জমা ও ৳{b} বাজি করলে যোগ্য হন।",
+      "rulesTitle": "নিয়মাবলী",
+      "claimSuccess": "৳{n} ব্যালেন্সে যোগ হয়েছে",
+      "nothing": "দাবি করার মতো কিছু নেই",
+      "notPlayer": "অ্যাফিলিয়েট অ্যাকাউন্টে এই প্রোগ্রাম নেই",
+      "off": "আমন্ত্রণ প্রোগ্রাম এখন বন্ধ আছে",
+      "noWinners": "এখনো কেউ পুরস্কার পাননি",
+      "shareText": "TBAJEE তে যোগ দিন — আমার আমন্ত্রণ লিংক:",
+      "agentLink": "এজেন্ট ৪ সুপার কমিশন",
+      "loading": "লোড হচ্ছে…"
+    },
+
+    rebateFlow: {
+      "kinds": {
+        "slot": "স্লট",
+        "fishing": "ফিশিং",
+        "live": "লাইভ",
+        "poker": "পোকার",
+        "sports": "খেলা"
+      },
+      "date": "নিবেশ তারিখ",
+      "total": "মোট",
+      "refresh": "রিফ্রেশ",
+      "claim": "দাবি করুন",
+      "level": "আপনার স্তর",
+      "rateNote": "হার আপনার VIP স্তর অনুযায়ী; শেষ দাবির পর থেকে (সর্বোচ্চ {d} দিন) বাজি গোনা হয়।",
+      "claimed": "৳{n} রিবেট ব্যালেন্সে যোগ হয়েছে",
+      "historyCols": [
+        "সময়",
+        "অর্ডার নম্বর",
+        "পরিমাণ",
+        "ব্যালেন্স"
+      ],
+      "err": {
+        "rebateOff": "রিবেট এখন বন্ধ আছে",
+        "rebateTooLow": "কমপক্ষে ৳{n} হলে দাবি করা যাবে",
+        "rebateBusy": "একটু পরে আবার চেষ্টা করুন"
+      },
+      "days": {
+        "today": "আজ",
+        "days7": "৭ দিন",
+        "month": "এই মাস"
+      }
+    },
+
     records: {
       types: {
         deposit: "জমা",
@@ -693,6 +793,106 @@ export const locale = {
         "otpExpired": "The code has expired — send it again",
         "otpWait": "You can ask for a new code in a moment",
         "tooMany": "Too many attempts — please try again later"
+      }
+    },
+
+    referralFlow: {
+      "types": {
+        "invitation": "Invitation reward",
+        "achievement": "Achievement reward",
+        "deposit": "Deposit rebate",
+        "betting": "Betting rebate"
+      },
+      "claimedCount": "{n} claimed",
+      "copied": "Link copied",
+      "codeCopied": "Invitation code copied",
+      "myCode": "My invitation code",
+      "milestoneText": "More than {n} valid invitees in total.",
+      "notExpired": "Not expired",
+      "state": {
+        "locked": "Available",
+        "claimable": "Claim",
+        "claimed": "Claimed"
+      },
+      "todayIncome": "Today's income:",
+      "totalIncome": "Total income",
+      "members": "Referred members",
+      "qualified": "Qualified referrals",
+      "depositors": "Depositors",
+      "note": "Note: friends' bet commission is added to your balance every 15 minutes.",
+      "cols": {
+        "registered": "Registered",
+        "user": "Username",
+        "amount": "Amount",
+        "status": "Status",
+        "date": "Date",
+        "detail": "Detail"
+      },
+      "total": "Total",
+      "ranges": {
+        "today": "Today",
+        "yesterday": "Yesterday",
+        "7d": "7 days",
+        "all": "All"
+      },
+      "statusFilter": {
+        "all": "All",
+        "qualified": "Qualified",
+        "unqualified": "Not qualified"
+      },
+      "isQualified": "Qualified",
+      "notQualified": "Not qualified yet",
+      "currentMonth": "This month",
+      "friendsBets": "Friends' bets",
+      "tierLine": "Level {n}",
+      "programTitle": "TBAJEE referral program",
+      "programSub": "Invite more friends, earn more",
+      "perInvite": "Per invitation",
+      "perDeposit": "On every deposit",
+      "betTiers": "3-level bet commission",
+      "milestoneMax": "Achievement bonus",
+      "qualifyRule": "A friend qualifies after depositing ৳{d} and betting ৳{b} in total.",
+      "rulesTitle": "Rules",
+      "claimSuccess": "৳{n} added to your balance",
+      "nothing": "Nothing to claim",
+      "notPlayer": "This program is not available on affiliate accounts",
+      "off": "The invitation program is off right now",
+      "noWinners": "Nobody has been rewarded yet",
+      "shareText": "Join TBAJEE — my invitation link:",
+      "agentLink": "Agent 4 super commissions",
+      "loading": "Loading…"
+    },
+
+    rebateFlow: {
+      "kinds": {
+        "slot": "Slot",
+        "fishing": "Fishing",
+        "live": "Live",
+        "poker": "Poker",
+        "sports": "Sports"
+      },
+      "date": "Bet date",
+      "total": "Total",
+      "refresh": "Refresh",
+      "claim": "Claim",
+      "level": "Your level",
+      "rateNote": "Rates follow your VIP level; bets since your last claim (up to {d} days) are counted.",
+      "claimed": "৳{n} rebate added to your balance",
+      "historyCols": [
+        "Time",
+        "Order no.",
+        "Amount",
+        "Balance"
+      ],
+      "err": {
+        "rebateOff": "Rebate is off right now",
+        "rebateTooLow": "You can claim once it reaches ৳{n}",
+        "rebateBusy": "Please try again in a moment"
+      },
+      "days": {
+        "today": "Today",
+        "days7": "7 days",
+        "month": "This month"
       }
     },
 

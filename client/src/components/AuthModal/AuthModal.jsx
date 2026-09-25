@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { storedReferral } from "../../utils/referralLink";
 
 import Icon from "../Icon/Icon";
 import { useLanguage } from "../../Context/LanguageProvider";
@@ -158,13 +159,8 @@ const codeLabel = (f, t, again) => (f.countdown > 0 ? `${f.countdown}s` : again 
    লগইন / নিবন্ধন
    ========================= */
 
-const readRef = () => {
-  try {
-    return new URLSearchParams(window.location.search).get("ref") || "";
-  } catch {
-    return "";
-  }
-};
+// আমন্ত্রণ লিংকের কোড — URL বা সাইট খোলার সময় রাখা কোড থেকে
+const readRef = storedReferral;
 
 const AuthForm = ({ mode, onDone, onForgot }) => {
   const { t } = useLanguage();
