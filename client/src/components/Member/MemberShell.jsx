@@ -70,7 +70,7 @@ export const FilterChips = ({ options, value, onChange }) => (
   </div>
 );
 
-const MemberShell = ({ title, action, headerIcon, tabs, children }) => {
+const MemberShell = ({ title, action, headerIcon, tabs, onTab, children }) => {
   const navigate = useNavigate();
   const [tab, setTab] = useState(tabs?.[0]?.key);
 
@@ -160,7 +160,10 @@ const MemberShell = ({ title, action, headerIcon, tabs, children }) => {
               <button
                 key={item.key}
                 type="button"
-                onClick={() => setTab(item.key)}
+                onClick={() => {
+                  setTab(item.key);
+                  onTab?.(item.key);
+                }}
                 className="relative shrink-0 cursor-pointer"
                 style={{
                   padding: `0 ${m(34)}`,

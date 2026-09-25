@@ -1,27 +1,53 @@
 import { useCallback } from "react";
 import { useNavigate } from "react-router";
+import { useSelector } from "react-redux";
 
 import api from "../../api/axios";
+import { useUI } from "../../Context/uiContext";
+import { selectIsLoggedIn } from "../auth/authSelectors";
 
 /**
- * গেম খোলা — কার্ডে চাপলে খেলার পেজে (`/play/:gameUId`) নিয়ে যায়।
+ * গেম খোলা — খেলার পেজে (`/play/:gameUId`) নিয়ে যায়।
  *
- * এখন সব গেম **ফ্রি ট্রায়ালে** খোলে (০ ব্যালেন্স, লগইন লাগে না)।
+ *   `openGame(game)` — "এখন খেলুন": আসল টাকায়। লগইন না থাকলে আগে লগইন
+ *     (ডেস্কটপে মডাল, মোবাইলে পেজ), আর লগইনের পর সোজা এই গেমেই।
+ *   `openGame(game, { trial: true })` — "ফ্রি ট্রায়াল": লগইন ছাড়া, ০ ব্যালেন্সে।
+ *
  * স্ট্যাটিক ডেটার গেমের gameUId নেই — সেগুলো খোলে না।
  */
 export const useOpenGame = () => {
   const navigate = useNavigate();
+  const loggedIn = useSelector(selectIsLoggedIn);
+  const { openAuth } = useUI();
 
   return useCallback(
-    (game) => {
+    (game, { trial = false } = {}) => {
       if (!game?.gameUId) return false;
-      navigate(`/play/${encodeURIComponent(game.gameUId)}`, {
+      const path = `/play/${encodeURIComponent(game.gameUId)}${trial ? "?trial=1" : ""}`;
+
+      if (!trial && !loggedIn) {
+        openAuth("login", { after: path });
+        return true;
+      }
+
+      navigate(path, {
         state: { name: game.name, from: window.location.pathname + window.location.search },
       });
       return true;
     },
-    [navigate],
+    [navigate, loggedIn, openAuth],
   );
+};
+
+/** server এ আসল খেলা চালু — `{ launchUrl, game, balance }` অথবা `{ error: code }` */
+export const launchGame = async (gameUId) => {
+  try {
+    const res = await api.post("/api/play-game/playgame", { game_uid: gameUId });
+    return res.data?.data || { error: "gameLaunchFailed" };
+  } catch (error) {
+    const status = error?.response?.status;
+    return { error: error?.response?.data?.code || (status === 401 ? "needLogin" : "gameLaunchFailed") };
+  }
 };
 
 const GUEST_KEY = "tbajee:guest";

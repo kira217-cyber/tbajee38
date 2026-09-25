@@ -1,18 +1,28 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router";
+import { useLocation, useNavigate, useParams, useSearchParams } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
 import { X } from "lucide-react";
 
 import { Spinner } from "../../components/Loader/Loader";
 import { useLanguage } from "../../Context/LanguageProvider";
 import { useHideBootLoader } from "../../hook/useHideBootLoader";
-import { launchTrial } from "../../features/game/useOpenGame";
+import { launchGame, launchTrial } from "../../features/game/useOpenGame";
+import { refreshMe } from "../../features/auth/authSlice";
+import { notify } from "../../utils/notify";
+import { fetchMaintenance } from "../../features/maintenance/maintenanceSlice";
+import { selectMaintenance } from "../../features/maintenance/maintenanceSelectors";
+import MaintenanceScreen from "../../components/Maintenance/MaintenanceScreen";
 
 /**
  * খেলার পেজ — `/play/:gameUId`, পুরো পর্দায় গেম (iframe)।
  *
- * এখন সবসময় **ফ্রি ট্রায়াল**: server ০ ব্যালেন্সে গেমের লিংক আনে, তাই
- * লগইন লাগে না আর টাকার কোনো লেনদেন নেই। উপরে ছোট বার — বাঁয়ে বন্ধ,
- * মাঝে গেমের নাম, ডানে "ফ্রি ট্রায়াল" চিহ্ন, যাতে খেলোয়াড় ভুল না বোঝেন।
+ * দুই ধরন:
+ *   আসল খেলা (`/play/:uid`) — লগইন লাগে; গেম খোলে ব্যালেন্স দেখিয়ে, আর
+ *     প্রতিটা বাজির কাটা-জমা server এর callback এ। বন্ধ করলে ব্যালেন্স
+ *     নতুন করে আনা হয়।
+ *   ফ্রি ট্রায়াল (`?trial=1`) — লগইন ছাড়া, ০ ব্যালেন্সে।
+ * উপরে ছোট বার — বাঁয়ে বন্ধ, মাঝে গেমের নাম, ডানে ব্যালেন্স বা
+ * "ফ্রি ট্রায়াল" চিহ্ন, যাতে খেলোয়াড় ভুল না বোঝেন।
  */
 const BAR_H = 44;
 
@@ -22,31 +32,57 @@ const PlayGame = () => {
   const navigate = useNavigate();
   const { t, lang } = useLanguage();
 
-  const [state, setState] = useState({ status: "loading", url: "", name: location.state?.name || "" });
+  const [params] = useSearchParams();
+  const trial = params.get("trial") === "1";
+  const [state, setState] = useState({ status: "loading", url: "", name: location.state?.name || "", balance: null });
 
   useHideBootLoader(true);
 
+  // এই পাতা সাইটের কাঠামোর বাইরে, তাই মেইনটেন্যান্স এখানে আলাদা করে দেখা হয়
+  const dispatch = useDispatch();
+  const maintenance = useSelector(selectMaintenance);
+  useEffect(() => {
+    if (!maintenance.loaded) dispatch(fetchMaintenance());
+  }, [dispatch, maintenance.loaded]);
+
   const start = useCallback(async () => {
     setState((prev) => ({ ...prev, status: "loading" }));
-    const result = await launchTrial(gameUId);
+    const result = trial ? await launchTrial(gameUId) : await launchGame(gameUId);
 
     if (result.launchUrl) {
       const name = lang === "en" ? result.game?.nameEn : result.game?.name;
-      setState({ status: "ready", url: result.launchUrl, name: name || location.state?.name || "" });
+      setState({
+        status: "ready",
+        url: result.launchUrl,
+        name: name || location.state?.name || "",
+        balance: trial ? null : Number(result.balance) || 0,
+      });
+      if (!trial && !(Number(result.balance) >= 1)) notify.info(t.games.lowBalance);
+    } else if (result.error === "needLogin") {
+      // টোকেনের মেয়াদ শেষ — লগইনের পর এই গেমেই ফেরা
+      notify.warning(t.games.needLogin);
+      navigate("/login", { replace: true, state: { from: `/play/${encodeURIComponent(gameUId)}` } });
+    } else if (result.error === "maintenance") {
+      // খেলার মাঝে মোড চালু হলে — অবস্থাটা নতুন করে এনে পুরো পর্দার বার্তা
+      dispatch(fetchMaintenance());
     } else {
       setState((prev) => ({ ...prev, status: result.error === "gameNotReady" ? "notReady" : "failed" }));
     }
-  }, [gameUId, location.state, lang]);
+  }, [gameUId, location.state, lang, dispatch, trial, t, navigate]);
 
   useEffect(() => {
     start();
   }, [start]);
 
   const close = () => {
+    // খেলার মাঝে ব্যালেন্স বদলেছে — হেডারে নতুনটা
+    if (!trial) dispatch(refreshMe());
     if (location.state?.from) navigate(location.state.from);
     else if (window.history.length > 1) navigate(-1);
     else navigate("/");
   };
+
+  if (maintenance.isOn) return <MaintenanceScreen setting={maintenance} />;
 
   return (
     <div className="fixed inset-0 flex flex-col" style={{ background: "#000", zIndex: 1000, fontSize: 14 }}>
@@ -68,19 +104,31 @@ const PlayGame = () => {
           {state.name}
         </span>
 
-        <span
-          className="shrink-0"
-          title={t.games.trialHint}
-          style={{
-            padding: "3px 10px",
-            borderRadius: 20,
-            background: "#1678ff",
-            fontSize: 12,
-            fontWeight: 700,
-          }}
-        >
-          {t.games.trialBadge}
-        </span>
+        {trial ? (
+          <span
+            className="shrink-0"
+            title={t.games.trialHint}
+            style={{
+              padding: "3px 10px",
+              borderRadius: 20,
+              background: "#1678ff",
+              fontSize: 12,
+              fontWeight: 700,
+            }}
+          >
+            {t.games.trialBadge}
+          </span>
+        ) : (
+          state.balance !== null && (
+            <span
+              className="shrink-0"
+              title={t.games.balance}
+              style={{ padding: "3px 10px", borderRadius: 20, background: "rgb(255 255 255 / 0.1)", color: "var(--gold)", fontSize: 13, fontWeight: 700 }}
+            >
+              ৳ {state.balance.toFixed(2)}
+            </span>
+          )
+        )}
       </div>
 
       <div className="relative min-h-0 flex-1">
@@ -110,7 +158,7 @@ const PlayGame = () => {
             >
               <span style={{ color: "#fff", fontSize: 17, fontWeight: 700 }}>{t.games.failed}</span>
               <span style={{ color: "rgb(255 255 255 / 0.65)", fontSize: 14 }}>
-                {state.status === "notReady" ? t.games.notReady : t.games.trialHint}
+                {state.status === "notReady" ? t.games.notReady : trial ? t.games.trialHint : ""}
               </span>
               <div className="flex" style={{ gap: 10, marginTop: 6 }}>
                 <button

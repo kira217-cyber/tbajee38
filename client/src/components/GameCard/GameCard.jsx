@@ -94,11 +94,15 @@ const GameCard = ({ game, showHot = false }) => {
   // ইংরেজিতে ইংরেজি নাম, বাংলায় বাংলা (না থাকলে ইংরেজি)
   const title = lang === "en" ? game.nameEn || game.name : game.name;
   const isDesktop = useIsDesktop();
-  // এখন সব গেম ফ্রি ট্রায়ালে খোলে — "এখন খেলুন" আর "ফ্রি ট্রায়াল" দুটোই
+  // "এখন খেলুন" আসল টাকায় (লগইন লাগে), "ফ্রি ট্রায়াল" লগইন ছাড়া
   const openGame = useOpenGame();
   const open = (e) => {
     e?.stopPropagation();
     openGame(game);
+  };
+  const openTrial = (e) => {
+    e?.stopPropagation();
+    openGame(game, { trial: true });
   };
   // ♥ — এই ব্রাউজারে "আমার প্রিয়" তে রাখা (স্ট্যাটিক গেমের uid নেই, তাই শুধু API এর গেমে)
   const favs = useFavorites();
@@ -304,7 +308,7 @@ const GameCard = ({ game, showHot = false }) => {
             {t.playNow}
           </span>
           <span
-            onClick={open}
+            onClick={openTrial}
             className="tb-action-btn flex cursor-pointer items-center justify-center"
             style={{
               width: 130,

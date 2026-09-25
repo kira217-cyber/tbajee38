@@ -4,6 +4,19 @@ import Icon from "../Icon/Icon";
 import { useLanguage } from "../../Context/LanguageProvider";
 import { m } from "../../hook/useUnits";
 import MemberShell, { EmptyState } from "./MemberShell";
+import { BET_TABS, useBetRecords } from "../../features/history/useBetRecords";
+import { rangeOf, shortDate } from "../../features/history/dateRange";
+
+/** টাকার লেখা — ডেসিমাল টগল বন্ধ থাকলে পূর্ণসংখ্যা (মূল সাইটের মতো) */
+const fmt = (value, decimal = true) => {
+  const n = Number(value) || 0;
+  return decimal
+    ? n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    : Math.round(n).toLocaleString("en-US");
+};
+
+/** লাভ/ক্ষতির রঙ — লাভ সবুজ, ক্ষতি লাল */
+const plColor = (n) => (n > 0 ? "#16a34a" : n < 0 ? "#e8474c" : undefined);
 
 /**
  * রেকর্ড দেখানোর ফিচার — বেটিং রেকর্ড, অ্যাকাউন্ট রেকর্ড,
@@ -35,11 +48,28 @@ const Desktop = ({ tab }) => {
   const [gameTab, setGameTab] = useState(0);
   const [decimal, setDecimal] = useState(false);
 
+  const { lang } = useLanguage();
   const config = t.member.desk[tab];
   const columns = config.columns;
   const tabs = config.tabs ?? [];
 
-  const stamp = new Date().toISOString().slice(5, 10).replace("-", "/");
+  // বেটিং রেকর্ড server থেকে; অন্য রেকর্ডগুলো নিজ নিজ ধাপে আসবে
+  const isBet = tab === "betRecord";
+  const bet = useBetRecords({ range, tab: BET_TABS[gameTab], enabled: isBet });
+
+  const span = rangeOf(range);
+  const from = shortDate(span.from);
+  const to = shortDate(span.to);
+
+  const betCells = (row) => [
+    row.providerCode || "—",
+    fmt(row.bet, decimal),
+    fmt(row.validBet, decimal),
+    fmt(row.win, decimal),
+    <span key="pl" style={{ color: plColor(row.net) }}>{fmt(row.net, decimal)}</span>,
+    (lang === "bn" && row.gameNameBn) || row.gameName || "—",
+    row.count,
+  ];
 
   return (
     <div
@@ -127,7 +157,7 @@ const Desktop = ({ tab }) => {
           }}
         >
           <Icon name="discount-calender" size={16} />
-          {stamp} 00:00:00~{stamp} 23:59
+          {from} 00:00:00~{to} 23:59
         </span>
 
         {config.vendorSelect && (
@@ -201,13 +231,31 @@ const Desktop = ({ tab }) => {
         ))}
       </div>
 
-      {/* খালি অবস্থা */}
-      <div
-        className="flex flex-1 items-center justify-center"
-        style={{ color: "#999", fontSize: 13, background: "#f5f5f5" }}
-      >
-        {t.member.desk.noMatch}
-      </div>
+      {/* সারিগুলো, নয়তো খালি অবস্থা */}
+      {isBet && bet.rows.length > 0 ? (
+        <div className="flex-1 overflow-y-auto" style={{ background: "#fff" }}>
+          {bet.rows.map((row) => (
+            <div
+              key={row.gameUId}
+              className="flex items-center"
+              style={{ height: 40, padding: "0 20px", borderBottom: "1px solid #f0f0f0", fontSize: 12, color: "#333" }}
+            >
+              {betCells(row).map((cell, index) => (
+                <span key={index} className="truncate" style={{ flex: 1, textAlign: "center", padding: "0 4px" }}>
+                  {cell}
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div
+          className="flex flex-1 items-center justify-center"
+          style={{ color: "#999", fontSize: 13, background: "#f5f5f5" }}
+        >
+          {isBet && bet.loading ? t.auth.wait : t.member.desk.noMatch}
+        </div>
+      )}
 
       {/* মোট সারি */}
       <div
@@ -220,9 +268,20 @@ const Desktop = ({ tab }) => {
           color: "#666",
         }}
       >
-        {columns.map((column, index) => (
-          <span key={`${column}-${index}`} style={{ flex: 1, textAlign: "center" }}>
-            {index === 0 ? t.member.desk.total : (config.zero ?? "0.00")}
+        {(isBet
+          ? [
+              t.member.desk.total,
+              fmt(bet.totals.bet, decimal),
+              fmt(bet.totals.validBet, decimal),
+              fmt(bet.totals.win, decimal),
+              <span key="pl" style={{ color: plColor(bet.totals.net) }}>{fmt(bet.totals.net, decimal)}</span>,
+              "",
+              bet.totals.count,
+            ]
+          : columns.map((_, index) => (index === 0 ? t.member.desk.total : (config.zero ?? "0.00")))
+        ).map((cell, index) => (
+          <span key={`total-${index}`} style={{ flex: 1, textAlign: "center" }}>
+            {cell}
           </span>
         ))}
       </div>
@@ -281,9 +340,13 @@ const Desktop = ({ tab }) => {
  */
 const GAME_TABS = ["RNG", "FISH", "LIVE", "PVP", "SPORTS"];
 
-const Mobile = ({ titleKey, withGameTabs = false, withDays7 = false, pageTitle }) => {
-  const { t } = useLanguage();
+const Mobile = ({ tab, titleKey, withGameTabs = false, withDays7 = false, pageTitle }) => {
+  const { t, lang } = useLanguage();
   const [range, setRange] = useState("today");
+  const [gameTab, setGameTab] = useState(GAME_TABS[0]);
+
+  const isBet = tab === "betRecord";
+  const bet = useBetRecords({ range, tab: gameTab, enabled: isBet });
 
   const keys = withDays7
     ? ["today", "yesterday", "days7"]
@@ -298,15 +361,13 @@ const Mobile = ({ titleKey, withGameTabs = false, withDays7 = false, pageTitle }
     ? GAME_TABS.map((key) => ({ key, label: t.gameCenter[key] }))
     : undefined;
 
-  const today = new Date();
-  const stamp = `${String(today.getMonth() + 1).padStart(2, "0")}/${String(
-    today.getDate(),
-  ).padStart(2, "0")}`;
+  const span = rangeOf(range);
 
   return (
     <MemberShell
       title={pageTitle ? t.memberPage.pages[pageTitle].title : t.memberPage.items[titleKey]}
       tabs={tabs}
+      onTab={setGameTab}
     >
       {/* ফিল্টার সারি */}
       <div
@@ -351,11 +412,58 @@ const Mobile = ({ titleKey, withGameTabs = false, withDays7 = false, pageTitle }
           }}
         >
           <Icon name="discount-calender" size={m(34)} />
-          {stamp}- {stamp}
+          {shortDate(span.from)}- {shortDate(span.to)}
         </span>
       </div>
 
-      <EmptyState />
+      {isBet && bet.rows.length > 0 ? (
+        <div style={{ padding: `${m(10)} ${m(24)} ${m(30)}`, background: "#f5f5f9" }}>
+          {/* মোট */}
+          <div
+            className="grid grid-cols-3 text-center"
+            style={{ background: "#1e9bf0", color: "#fff", borderRadius: m(16), padding: `${m(20)} 0`, margin: `${m(10)} 0 ${m(20)}` }}
+          >
+            {[
+              [t.member.desk.betRecord.columns[1], fmt(bet.totals.bet)],
+              [t.member.desk.betRecord.columns[3], fmt(bet.totals.win)],
+              [t.member.desk.betRecord.columns[4], fmt(bet.totals.net)],
+            ].map(([label, value]) => (
+              <div key={label}>
+                <div style={{ fontSize: m(24), opacity: 0.85 }}>{label}</div>
+                <div style={{ fontSize: m(32), fontWeight: 700, marginTop: m(6) }}>{value}</div>
+              </div>
+            ))}
+          </div>
+
+          {bet.rows.map((row) => (
+            <div
+              key={row.gameUId}
+              style={{ background: "#fff", borderRadius: m(16), padding: m(24), marginBottom: m(16), fontSize: m(26), color: "#333" }}
+            >
+              <div className="flex items-center" style={{ gap: m(12), marginBottom: m(14) }}>
+                <span className="min-w-0 flex-1 truncate" style={{ fontSize: m(30), fontWeight: 700 }}>
+                  {(lang === "bn" && row.gameNameBn) || row.gameName || "—"}
+                </span>
+                <span style={{ color: "#1e9bf0", fontSize: m(24) }}>{row.providerCode}</span>
+              </div>
+              {[
+                [t.member.desk.betRecord.columns[1], fmt(row.bet)],
+                [t.member.desk.betRecord.columns[2], fmt(row.validBet)],
+                [t.member.desk.betRecord.columns[3], fmt(row.win)],
+                [t.member.desk.betRecord.columns[4], <span key="pl" style={{ color: plColor(row.net) }}>{fmt(row.net)}</span>],
+                [t.member.desk.betRecord.columns[6], row.count],
+              ].map(([label, value]) => (
+                <div key={label} className="flex justify-between" style={{ padding: `${m(6)} 0`, color: "#666" }}>
+                  <span>{label}</span>
+                  <span style={{ color: "#333", fontWeight: 600 }}>{value}</span>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <EmptyState />
+      )}
 
       {/* অস্বীকরণ বার — মূল সাইটে লাভ-লস ও রিবেটে থাকে */}
       {withDays7 && (

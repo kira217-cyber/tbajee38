@@ -20,7 +20,7 @@ export const memberDeskLocale = {
       vendorSelect: true,
       gear: true,
       columns: [
-        "বেট পরিমাণ",
+        "প্রোভাইডার",
         "বেট পরিমাণ",
         "বৈধ বেট",
         "পুরস্কার",
@@ -129,7 +129,7 @@ export const memberDeskLocale = {
       vendorSelect: true,
       gear: true,
       columns: [
-        "Bet amount",
+        "Provider",
         "Bet amount",
         "Valid bet",
         "Payout",
