@@ -14,7 +14,7 @@ import { num, money } from "../utils/money.js";
 import { isOtpRequired, isVerified, clearOtp } from "../utils/otp.js";
 import { verificationGate } from "../utils/verificationGate.js";
 import { checkTxPassword } from "../utils/txPassword.js";
-import { creditUser } from "../utils/wallet.js";
+import { creditUser, writeLogs } from "../utils/wallet.js";
 
 const router = express.Router();
 
@@ -222,6 +222,10 @@ router.post("/", protectUser, async (req, res) => {
         balanceAfter: money(user.balance),
         status: "pending",
       });
+
+      await writeLogs(user._id, user.balance, [
+        { type: "withdraw", amount: -amount, refType: "WithdrawRequest", refId: request._id, note: `${method.name?.en || methodId} ${wallet.walletNumber}` },
+      ]);
 
       return successResponse(
         res,
@@ -431,6 +435,12 @@ router.patch("/admin/:id/reject", protectAdmin, requireWrite, requirePermission(
 
     // কেটে রাখা টাকা ফেরত — এক ধাপে, খেলার callback এর সাথে ধাক্কা না লাগে
     const user = await creditUser(request.user, request.amount);
+    await writeLogs(
+      request.user,
+      user?.balance,
+      [{ type: "withdraw-refund", amount: request.amount, refType: "WithdrawRequest", refId: request._id, note }],
+      { by: req.admin._id },
+    );
 
     return successResponse(res, "Withdraw rejected, money returned", {
       request,

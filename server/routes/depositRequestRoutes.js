@@ -13,7 +13,7 @@ import { protectAdmin, requirePermission, requireWrite } from "../middleware/pro
 import { successResponse, errorResponse } from "../utils/response.js";
 import { verificationGate } from "../utils/verificationGate.js";
 import { buildDepositCalc, normalizePromoScope, num, money } from "../utils/depositCalc.js";
-import { addCommission, creditUser, debitUser } from "../utils/wallet.js";
+import { addCommission, creditUser, debitUser, writeLogs } from "../utils/wallet.js";
 
 const router = express.Router();
 
@@ -410,6 +410,18 @@ router.patch("/admin/:id/approve", protectAdmin, requireWrite, requirePermission
 
       turnoverCreated = !existing;
     }
+
+    // খাতায় — আসল জমা আর বোনাস আলাদা সারিতে (মূল সাইটের জমা/প্রমোশন ট্যাব)
+    const bonus = money(claimed.calc?.totalBonus);
+    await writeLogs(
+      claimed.user,
+      credited?.balance,
+      [
+        { type: "deposit", amount: money(creditedAmount - bonus), refType: "DepositRequest", refId: claimed._id, note: claimed.display?.methodName?.en || claimed.methodId },
+        { type: "promotion", amount: bonus, refType: "DepositRequest", refId: claimed._id, note: claimed.display?.promoName?.en || "Deposit bonus" },
+      ],
+      { by: req.admin._id },
+    );
 
     const request = await DepositRequest.findById(claimed._id)
       .populate("user", "userId phone balance isActive role")

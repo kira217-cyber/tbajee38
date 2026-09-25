@@ -10,7 +10,7 @@ import TurnOver from "../models/TurnOver.js";
 import { protectAdmin, requirePermission, requireWrite } from "../middleware/protectAdmin.js";
 import { successResponse, errorResponse } from "../utils/response.js";
 import { buildDepositCalc, num, money } from "../utils/depositCalc.js";
-import { addCommission, creditUser, debitUser } from "../utils/wallet.js";
+import { addCommission, creditUser, debitUser, writeLogs } from "../utils/wallet.js";
 
 const router = express.Router();
 
@@ -204,6 +204,17 @@ router.post("/credit", protectAdmin, requireWrite, requirePermission("manual-dep
         { upsert: true, returnDocument: "after", setDefaultsOnInsert: true },
       );
     }
+
+    const bonus = money(built.calc.totalBonus);
+    await writeLogs(
+      user._id,
+      user.balance,
+      [
+        { type: "deposit", amount: money(creditedAmount - bonus), refType: "DepositRequest", refId: request._id, note: "Admin manual deposit" },
+        { type: "promotion", amount: bonus, refType: "DepositRequest", refId: request._id, note: "Deposit bonus" },
+      ],
+      { by: req.admin._id },
+    );
 
     return successResponse(
       res,

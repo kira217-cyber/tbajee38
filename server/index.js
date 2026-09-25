@@ -25,6 +25,7 @@ import withdrawMethodRoutes from "./routes/withdrawMethodRoutes.js";
 import withdrawRequestRoutes from "./routes/withdrawRequestRoutes.js";
 import eWalletRoutes from "./routes/eWalletRoutes.js";
 import txPasswordRoutes from "./routes/txPasswordRoutes.js";
+import accountRecordRoutes from "./routes/accountRecordRoutes.js";
 import turnoverRoutes from "./routes/turnoverRoutes.js";
 
 dotenv.config();
@@ -121,6 +122,9 @@ app.use("/api/withdraw-methods", withdrawMethodRoutes);
 app.use("/api/withdraw-requests", withdrawRequestRoutes);
 app.use("/api/e-wallets", eWalletRoutes);
 app.use("/api/profile/tx-password", txPasswordRoutes);
+
+// খেলোয়াড়ের অ্যাকাউন্ট রেকর্ড (টাকার খাতা) আর দিনভিত্তিক লাভ-ক্ষতি
+app.use("/api/account-records", accountRecordRoutes);
 
 // সাইট রক্ষণাবেক্ষণ — অ্যাডমিন নিজে, বা গেম API পরপর ব্যর্থ হলে নিজে থেকে
 app.use("/api/maintenance", maintenanceRoutes);

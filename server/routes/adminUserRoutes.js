@@ -20,6 +20,7 @@ import {
 import { successResponse, errorResponse } from "../utils/response.js";
 import { num, money } from "../utils/money.js";
 import { normalizeCountryCode, normalizePhone } from "../utils/phone.js";
+import { creditUser, writeLogs } from "../utils/wallet.js";
 
 /**
  * admin এর Users / Affiliates পেজ — তালিকা, বিস্তারিত, ইতিহাস, বদলানো।
@@ -655,9 +656,13 @@ router.patch(
         user.currency = text(body.currency).toUpperCase() || "BDT";
       }
 
-      if (body.balance !== undefined) {
-        user.balance = money(Math.max(0, num(body.balance)));
-      }
+      /*
+       * ব্যালেন্স — নতুন মান সরাসরি বসানো নয়, পার্থক্যটুকু এক ধাপে যোগ,
+       * আর খাতায় "admin-adjust" সারি (কে, কত)। সরাসরি বসালে খেলোয়াড় তখন
+       * খেললে callback এর বদল মুছে যেত, আর BetChokkor এ কোনো চিহ্নই থাকত না।
+       */
+      const balanceDelta =
+        body.balance !== undefined ? money(Math.max(0, num(body.balance)) - num(user.balance)) : 0;
 
       // কমিশনের হার ও জমা টাকা শুধু অ্যাফিলিয়েটের জন্যই অর্থবহ
       if (user.role === "aff-user") {
@@ -685,6 +690,17 @@ router.patch(
       }
 
       await user.save();
+
+      if (balanceDelta !== 0) {
+        const updated = await creditUser(user._id, balanceDelta);
+        user.balance = updated?.balance;
+        await writeLogs(
+          user._id,
+          updated?.balance,
+          [{ type: "admin-adjust", amount: balanceDelta, note: text(body.balanceNote) || "Balance edited by admin" }],
+          { by: req.admin._id },
+        );
+      }
 
       return successResponse(res, "Saved", { user: user.toSafeJSON() });
     } catch (error) {
