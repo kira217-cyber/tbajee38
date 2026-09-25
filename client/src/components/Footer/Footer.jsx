@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { useLanguage } from "../../Context/LanguageProvider";
 import { useIsDesktop } from "../../hook/useIsDesktop";
 import { m } from "../../hook/useUnits";
+import { useHelp } from "../../features/help/useHelp";
+import HelpModal from "../Help/HelpModal";
 
 /**
  * ফুটার।
@@ -151,10 +153,14 @@ const MobileFooter = () => {
 };
 
 const DesktopFooter = () => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  // admin "ডেস্কটপে দেখাও" দিলে সাহায্য কেন্দ্রের লেখা এখানে (মূল সাইটে কলামটা খালি)
+  const { articles } = useHelp("desktop");
+  const [helpAt, setHelpAt] = useState(null);
+  const tv = (v) => (lang === "en" ? v?.en || v?.bn : v?.bn || v?.en) || "";
 
   const columns = [
-    { title: t.footer.help, items: [] },
+    { title: t.footer.help, items: articles.map((a, i) => ({ key: a.id, label: tv(a.title), onClick: () => setHelpAt(i) })) },
     {
       title: t.footer.products,
       items: [
@@ -176,11 +182,19 @@ const DesktopFooter = () => {
             <div key={column.title}>
               <div style={{ color: "#fff", fontSize: 17, marginBottom: 18 }}>{column.title}</div>
               <ul style={{ display: "grid", gap: 12 }}>
-                {column.items.map((item) => (
-                  <li key={item} style={{ color: "var(--text-dim)", fontSize: 16 }}>
-                    {item}
-                  </li>
-                ))}
+                {column.items.map((item) =>
+                  typeof item === "string" ? (
+                    <li key={item} style={{ color: "var(--text-dim)", fontSize: 16 }}>
+                      {item}
+                    </li>
+                  ) : (
+                    <li key={item.key}>
+                      <button type="button" onClick={item.onClick} className="cursor-pointer text-left hover:underline" style={{ color: "var(--text-dim)", fontSize: 16 }}>
+                        {item.label}
+                      </button>
+                    </li>
+                  ),
+                )}
               </ul>
             </div>
           ))}
@@ -219,6 +233,7 @@ const DesktopFooter = () => {
           {t.footer.copyright}
         </div>
       </div>
+      {helpAt !== null && <HelpModal articles={articles} start={helpAt} onClose={() => setHelpAt(null)} />}
     </footer>
   );
 };
