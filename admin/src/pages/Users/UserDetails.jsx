@@ -160,6 +160,7 @@ const UserDetails = ({ kind }) => {
   const [busy, setBusy] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [roleAsk, setRoleAsk] = useState(false);
+  const [settleAsk, setSettleAsk] = useState(false);
   const [rejectAsk, setRejectAsk] = useState(false);
   const [rejectNote, setRejectNote] = useState("");
   const [vipDraft, setVipDraft] = useState({ vipLevel: 0, vipXP: 0, vipPoints: 0 });
@@ -457,6 +458,19 @@ const UserDetails = ({ kind }) => {
             >
               {busy === "tx" ? <Loader2 size={15} className="animate-spin" /> : <KeyRound size={15} />}
               Reset tx password
+            </button>
+          )}
+
+          {/* অ্যাফিলিয়েটের জমে থাকা কমিশন (রেফার + জমা + হার − জিত) ব্যালেন্সে তোলা */}
+          {isAffiliate && (
+            <button
+              type="button"
+              disabled={Boolean(busy)}
+              onClick={() => setSettleAsk(true)}
+              className="ad-btn ad-btn--primary ad-btn--sm"
+            >
+              {busy === "settle" ? <Loader2 size={15} className="animate-spin" /> : <BadgeCheck size={15} />}
+              Settle commission
             </button>
           )}
 
@@ -1288,6 +1302,29 @@ const UserDetails = ({ kind }) => {
           { key: "amount", label: "Amount", render: (r) => (r.amount ? money(r.amount) : "—") },
           { key: "note", label: "Note", render: (r) => r.note || "—" },
         ]}
+      />
+
+      {/* ── কমিশন মেলানো ── */}
+      <ConfirmModal
+        open={settleAsk}
+        busy={busy === "settle"}
+        title="Settle the commission?"
+        message={`Refer ${money(user?.referCommissionBalance)} + Deposit ${money(user?.depositCommissionBalance)} + Game loss ${money(user?.gameLossCommissionBalance)} − Game win ${money(user?.gameWinCommissionBalance)} = ${money(commissionDue)}. This amount moves to the main balance and the four commission balances become 0.${commissionDue < 0 ? " The net is negative: it is taken from the balance as far as it goes, the rest stays as debt." : ""}`}
+        confirmText="Settle"
+        onConfirm={async () => {
+          try {
+            setBusy("settle");
+            const { data } = await api.post(`/api/affiliate/admin/${user._id}/settle`, {});
+            toast.success(`${data.message}: ${money(data.data?.settlement?.applied)}`);
+            setSettleAsk(false);
+            load(true);
+          } catch (err) {
+            toast.error(err?.response?.data?.message || "Could not settle");
+          } finally {
+            setBusy("");
+          }
+        }}
+        onClose={() => busy !== "settle" && setSettleAsk(false)}
       />
 
       {/* ── ভূমিকা বদলের নিশ্চিতকরণ — ব্রাউজারের ডিফল্ট নয় ── */}

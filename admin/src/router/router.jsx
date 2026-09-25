@@ -40,6 +40,8 @@ import InboxMessages from "../pages/SiteContent/InboxMessages";
 import HelpContent from "../pages/SiteContent/HelpContent";
 import HomeEvents from "../pages/SiteContent/HomeEvents";
 import AppDownload from "../pages/SiteContent/AppDownload";
+import AffWithdrawRequests from "../pages/AffWithdrawRequests/AffWithdrawRequests";
+import AffWithdrawMethods from "../pages/AffWithdrawMethods/AffWithdrawMethods";
 import Feedback from "../pages/Feedback/Feedback";
 import Placeholder from "../pages/Placeholder/Placeholder";
 import NotFoundPage from "../pages/NotFoundPage/NotFoundPage";
@@ -93,6 +95,8 @@ const REAL_PAGES = {
   "/help-content": <HelpContent />,
   "/home-events": <HomeEvents />,
   "/app-download": <AppDownload />,
+  "/aff-withdraw-requests": <AffWithdrawRequests />,
+  "/aff-withdraw-methods": <AffWithdrawMethods />,
   "/app-download-content": <AppDownload />,
   "/feedback": <Feedback />,
 };
