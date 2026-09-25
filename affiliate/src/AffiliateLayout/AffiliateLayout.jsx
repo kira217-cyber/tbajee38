@@ -23,6 +23,7 @@ import { selectUser } from "../features/auth/authSelectors";
 import { selectSiteIdentify, selectGlobalLoaded } from "../features/global/globalSelectors";
 import { fetchAffiliateData } from "../features/global/globalSlice";
 import { fetchMe } from "../features/affiliate/affiliateApi";
+import { notify } from "../utils/notify";
 
 const NAV = [
   { to: "/dashboard", end: true, label: "navDashboard", Icon: LayoutDashboard },
@@ -96,9 +97,17 @@ const AffiliateLayout = () => {
     };
   }, [dispatch]);
 
-  const signOut = () => {
+  const signOut = async () => {
+    const ok = await notify.confirm({
+      title: t("logoutTitle"),
+      text: t("logoutText"),
+      confirmText: t("yes"),
+      cancelText: t("cancel"),
+    });
+    if (!ok) return;
     dispatch(logout());
     navigate("/", { replace: true });
+    notify.success(t("logoutOk"));
   };
 
   const sidebar = (

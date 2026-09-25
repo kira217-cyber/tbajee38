@@ -10,6 +10,7 @@ import OtpStep from "../../components/OtpStep/OtpStep";
 import { useLanguage } from "../../Context/LanguageProvider";
 import { setCredentials } from "../../features/auth/authSlice";
 import { authError, loginAffiliate } from "../../features/auth/authApi";
+import { notify } from "../../utils/notify";
 
 /**
  * অ্যাফিলিয়েট লগইন।
@@ -39,6 +40,7 @@ const Login = () => {
 
   const finish = (data) => {
     dispatch(setCredentials({ user: data.user, token: data.token }));
+    notify.success(t("loginOk"), data.user?.userId);
     navigate("/dashboard", { replace: true });
   };
 

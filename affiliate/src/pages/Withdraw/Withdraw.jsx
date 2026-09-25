@@ -17,6 +17,7 @@ import {
   fetchMe,
   submitAffWithdraw,
 } from "../../features/affiliate/affiliateApi";
+import { notify } from "../../utils/notify";
 
 /**
  * অ্যাফিলিয়েটের টাকা তোলা — খেলোয়াড়ের থেকে আলাদা।
@@ -98,6 +99,7 @@ const Withdraw = () => {
       });
 
       setDone(true);
+      notify.success(t("withdrawDone"));
       setAmount("");
       setValues({});
 

@@ -21,6 +21,7 @@ import {
   fetchAffiliate,
   fetchMyUsers,
 } from "../../features/affiliate/affiliateApi";
+import { notify } from "../../utils/notify";
 
 /**
  * অ্যাফিলিয়েটের প্রথম পাতা।
@@ -78,6 +79,7 @@ const Dashboard = () => {
     try {
       await navigator.clipboard.writeText(link);
       setCopied(true);
+      notify.success(t("copied"));
       setTimeout(() => setCopied(false), 1500);
     } catch {
       // ক্লিপবোর্ড বন্ধ থাকলে লিংকটা পর্দাতেই দেখা যাচ্ছে

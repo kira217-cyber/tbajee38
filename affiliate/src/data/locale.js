@@ -558,6 +558,23 @@ export const locale = {
     en: "This area is for affiliates",
   },
 
+  // ── টোস্ট (SweetAlert2) ──
+  loginOk: { bn: "লগইন সফল — স্বাগতম", en: "Login successful — welcome" },
+  logoutTitle: { bn: "লগআউট করবেন?", en: "Log out?" },
+  logoutText: { bn: "প্যানেলে ঢুকতে আবার লগইন করতে হবে।", en: "You will need to log in again to open the panel." },
+  logoutOk: { bn: "লগআউট হয়েছে", en: "Logged out" },
+  yes: { bn: "হ্যাঁ", en: "Yes" },
+  cancel: { bn: "বাতিল", en: "Cancel" },
+  errForgotUnavailable: {
+    bn: "এই অ্যাকাউন্টের পাসওয়ার্ড অনলাইনে ফেরত আনা যাচ্ছে না — সাপোর্টে যোগাযোগ করুন",
+    en: "The password of this account can't be recovered online — please contact support",
+  },
+  errNoPhone: {
+    bn: "এই অ্যাকাউন্টে কোনো মোবাইল নম্বর নেই — সাপোর্টে যোগাযোগ করুন",
+    en: "This account has no mobile number — please contact support",
+  },
+  errBadPhone: { bn: "সঠিক মোবাইল নম্বর দিন (০১XXXXXXXXX)", en: "Enter a valid mobile number (01XXXXXXXXX)" },
+
   // ── 404 ──
   notFoundText: {
     bn: "দুঃখিত, আপনি যে পেজটি খুঁজছেন তা পাওয়া যায়নি।",

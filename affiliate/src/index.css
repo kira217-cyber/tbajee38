@@ -658,3 +658,70 @@ body {
     transform: rotate(1turn) rotateX(66deg) rotate(1turn);
   }
 }
+
+/* ── SweetAlert2 (utils/notify.js) — অ্যাফিলিয়েট থিমের রঙে ── */
+.swal2-container {
+  z-index: 3000 !important;
+}
+/* মোবাইলে সাইটের rem বড় (৭৫০-ডিজাইন), SweetAlert2 এর আইকন em/rem এ
+   মাপা — তাই ফন্ট-মাপ px এ বেঁধে দেওয়া, নইলে আইকন বিশাল হয়ে যায় */
+.swal2-container .swal2-popup {
+  font-size: 16px;
+}
+.tb-swal-toast.swal2-popup.swal2-toast {
+  width: auto;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.45);
+  border: 1px solid rgb(255 255 255 / 0.06);
+  padding: 10px 14px;
+  max-width: min(92vw, 420px);
+}
+.tb-swal-toast-title.swal2-title {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+}
+.tb-swal-toast .swal2-html-container {
+  font-size: 13px !important;
+  color: var(--neutral400) !important;
+}
+.tb-swal-toast .swal2-timer-progress-bar {
+  background: var(--accent-bright);
+}
+.tb-swal-toast .swal2-loader {
+  border-color: var(--accent-bright) transparent var(--accent-bright) transparent;
+}
+.tb-swal-popup.swal2-popup {
+  border-radius: 20px;
+  width: min(92vw, 400px);
+  padding: 28px 24px 24px;
+}
+.tb-swal-title.swal2-title {
+  font-size: 20px;
+  font-weight: 700;
+}
+.tb-swal-text.swal2-html-container {
+  font-size: 14px;
+  color: var(--neutral400);
+}
+.tb-swal-actions.swal2-actions {
+  gap: 12px;
+  width: 100%;
+  flex-wrap: nowrap;
+}
+.tb-swal-btn {
+  flex: 1;
+  height: 46px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.tb-swal-btn-primary {
+  background: var(--accent-bright);
+  color: var(--neutral100);
+}
+.tb-swal-btn-ghost {
+  background: var(--neutral700);
+  color: var(--neutral100);
+}

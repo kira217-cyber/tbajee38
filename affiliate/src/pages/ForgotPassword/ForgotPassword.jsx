@@ -8,6 +8,7 @@ import FormAlert from "../../components/FormAlert/FormAlert";
 import OtpStep from "../../components/OtpStep/OtpStep";
 import { useLanguage } from "../../Context/LanguageProvider";
 import { authError, resetPassword, sendOtp } from "../../features/auth/authApi";
+import { notify } from "../../utils/notify";
 
 /**
  * পাসওয়ার্ড ভুলে গেলে।
@@ -80,6 +81,7 @@ const ForgotPassword = () => {
       });
 
       setDone(true);
+      notify.success(t("passwordChanged"));
     } catch (err) {
       setError(authError(err, t("somethingWrong"), t));
     } finally {

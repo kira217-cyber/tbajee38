@@ -13,6 +13,7 @@ import { useLanguage } from "../../Context/LanguageProvider";
 import { selectUser } from "../../features/auth/authSelectors";
 import { updateUser } from "../../features/auth/authSlice";
 import { fetchMe } from "../../features/affiliate/affiliateApi";
+import { notify } from "../../utils/notify";
 
 /**
  * অ্যাফিলিয়েটের নিজের তথ্য।
@@ -56,6 +57,7 @@ const Profile = () => {
     try {
       await navigator.clipboard.writeText(link);
       setCopied(true);
+      notify.success(t("copied"));
       setTimeout(() => setCopied(false), 1500);
     } catch {
       // ক্লিপবোর্ড বন্ধ থাকলে লিংকটা পর্দাতেই দেখা যাচ্ছে

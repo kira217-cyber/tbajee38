@@ -12,6 +12,7 @@ import {
   registerAffiliate,
   sendOtp,
 } from "../../features/auth/authApi";
+import { notify } from "../../utils/notify";
 
 /**
  * অ্যাফিলিয়েট রেজিস্ট্রেশন — এক পেজেই সব ঘর (ক্লায়েন্টের ৩-ধাপ ফর্মের
@@ -77,7 +78,10 @@ const Register = () => {
    * অপেক্ষায় থাকে — সার্ভার টোকেনই দেয় না। তাই এখানে শুধু জানিয়ে
    * দেওয়া হয় আবেদন জমা পড়েছে।
    */
-  const finish = () => setSubmitted(true);
+  const finish = () => {
+    setSubmitted(true);
+    notify.success(t("applicationSentTitle"), t("applicationSentText"));
+  };
 
   const submit = async (event) => {
     event.preventDefault();

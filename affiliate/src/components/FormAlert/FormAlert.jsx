@@ -1,30 +1,25 @@
-import React from "react";
-import { TriangleAlert } from "lucide-react";
+import { useEffect } from "react";
+
+import { notify } from "../../utils/notify";
 
 /**
- * ফর্মের উপরে ভুলের বার্তা।
+ * ফর্মের ভুল/সফলতার বার্তা — এখন SweetAlert2 টোস্টে (`utils/notify`)।
  *
- * মডাল না দেখিয়ে ফর্মের ভিতরেই — ব্যবহারকারী যেখানে ভুল করেছেন তার
- * পাশেই লেখাটা থাকে, আর কিছু বন্ধ করতেও হয় না।
+ * আগে ফর্মের উপরে লাল বাক্স ছিল; পাতাগুলো যেভাবে ডাকত (`<FormAlert>
+ * {error}</FormAlert>`) সেভাবেই থাকে, শুধু লেখা বদলালে একবার টোস্ট
+ * ওঠে। একই লেখা আবার এলে (একই ভুল দ্বিতীয়বার) পাতা আগে সেটা খালি
+ * করে দেয়, তাই টোস্টও আবার ওঠে।
  */
 const FormAlert = ({ children, tone = "danger" }) => {
-  if (!children) return null;
+  useEffect(() => {
+    if (!children) return;
+    const text = typeof children === "string" ? children : String(children);
+    if (tone === "success") notify.success(text);
+    else if (tone === "warning") notify.warning(text);
+    else notify.error(text);
+  }, [children, tone]);
 
-  const color =
-    tone === "success" ? "var(--status-success)" : "var(--status-danger)";
-
-  return (
-    <div
-      className="flex items-start gap-2 rounded-[12px] px-4 py-3 text-[14px]"
-      style={{
-        background: `color-mix(in srgb, ${color}, transparent 88%)`,
-        color,
-      }}
-    >
-      <TriangleAlert size={16} className="mt-0.5 shrink-0" />
-      <span>{children}</span>
-    </div>
-  );
+  return null;
 };
 
 export default FormAlert;
