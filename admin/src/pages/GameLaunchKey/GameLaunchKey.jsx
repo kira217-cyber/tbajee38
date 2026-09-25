@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import {
   BadgeCheck,
+  Copy,
   Eye,
   EyeOff,
   Gamepad2,
@@ -144,6 +145,30 @@ const GameLaunchKey = () => {
       toast.success("Status updated");
     } catch (error) {
       toast.error(error?.response?.data?.message || "Update failed");
+    } finally {
+      setBusy("");
+    }
+  };
+
+  const copyCallback = async () => {
+    try {
+      await navigator.clipboard.writeText(setting?.callbackUrl || "");
+      toast.success("Callback URL copied");
+    } catch {
+      toast.error("Could not copy — select the text and copy it");
+    }
+  };
+
+  /** নতুন টোকেন — পুরোনো URL সাথে সাথে অচল, তাই আগে জিজ্ঞেস */
+  const newCallback = async () => {
+    if (!window.confirm("Create a new callback URL? The old one stops working at once — you must set the new URL in the game provider panel.")) return;
+    try {
+      setBusy("callback");
+      const { data } = await api.post("/api/play-game/admin/callback-token");
+      setSetting(data?.data?.setting || null);
+      toast.success("New callback URL created");
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed");
     } finally {
       setBusy("");
     }
@@ -311,6 +336,49 @@ const GameLaunchKey = () => {
           </div>
         )}
       </div>
+
+      {/* ── callback URL ──
+          প্রতিটা বাজির টাকা কাটা-জমা এই URL এ আসে। ভিতরের গোপন অংশ না
+          মিললে server কিছুই করে না — তাই এটা গেম প্রোভাইডারের প্যানেলে
+          ঠিক এভাবেই বসাতে হয় */}
+      {setting?.callbackUrl && (
+        <div className="ad-card mt-4">
+          <h2 className="text-[16px] font-extrabold text-[var(--neutral100)]">Callback URL</h2>
+          <p className="mt-1 text-[13px] text-[var(--text-muted)]">
+            Set this exact URL as the callback in the game provider (Oracle / White-label) panel. Every bet and
+            win is settled through it. Keep it secret — anyone with it could change player balances.
+          </p>
+
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <div className="ad-field min-w-[260px] flex-1">
+              <Link2 size={17} className="shrink-0 text-[var(--primary500)]" />
+              <input
+                readOnly
+                value={setting.callbackUrl}
+                onFocus={(event) => event.target.select()}
+                className="w-full bg-transparent font-mono text-[13px] text-white outline-none"
+              />
+            </div>
+            <button type="button" onClick={copyCallback} className="ad-btn ad-btn--ghost ad-btn--sm">
+              <Copy size={15} />
+              Copy
+            </button>
+            <button
+              type="button"
+              onClick={newCallback}
+              disabled={Boolean(busy)}
+              className="ad-btn ad-btn--ghost ad-btn--sm"
+            >
+              {busy === "callback" ? <Loader2 size={15} className="animate-spin" /> : <RefreshCw size={15} />}
+              New URL
+            </button>
+          </div>
+
+          <p className="mt-2 text-[12px] text-[var(--text-disabled)]">
+            On the live server set <code>PUBLIC_SERVER_URL</code> in the server .env so this shows the public address.
+          </p>
+        </div>
+      )}
 
       {/* ── কী বসানো ── */}
       <div className="ad-card mt-4">
