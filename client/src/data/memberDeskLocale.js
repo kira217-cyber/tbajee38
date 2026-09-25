@@ -32,7 +32,8 @@ export const memberDeskLocale = {
 
     accountRecord: {
       tabs: ["সব", "জমা", "উত্তোলন", "রিবেট", "প্রমোশন"],
-      columns: ["তারিখ", "ধরন", "পরিমাণ", "অবস্থা", "মন্তব্য"],
+      // মূল সাইটের কলাম: অর্ডার নম্বর, লেনদেনের সময়, পরিমাণ, বর্তমান ব্যালেন্স, বিবরণ
+      columns: ["অর্ডার নম্বর", "লেনদেনের সময়", "লেনদেনের পরিমান", "বর্তমান ব্যালেন্স", "কন্টেন্ট"],
       zero: "0",
     },
 
@@ -49,7 +50,8 @@ export const memberDeskLocale = {
         "লাভ ও হার",
       ],
       zero: "0",
-      note: "মন্তব্য: উপরের তথ্য গ্রীনউইচ মান প্রভৃতি ভিত্তিতে",
+      // মূল সাইটে GMT; এখানে দিন গোনা হয় খেলোয়াড়ের নিজের সময় অঞ্চলে
+      note: "মন্তব্য: উপরের তথ্য আপনার ডিভাইসের সময় অনুযায়ী",
     },
 
     reward: {
@@ -141,7 +143,7 @@ export const memberDeskLocale = {
 
     accountRecord: {
       tabs: ["All", "Deposit", "Withdrawal", "Rebate", "Promotion"],
-      columns: ["Date", "Type", "Amount", "Status", "Remark"],
+      columns: ["Order no.", "Time", "Amount", "Balance", "Content"],
       zero: "0",
     },
 
@@ -158,7 +160,7 @@ export const memberDeskLocale = {
         "Profit & loss",
       ],
       zero: "0",
-      note: "Note: the data above is based on Greenwich Mean Time",
+      note: "Note: the data above follows your device time",
     },
 
     reward: {

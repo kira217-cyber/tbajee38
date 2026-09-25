@@ -23,6 +23,21 @@ export const locale = {
     deposit: "ডিপোজিট",
     withdraw: "উত্তোলন",
 
+    records: {
+      types: {
+        deposit: "জমা",
+        promotion: "প্রমোশন",
+        withdraw: "উত্তোলন",
+        "withdraw-refund": "উত্তোলন ফেরত",
+        rebate: "রিবেট",
+        "admin-adjust": "সমন্বয়",
+      },
+      status: { pending: "অপেক্ষমাণ", approved: "সফল", rejected: "ব্যর্থ" },
+      balanceAfter: "বর্তমান ব্যালেন্স",
+      bonus: "বোনাস",
+      reason: "কারণ",
+    },
+
     withdrawFlow: {
       addWallet: "ওয়ালেট যোগ করুন",
       walletMethod: "ই-ওয়ালেটের ধরন",
@@ -496,6 +511,21 @@ export const locale = {
     register: "Register",
     deposit: "Deposit",
     withdraw: "Withdrawal",
+
+    records: {
+      types: {
+        deposit: "Deposit",
+        promotion: "Promotion",
+        withdraw: "Withdraw",
+        "withdraw-refund": "Withdraw refund",
+        rebate: "Rebate",
+        "admin-adjust": "Adjustment",
+      },
+      status: { pending: "Pending", approved: "Success", rejected: "Failed" },
+      balanceAfter: "Balance",
+      bonus: "Bonus",
+      reason: "Reason",
+    },
 
     withdrawFlow: {
       addWallet: "Add e-wallet",

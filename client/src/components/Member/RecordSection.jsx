@@ -6,6 +6,23 @@ import { m } from "../../hook/useUnits";
 import MemberShell, { EmptyState } from "./MemberShell";
 import { BET_TABS, useBetRecords } from "../../features/history/useBetRecords";
 import { rangeOf, shortDate } from "../../features/history/dateRange";
+import {
+  ACCOUNT_TABS,
+  PL_TABS,
+  useAccountRecords,
+  useProfitLoss,
+  useRequestRecords,
+} from "../../features/history/useRecords";
+
+/** "09/25 16:12:30" — রেকর্ডের সময় */
+const fmtTime = (value) => {
+  const d = new Date(value);
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+};
+
+/** + জমা সবুজ, − কাটা লাল, চিহ্ন সহ */
+const signed = (n, decimal = true) => `${Number(n) > 0 ? "+" : ""}${fmt(n, decimal)}`;
 
 /** টাকার লেখা — ডেসিমাল টগল বন্ধ থাকলে পূর্ণসংখ্যা (মূল সাইটের মতো) */
 const fmt = (value, decimal = true) => {
@@ -61,6 +78,12 @@ const Desktop = ({ tab }) => {
   const from = shortDate(span.from);
   const to = shortDate(span.to);
 
+  const isAcc = tab === "accountRecord";
+  const isPL = tab === "profitLoss";
+  const acc = useAccountRecords({ range, type: ACCOUNT_TABS[gameTab], enabled: isAcc });
+  const pl = useProfitLoss({ range, tab: PL_TABS[gameTab], enabled: isPL });
+  const typeLabel = (type) => t.records.types[type] || type;
+
   const betCells = (row) => [
     row.providerCode || "—",
     fmt(row.bet, decimal),
@@ -70,6 +93,65 @@ const Desktop = ({ tab }) => {
     (lang === "bn" && row.gameNameBn) || row.gameName || "—",
     row.count,
   ];
+
+  /** যে রেকর্ডই হোক — সারি, মোট আর লোড হচ্ছে কিনা এক রূপে */
+  const table = isBet
+    ? {
+        loading: bet.loading,
+        rows: bet.rows.map((row) => ({ key: row.gameUId, cells: betCells(row) })),
+        totals: [
+          t.member.desk.total,
+          fmt(bet.totals.bet, decimal),
+          fmt(bet.totals.validBet, decimal),
+          fmt(bet.totals.win, decimal),
+          <span key="pl" style={{ color: plColor(bet.totals.net) }}>{fmt(bet.totals.net, decimal)}</span>,
+          "",
+          bet.totals.count,
+        ],
+      }
+    : isAcc
+      ? {
+          loading: acc.loading,
+          rows: acc.rows.map((row) => ({
+            key: row.orderNo,
+            cells: [
+              row.orderNo,
+              fmtTime(row.createdAt),
+              <span key="a" style={{ color: plColor(row.amount) }}>{signed(row.amount, decimal)}</span>,
+              fmt(row.balanceAfter, decimal),
+              `${typeLabel(row.type)}${row.note ? ` · ${row.note}` : ""}`,
+            ],
+          })),
+          totals: [t.member.desk.total, "", <span key="t" style={{ color: plColor(acc.totals.amount) }}>{signed(acc.totals.amount, decimal)}</span>, "", acc.totals.count],
+        }
+      : isPL
+        ? {
+            loading: pl.loading,
+            rows: pl.rows.map((row) => ({
+              key: row.date,
+              cells: [
+                row.date,
+                fmt(row.deposit, decimal),
+                fmt(row.withdraw, decimal),
+                fmt(row.bet, decimal),
+                fmt(row.win, decimal),
+                fmt(row.rebate, decimal),
+                fmt(row.promotion, decimal),
+                <span key="p" style={{ color: plColor(row.profit) }}>{fmt(row.profit, decimal)}</span>,
+              ],
+            })),
+            totals: [
+              t.member.desk.total,
+              fmt(pl.totals.deposit, decimal),
+              fmt(pl.totals.withdraw, decimal),
+              fmt(pl.totals.bet, decimal),
+              fmt(pl.totals.win, decimal),
+              fmt(pl.totals.rebate, decimal),
+              fmt(pl.totals.promotion, decimal),
+              <span key="p" style={{ color: plColor(pl.totals.profit) }}>{fmt(pl.totals.profit, decimal)}</span>,
+            ],
+          }
+        : null;
 
   return (
     <div
@@ -232,15 +314,15 @@ const Desktop = ({ tab }) => {
       </div>
 
       {/* সারিগুলো, নয়তো খালি অবস্থা */}
-      {isBet && bet.rows.length > 0 ? (
+      {table && table.rows.length > 0 ? (
         <div className="flex-1 overflow-y-auto" style={{ background: "#fff" }}>
-          {bet.rows.map((row) => (
+          {table.rows.map((row) => (
             <div
-              key={row.gameUId}
+              key={row.key}
               className="flex items-center"
               style={{ height: 40, padding: "0 20px", borderBottom: "1px solid #f0f0f0", fontSize: 12, color: "#333" }}
             >
-              {betCells(row).map((cell, index) => (
+              {row.cells.map((cell, index) => (
                 <span key={index} className="truncate" style={{ flex: 1, textAlign: "center", padding: "0 4px" }}>
                   {cell}
                 </span>
@@ -253,7 +335,7 @@ const Desktop = ({ tab }) => {
           className="flex flex-1 items-center justify-center"
           style={{ color: "#999", fontSize: 13, background: "#f5f5f5" }}
         >
-          {isBet && bet.loading ? t.auth.wait : t.member.desk.noMatch}
+          {table?.loading ? t.auth.wait : t.member.desk.noMatch}
         </div>
       )}
 
@@ -268,16 +350,8 @@ const Desktop = ({ tab }) => {
           color: "#666",
         }}
       >
-        {(isBet
-          ? [
-              t.member.desk.total,
-              fmt(bet.totals.bet, decimal),
-              fmt(bet.totals.validBet, decimal),
-              fmt(bet.totals.win, decimal),
-              <span key="pl" style={{ color: plColor(bet.totals.net) }}>{fmt(bet.totals.net, decimal)}</span>,
-              "",
-              bet.totals.count,
-            ]
+        {(table
+          ? table.totals
           : columns.map((_, index) => (index === 0 ? t.member.desk.total : (config.zero ?? "0.00")))
         ).map((cell, index) => (
           <span key={`total-${index}`} style={{ flex: 1, textAlign: "center" }}>
@@ -348,6 +422,14 @@ const Mobile = ({ tab, titleKey, withGameTabs = false, withDays7 = false, pageTi
   const isBet = tab === "betRecord";
   const bet = useBetRecords({ range, tab: gameTab, enabled: isBet });
 
+  // মোবাইলে জমা/উত্তোলন রেকর্ড আলাদা পাতা — আবেদনের তালিকা, অবস্থাসহ
+  const requestKind = titleKey === "depositRecord" ? "deposit" : titleKey === "withdrawRecord" ? "withdraw" : "";
+  const isAcc = tab === "accountRecord" && !requestKind;
+  const isPL = tab === "profitLoss";
+  const acc = useAccountRecords({ range, enabled: isAcc });
+  const requests = useRequestRecords({ kind: requestKind, range, enabled: Boolean(requestKind) });
+  const pl = useProfitLoss({ range, enabled: isPL });
+
   const keys = withDays7
     ? ["today", "yesterday", "days7"]
     : ["today", "yesterday", "week", "month"];
@@ -416,7 +498,9 @@ const Mobile = ({ tab, titleKey, withGameTabs = false, withDays7 = false, pageTi
         </span>
       </div>
 
-      {isBet && bet.rows.length > 0 ? (
+      {!isBet ? (
+        <MobileRows kind={requestKind || (isPL ? "pl" : isAcc ? "acc" : "")} acc={acc} requests={requests} pl={pl} />
+      ) : bet.rows.length > 0 ? (
         <div style={{ padding: `${m(10)} ${m(24)} ${m(30)}`, background: "#f5f5f9" }}>
           {/* মোট */}
           <div
@@ -496,6 +580,100 @@ const Mobile = ({ tab, titleKey, withGameTabs = false, withDays7 = false, pageTi
       )}
     </MemberShell>
   );
+};
+
+/** মোবাইলের অ্যাকাউন্ট রেকর্ড / জমা-উত্তোলন রেকর্ড / লাভ-ক্ষতির কার্ড */
+const MobileRows = ({ kind, acc, requests, pl }) => {
+  const { t } = useLanguage();
+  const r = t.records;
+
+  const card = (key, head, lines, right) => (
+    <div key={key} style={{ background: "#fff", borderRadius: m(16), padding: m(24), marginBottom: m(16), fontSize: m(26), color: "#333" }}>
+      <div className="flex items-center" style={{ gap: m(12), marginBottom: m(10) }}>
+        <span className="min-w-0 flex-1 truncate" style={{ fontSize: m(30), fontWeight: 700 }}>{head}</span>
+        {right}
+      </div>
+      {lines.map(([label, value]) => (
+        <div key={label} className="flex justify-between" style={{ padding: `${m(6)} 0`, color: "#666" }}>
+          <span>{label}</span>
+          <span style={{ color: "#333", fontWeight: 600, textAlign: "right" }}>{value}</span>
+        </div>
+      ))}
+    </div>
+  );
+
+  const badge = (status) => {
+    const color = status === "approved" ? "#16a34a" : status === "rejected" ? "#e8474c" : "#f59e0b";
+    return (
+      <span style={{ fontSize: m(22), color, border: `1px solid ${color}`, borderRadius: m(20), padding: `${m(4)} ${m(14)}` }}>
+        {r.status[status] || status}
+      </span>
+    );
+  };
+
+  let list = [];
+  let loading = false;
+
+  if (kind === "acc") {
+    loading = acc.loading;
+    list = acc.rows.map((row) =>
+      card(
+        row.orderNo,
+        r.types[row.type] || row.type,
+        [
+          [t.member.desk.accountRecord.columns[0], row.orderNo],
+          [t.member.desk.accountRecord.columns[1], fmtTime(row.createdAt)],
+          [r.balanceAfter, fmt(row.balanceAfter)],
+          ...(row.note ? [[t.member.desk.accountRecord.columns[4], row.note]] : []),
+        ],
+        <span style={{ fontSize: m(30), fontWeight: 700, color: plColor(row.amount) }}>{signed(row.amount)}</span>,
+      ),
+    );
+  } else if (kind === "deposit" || kind === "withdraw") {
+    loading = requests.loading;
+    list = requests.rows.map((row) =>
+      card(
+        row._id,
+        `৳ ${fmt(row.amount)}`,
+        [
+          [t.member.desk.accountRecord.columns[1], fmtTime(row.createdAt)],
+          ...(kind === "deposit"
+            ? [
+                [t.depositFlow.method, row.display?.methodName?.bn || row.methodId],
+                ...(row.calc?.totalBonus > 0 ? [[r.bonus, `+৳ ${fmt(row.calc.totalBonus)}`]] : []),
+                ...(row.fields?.trxId ? [["TrxID", row.fields.trxId]] : []),
+              ]
+            : [[t.depositFlow.method, `${row.walletSnapshot?.methodName?.bn || row.methodId} · 0${row.walletSnapshot?.walletNumber || ""}`]]),
+          ...(row.status === "rejected" && row.adminNote ? [[r.reason, row.adminNote]] : []),
+        ],
+        badge(row.status),
+      ),
+    );
+  } else if (kind === "pl") {
+    loading = pl.loading;
+    const cols = t.member.desk.profitLoss.columns;
+    const rows = pl.rows.length ? [{ ...pl.totals, date: t.member.desk.total }, ...pl.rows] : [];
+    list = rows.map((row) =>
+      card(
+        row.date,
+        row.date,
+        [
+          [cols[1], fmt(row.deposit)],
+          [cols[2], fmt(row.withdraw)],
+          [cols[3], fmt(row.bet)],
+          [cols[4], fmt(row.win)],
+          [cols[5], fmt(row.rebate)],
+          [cols[6], fmt(row.promotion)],
+        ],
+        <span style={{ fontSize: m(30), fontWeight: 700, color: plColor(row.profit) }}>{fmt(row.profit)}</span>,
+      ),
+    );
+  }
+
+  if (!list.length) {
+    return loading ? <div style={{ padding: m(60), textAlign: "center", color: "#999", fontSize: m(26) }}>{t.auth.wait}</div> : <EmptyState />;
+  }
+  return <div style={{ padding: `${m(20)} ${m(24)} ${m(30)}`, background: "#f5f5f9" }}>{list}</div>;
 };
 
 const RecordSection = (props) => {

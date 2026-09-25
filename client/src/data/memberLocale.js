@@ -95,7 +95,7 @@ export const memberPagesLocale = {
     },
     profitLoss: { title: "ব্যক্তিগত প্রতিবেদন" },
     help: { title: "সাহায্য কেন্দ্র" },
-    note: "অস্বীকরণ: উপরের ডেটা GMT + 4 ভিত্তিক",
+    note: "অস্বীকরণ: উপরের ডেটা আপনার ডিভাইসের সময় অনুযায়ী",
     days7: "7 দিন",
   },
 
@@ -185,7 +185,7 @@ export const memberPagesLocale = {
     },
     profitLoss: { title: "Personal Report" },
     help: { title: "Help Center" },
-    note: "Disclaimer: the data above is based on GMT + 4",
+    note: "Disclaimer: the data above follows your device time",
     days7: "7 days",
   },
 };
