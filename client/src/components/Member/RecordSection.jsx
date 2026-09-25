@@ -539,7 +539,7 @@ const Mobile = ({ tab, titleKey, withGameTabs = false, withDays7 = false, pageTi
   }));
 
   const tabs = withGameTabs
-    ? GAME_TABS.map((key) => ({ key, label: t.gameCenter[key] }))
+    ? GAME_TABS.map((key) => ({ key, label: t.memberPage.pages.gameTabs[key] }))
     : undefined;
 
   const span = rangeOf(range);
@@ -549,6 +549,8 @@ const Mobile = ({ tab, titleKey, withGameTabs = false, withDays7 = false, pageTi
       title={pageTitle ? t.memberPage.pages[pageTitle].title : t.memberPage.items[titleKey]}
       tabs={tabs}
       onTab={setGameTab}
+      // বেটিং রেকর্ডে মূল সাইটের মতো ডান-উপরে নীল "বর্জিত টার্নওভার তালিকা"
+      action={isBet ? { label: t.member.desk.betRecord.action, onClick: () => {} } : undefined}
     >
       {/* ফিল্টার — মূল সাইটের প্রতিটা পাতার নিজের চেহারা */}
       {requestKind ? (
@@ -623,13 +625,13 @@ const Mobile = ({ tab, titleKey, withGameTabs = false, withDays7 = false, pageTi
               onClick={() => setRange(option.key)}
               className="flex shrink-0 cursor-pointer items-center"
               style={{
-                height: m(76),
-                padding: `0 ${m(26)}`,
+                height: m(62),
+                padding: `0 ${m(16)}`,
                 borderRadius: m(12),
                 background: active ? "#1e9bf0" : "#fff",
                 border: `1px solid ${active ? "#1e9bf0" : "#1e9bf0"}`,
                 color: active ? "#fff" : "#1e9bf0",
-                fontSize: m(28),
+                fontSize: m(26),
                 gap: m(10),
               }}
             >
@@ -642,12 +644,12 @@ const Mobile = ({ tab, titleKey, withGameTabs = false, withDays7 = false, pageTi
         <span
           className="flex shrink-0 items-center"
           style={{
-            height: m(76),
-            padding: `0 ${m(24)}`,
+            height: m(62),
+            padding: `0 ${m(16)}`,
             borderRadius: m(12),
             border: "1px solid #1e9bf0",
             color: "#1e9bf0",
-            fontSize: m(28),
+            fontSize: m(26),
             gap: m(12),
           }}
         >
@@ -698,7 +700,7 @@ const Mobile = ({ tab, titleKey, withGameTabs = false, withDays7 = false, pageTi
             [t.member.desk.betRecord.columns[1], betRows.reduce((sum, r) => sum + Number(r.bet || 0), 0)],
             [t.member.desk.betRecord.columns[2], betRows.reduce((sum, r) => sum + Number(r.validBet || 0), 0)],
             [t.memberPage.pages.win, betRows.reduce((sum, r) => sum + Number(r.win || 0), 0)],
-            [t.memberPage.pages.profitLoss, betRows.reduce((sum, r) => sum + Number(r.net || 0), 0)],
+            [t.memberPage.pages.plLabel, betRows.reduce((sum, r) => sum + Number(r.net || 0), 0)],
           ].map(([label, value]) => (
             <div key={label} style={{ fontSize: m(26), color: "#333", lineHeight: 1.25 }}>
               {label}
@@ -711,8 +713,9 @@ const Mobile = ({ tab, titleKey, withGameTabs = false, withDays7 = false, pageTi
       {/* অস্বীকরণ বার — মূল সাইটে লাভ-লস ও রিবেটে থাকে */}
       {withDays7 && (
         <div
-          className="flex items-center justify-center"
+          className="fixed bottom-0 left-0 flex w-full items-center justify-center"
           style={{
+            zIndex: 5,
             background: "#fff5f5",
             borderTop: "1px solid #ffdcdc",
             color: "#e60012",

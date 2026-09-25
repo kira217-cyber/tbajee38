@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -14,6 +14,7 @@ import { m } from "../../hook/useUnits";
 import { MEMBER_SECTIONS, MEMBER_LINKS } from "../../components/Member/sections";
 import { useHideBootLoader } from "../../hook/useHideBootLoader";
 import BottomNavbar from "../../components/BottomNavbar/BottomNavbar";
+import AppDownloadModal from "../../components/AppDownloadModal/AppDownloadModal";
 
 /**
  * মোবাইলের সদস্য কেন্দ্র — ডেস্কটপে এটা মডাল, মোবাইলে **আলাদা পেজ**।
@@ -47,14 +48,34 @@ import BottomNavbar from "../../components/BottomNavbar/BottomNavbar";
  * শেষের দুটো (গ্রাহক সেবা, লগআউট) কোনো পেজ নয়, তাই এখানেই যোগ করি।
  */
 const EXTRA = [
+  { key: "appDownload", gridIcon: "appdownload" },
   { key: "support", gridIcon: "openhoursserve" },
   { key: "logout", gridIcon: "logout" },
 ];
 
-const GRID = [
-  ...MEMBER_SECTIONS.filter((section) => section.inGrid),
-  ...EXTRA,
+// মূল সাইটের গ্রিডের ক্রম (`/m/member/home`) — চার কলামে এভাবেই সাজানো
+const ORDER = [
+  "reward",
+  "betRecord",
+  "profitLoss",
+  "depositRecord",
+  "withdrawRecord",
+  "accountRecord",
+  "myAccount",
+  "security",
+  "referral",
+  "manualRebate",
+  "inbox",
+  "feedback",
+  "appDownload",
+  "support",
+  "help",
+  "logout",
 ];
+
+const GRID = [...MEMBER_SECTIONS.filter((section) => section.inGrid), ...EXTRA].sort(
+  (a, b) => (ORDER.indexOf(a.key) + 1 || 99) - (ORDER.indexOf(b.key) + 1 || 99),
+);
 
 
 /** `ডাকনাম :` / `যোগদান করেছেন:` এর মতো লেবেল-মান জোড়া */
@@ -78,6 +99,7 @@ const MemberCenter = () => {
   const rewardAvailable = useSelector(selectRewardAvailable);
 
   useHideBootLoader();
+  const [downloadOpen, setDownloadOpen] = useState(false);
 
   // ইনবক্সের না-পড়া সংখ্যা — মেইলের ঘরে লাল ব্যাজ
   useEffect(() => {
@@ -103,6 +125,10 @@ const MemberCenter = () => {
   ];
 
   const onItem = (item) => {
+    if (item.key === "appDownload") {
+      setDownloadOpen(true);
+      return;
+    }
     if (item.key === "logout") {
       signOut();
       return;
@@ -151,8 +177,6 @@ const MemberCenter = () => {
           <span style={{ fontSize: m(30), color: "#fff" }}>{t.member.myAccount}</span>
         </div>
 
-        <div style={{ height: m(80) }} />
-
         {/* ── প্রোফাইল কার্ড ──
             ডান কিনারা পর্যন্ত যায়, তাই ডান পাশে radius নেই */}
         <div
@@ -161,7 +185,8 @@ const MemberCenter = () => {
             marginInlineStart: m(50),
             borderRadius: `${m(28)} 0 0 ${m(28)}`,
             background: "linear-gradient(248deg, #b3bcc8 0%, #f1f9ff 100%)",
-            padding: `${m(76)} ${m(50)} ${m(50)}`,
+            minHeight: m(504),
+            padding: `${m(76)} ${m(50)} ${m(40)}`,
           }}
         >
           {/* মুকুটের জলছাপ */}
@@ -212,7 +237,8 @@ const MemberCenter = () => {
               }}
             />
 
-            <div style={{ flex: 1, minWidth: 0 }}>
+            {/* flex কলাম — নইলে rem মূলের ৫২px লাইন-বক্সে VIP ট্যাগ নিচে নামে */}
+            <div className="flex flex-col items-start" style={{ flex: 1, minWidth: 0 }}>
               <span
                 className="inline-flex items-center"
                 style={{
@@ -315,8 +341,8 @@ const MemberCenter = () => {
       </div>
 
       {/* ── সদস্য সেন্টারের গ্রিড ── */}
-      <div style={{ background: "#fff", marginTop: m(30) }}>
-        <div style={{ paddingInline: m(50), paddingTop: m(16) }}>
+      <div style={{ background: "#fff", marginTop: m(31) }}>
+        <div className="flex" style={{ paddingInline: m(50), paddingTop: m(4) }}>
           <span
             style={{
               padding: `${m(6)} ${m(18)}`,
@@ -358,7 +384,7 @@ const MemberCenter = () => {
               >
                 <span
                   className="grid h-full w-full place-items-center"
-                  style={{ borderRadius: "50%", background: "#fff" }}
+                  style={{ borderRadius: "50%", background: "linear-gradient(180deg,#fdf1dc,#fff9ef 55%,#fbecd2)" }}
                 >
                   <img
                     src={`/assets/mobile/member/${item.gridIcon}.svg`}
@@ -390,7 +416,7 @@ const MemberCenter = () => {
                 className="text-center"
                 style={{ marginTop: m(14), fontSize: m(24), color: "#333", lineHeight: 1.25 }}
               >
-                {t.memberPage.items[item.key]}
+                {t.memberPage.items[item.key] ?? item.title?.(t)}
               </span>
             </button>
           ))}
@@ -399,6 +425,7 @@ const MemberCenter = () => {
 
       {/* মূল সাইটে সদস্য কেন্দ্রেও বটম নেভ থাকে */}
       <BottomNavbar />
+      {downloadOpen && <AppDownloadModal onClose={() => setDownloadOpen(false)} />}
     </div>
   );
 };

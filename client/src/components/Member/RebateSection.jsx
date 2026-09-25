@@ -22,14 +22,6 @@ const day = (value) => {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 };
 
-/** "২০২৬-০৯-২০ ~ ২০২৬-০৯-২৫" — একই দিন হলে একটাই */
-const windowText = (data) => {
-  if (!data) return day();
-  const a = day(data.from);
-  const b = day(data.to);
-  return a === b ? a : `${a} ~ ${b}`;
-};
-
 const HISTORY_RANGES = ["today", "days7", "month"];
 
 /** রিবেট ইতিহাস — ডেস্কটপ আর মোবাইল দুটোতেই (মাপ `u` দিয়ে) */
@@ -176,19 +168,23 @@ const Mobile = () => {
   const page = t.memberPage.pages.rebate;
   const rb = t.rebateFlow;
   const [tab, setTab] = useState(0);
-  const { data, loading, busy, load, claim, canClaim } = useRebate();
+  const { data, busy, claim, canClaim } = useRebate();
   const u = (_desk, mob) => m(mob);
 
-  const label = (key) => (key === "date" ? page.date : key === "total" ? page.total : rb.kinds[key]);
-  const value = (key) => (key === "date" ? windowText(data) : Number(data?.totals?.[key] || 0).toFixed(2));
+  // মূল সাইটের মোবাইলের নাম (মাছ, খেলাধুলা …) আর শুধু আজকের তারিখ
+  const KIND_TAB = { slot: "RNG", fishing: "FISH", live: "LIVE", poker: "PVP", sports: "SPORTS" };
+  const today = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  const label = (key) => (key === "date" ? page.date : key === "total" ? page.total : t.memberPage.pages.gameTabs[KIND_TAB[key]] || rb.kinds[key]);
+  const value = (key) => (key === "date" ? `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}` : Number(data?.totals?.[key] || 0).toFixed(2));
 
   return (
     <MemberShell title={page.title}>
-      <div className="flex" style={{ background: "#fff", height: m(96) }}>
+      <div className="flex" style={{ background: "#fff", height: m(85) }}>
         {page.tabs.map((item, index) => (
           <button key={item} type="button" onClick={() => setTab(index)} className="relative flex-1 cursor-pointer" style={{ color: index === tab ? "#1e9bf0" : "#333", fontSize: m(30) }}>
             {item}
-            {index === tab && <span className="absolute bottom-0 left-0" style={{ width: "100%", height: m(6), background: "#1e9bf0" }} />}
+            {index === tab && <span className="absolute bottom-0 left-0" style={{ width: "100%", height: m(5), background: "#1e9bf0" }} />}
           </button>
         ))}
       </div>
@@ -198,54 +194,49 @@ const Mobile = () => {
           <History u={u} />
         </div>
       ) : (
-        <div style={{ background: "#f5f5f9", padding: `${m(24)} ${m(30)} ${m(40)}` }}>
+        <div style={{ background: "#f5f5f9", minHeight: `calc(100vh - ${m(185)})`, padding: `${m(16)} ${m(30)} ${m(260)}` }}>
           {ROWS.map((row) => (
-            <div key={row.key} className="flex items-stretch" style={{ marginBottom: m(24), height: m(96) }}>
-              <span className="grid place-items-center" style={{ width: m(230), borderRadius: m(12), background: row.color, color: "#fff", fontSize: m(30) }}>
+            <div key={row.key} className="flex items-stretch" style={{ marginBottom: m(29), height: m(81) }}>
+              <span className="grid place-items-center" style={{ width: m(165), borderRadius: `${m(8)} 0 0 ${m(8)}`, background: row.color, color: "#fff", fontSize: m(34) }}>
                 {label(row.key)}
               </span>
-              <span className="flex flex-1 items-center justify-end" style={{ background: "#fff", color: "#f97316", fontSize: m(row.key === "date" ? 28 : 34), padding: `0 ${m(28)}` }}>
+              <span className="flex flex-1 items-center justify-end" style={{ background: "#fff", color: "#f97a4a", fontSize: m(40), padding: `0 ${m(16)}` }}>
                 {value(row.key)}
-                {data?.rates?.[row.key] !== undefined ? <small style={{ color: "#bbb", fontSize: m(22), marginInlineStart: m(10) }}>{data.rates[row.key]}%</small> : null}
               </span>
-              <span style={{ width: m(18), borderRadius: `0 ${m(12)} ${m(12)} 0`, background: row.edge }} />
+              <span style={{ width: m(12), borderRadius: `0 ${m(8)} ${m(8)} 0`, background: row.edge }} />
             </div>
           ))}
+          {data && !data.enabled ? <div style={{ fontSize: m(24), color: "#e60012" }}>{rb.err.rebateOff}</div> : null}
+          {data && data.totals?.total > 0 && !canClaim && data.enabled ? <div style={{ fontSize: m(24), color: "#888" }}>{rb.err.rebateTooLow.replace("{n}", data.minClaim)}</div> : null}
+        </div>
+      )}
 
-          {data ? (
-            <div style={{ fontSize: m(24), color: "#888", lineHeight: 1.5 }}>
-              {rb.level}: <b style={{ color: "#c8a15a" }}>{data.level?.name || "VIP0"}</b> · {rb.rateNote.replace("{d}", data.maxDays ?? 7)}
-              {data.totals?.total > 0 && !canClaim && data.enabled ? <div>{rb.err.rebateTooLow.replace("{n}", data.minClaim)}</div> : null}
-              {!data.enabled ? <div style={{ color: "#e60012" }}>{rb.err.rebateOff}</div> : null}
-            </div>
-          ) : null}
-
-          <div className="flex" style={{ gap: m(20), marginTop: m(40) }}>
-            <button type="button" onClick={load} disabled={loading} className="cursor-pointer" style={{ width: m(220), height: m(100), borderRadius: m(12), background: "#fff", border: "1px solid #ddd", color: "#555", fontSize: m(32) }}>
-              {rb.refresh}
-            </button>
+      {/* নিচে আটকানো — চওড়া "দাবি" আর তার নিচে অস্বীকরণ */}
+      <div className="fixed bottom-0 left-0 w-full" style={{ zIndex: 5 }}>
+        {tab === 0 && (
+          <div style={{ padding: `0 ${m(50)} ${m(24)}` }}>
             <button
               type="button"
               onClick={claim}
               disabled={!canClaim || busy}
-              className="flex-1"
-              style={{ height: m(100), borderRadius: m(12), background: canClaim ? "#f5333f" : "#e2e2e8", color: "#fff", fontSize: m(34) }}
+              className="w-full"
+              style={{ height: m(87), borderRadius: m(8), background: canClaim ? "#f5333f" : "#dedede", boxShadow: "0 4px 10px rgba(0,0,0,.18)", color: "#fff", fontSize: m(38) }}
             >
               {page.claim}
             </button>
           </div>
+        )}
+        <div className="flex items-center justify-center" style={{ height: m(60), background: "#fff5f5", borderTop: "1px solid #ffb3b3", color: "#e60012", fontSize: m(24), gap: m(12) }}>
+          <span className="grid place-items-center" style={{ width: m(34), height: m(34), borderRadius: "50%", background: "#ec1c24", color: "#fff", fontSize: m(24), fontWeight: 700 }}>
+            !
+          </span>
+          {t.memberPage.pages.note}
         </div>
-      )}
-
-      <div className="flex items-center justify-center" style={{ background: "#fff5f5", borderTop: "1px solid #ffdcdc", color: "#e60012", fontSize: m(26), padding: `${m(20)} ${m(20)}`, gap: m(12) }}>
-        <span className="grid place-items-center" style={{ width: m(34), height: m(34), borderRadius: "50%", background: "#f97316", color: "#fff", fontSize: m(24) }}>
-          !
-        </span>
-        {t.memberPage.pages.note}
       </div>
     </MemberShell>
   );
 };
+
 
 const RebateSection = (props) => {
   const isDesktop = useIsDesktop();

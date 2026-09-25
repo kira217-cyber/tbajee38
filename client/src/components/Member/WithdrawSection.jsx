@@ -324,6 +324,7 @@ const MainForm = ({ f }) => {
 
   const info = [
     { key: "time", text: money.withdrawTime, dim: true },
+    ...(f.elig?.today?.remaining != null ? [{ key: "daily", text: w.dailyLine.replace("{n}", f.elig.today.limit).replace("{left}", f.elig.today.remaining), dim: true }] : []),
     { key: "main", text: `${w.centralWallet} : ৳ ${fmt(f.balance)}` },
     ...(f.method ? [{ key: "limit", text: `${w.limit} : ৳ ${fmt(f.min)} - ৳ ${fmt(f.max)}` }] : []),
   ];

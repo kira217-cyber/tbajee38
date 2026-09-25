@@ -454,8 +454,10 @@ const Mobile = () => {
                       {f.tv(item.methodName)}
                     </span>
                     {active && (
-                      <span className="absolute grid place-items-center" style={{ right: 0, bottom: 0, width: m(32), height: m(32), color: RED }}>
-                        <Icon name="achievement-done" size={m(28)} />
+                      <span className="absolute" style={{ right: 0, bottom: 0, width: m(36), height: m(36), background: `linear-gradient(135deg, transparent 50%, ${RED} 50%)`, borderBottomRightRadius: m(8) }}>
+                        <svg viewBox="0 0 10 8" className="absolute" style={{ right: m(3), bottom: m(5), width: m(14), height: m(11) }} aria-hidden="true">
+                          <path d="M1 4l3 3 5-6" fill="none" stroke="#fff" strokeWidth="1.6" />
+                        </svg>
                       </span>
                     )}
                   </button>

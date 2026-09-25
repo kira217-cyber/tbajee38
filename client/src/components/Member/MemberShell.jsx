@@ -26,14 +26,15 @@ export const EmptyState = () => {
   return (
     <div
       className="flex flex-col items-center justify-center"
-      style={{ padding: `${m(180)} 0`, gap: m(20) }}
+      // মূল সাইটের মাপ — ছবি ~৪০৪ চওড়া, লেখা ৫০
+      style={{ padding: `${m(220)} 0 ${m(160)}`, gap: m(10) }}
     >
       <img
         src="/assets/mobile/no-data.svg"
         alt=""
-        style={{ width: m(300), height: m(300) }}
+        style={{ width: m(404), height: m(404) }}
       />
-      <span style={{ fontSize: m(34), color: "#1e9bf0" }}>{t.noData}</span>
+      <span style={{ fontSize: m(50), color: "#1e9bf0" }}>{t.noData}</span>
     </div>
   );
 };
@@ -53,8 +54,8 @@ export const FilterChips = ({ options, value, onChange }) => (
           onClick={() => onChange?.(option.key)}
           className="flex shrink-0 cursor-pointer items-center"
           style={{
-            height: m(72),
-            padding: `0 ${m(28)}`,
+            height: m(62),
+            padding: `0 ${m(20)}`,
             borderRadius: m(14),
             background: active ? "#1e9bf0" : "#e9e9ef",
             color: active ? "#fff" : "#555",
@@ -77,7 +78,7 @@ const MemberShell = ({ title, action, headerIcon, right, tabs, onTab, children }
   useHideBootLoader();
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f5f5f9", paddingBottom: m(60) }}>
+    <div style={{ minHeight: "100vh", background: "#fff" }}>
       {/* হেডার */}
       <div
         className="relative flex items-center justify-center"
@@ -139,15 +140,17 @@ const MemberShell = ({ title, action, headerIcon, right, tabs, onTab, children }
             type="button"
             onClick={action.onClick}
             className="absolute cursor-pointer"
+            // মূল সাইটের মাপ — ২০০ চওড়া, দুই লাইনে ভাঙে
             style={{
-              right: m(24),
-              height: m(76),
-              padding: `0 ${m(26)}`,
-              borderRadius: m(38),
+              right: m(30),
+              width: m(200),
+              height: m(70),
+              padding: `0 ${m(12)}`,
+              borderRadius: m(35),
               background: "#1e9bf0",
               color: "#fff",
-              fontSize: m(24),
-              lineHeight: 1.15,
+              fontSize: m(23),
+              lineHeight: 1.1,
             }}
           >
             {action.label}
@@ -196,7 +199,8 @@ const MemberShell = ({ title, action, headerIcon, right, tabs, onTab, children }
         </div>
       )}
 
-      <div style={{ background: "#fff", minHeight: m(900) }}>{children}</div>
+      {/* মূল সাইটের মতো সাদা অংশ স্ক্রিনের নিচ পর্যন্ত (হেডার ১০০) */}
+      <div style={{ background: "#fff", minHeight: "calc(100vh - 1rem)" }}>{children}</div>
     </div>
   );
 };

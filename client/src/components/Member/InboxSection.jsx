@@ -173,14 +173,15 @@ const Desktop = () => {
 
 /** মূল সাইটের খালি মেইলবক্স — ধূসর মন-খারাপ মুখ */
 const EmptyFace = ({ text }) => (
-  <div className="flex flex-col items-center" style={{ padding: `${m(260)} 0`, gap: m(30), background: "#fff" }}>
-    <svg viewBox="0 0 120 120" style={{ width: m(370), height: m(370), color: "#d8d8dc" }} aria-hidden="true">
+  // মূল সাইটের মাপ — মুখ ১৮০, ট্যাবের নিচে ১৬০ ফাঁক
+  <div className="flex flex-col items-center" style={{ padding: `${m(160)} 0`, gap: m(10), background: "#fff" }}>
+    <svg viewBox="0 0 120 120" style={{ width: m(180), height: m(180), color: "#d8d8dc" }} aria-hidden="true">
       <circle cx="60" cy="60" r="52" fill="none" stroke="currentColor" strokeWidth="6" />
       <circle cx="43" cy="50" r="5" fill="currentColor" />
       <circle cx="77" cy="50" r="5" fill="currentColor" />
       <path d="M40 82c6-10 34-10 40 0" fill="none" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
     </svg>
-    <span style={{ fontSize: m(34), color: "#b4b4bc" }}>{text}</span>
+    <span style={{ fontSize: m(36), color: "#999" }}>{text}</span>
   </div>
 );
 

@@ -227,31 +227,35 @@ const MobOverview = ({ data }) => {
     <div style={{ background: "#fff", padding: `${m(24)} ${m(24)} ${m(60)}` }}>
       <ShareBox code={data.referralCode} domain={setting.inviteDomain} title={page.shareTitle} />
 
-      <div style={{ marginTop: m(24), display: "grid", gridTemplateColumns: "1fr 1fr", gap: m(20) }}>
+      <div style={{ marginTop: m(20), display: "grid", gridTemplateColumns: "1fr 1fr", gap: m(16) }}>
         {TILES.map((tile) => (
-          <div key={tile.key} className="text-center" style={{ background: tile.bg, borderRadius: m(16), padding: `${m(26)} 0`, color: "#fff" }}>
-            <div style={{ fontSize: m(26) }}>{page.stats[tile.key]}</div>
-            <div style={{ fontSize: m(40), fontWeight: 700, marginTop: m(10) }}>{tile.pick(ov)}</div>
+          <div key={tile.key} className="flex flex-col items-center justify-center" style={{ height: m(110), background: tile.bg, borderRadius: m(12), color: "#fff" }}>
+            <div style={{ fontSize: m(24), fontWeight: 700 }}>{page.stats[tile.key]}</div>
+            <div style={{ fontSize: m(38), fontWeight: 700, marginTop: m(4) }}>{tile.pick(ov)}</div>
           </div>
         ))}
       </div>
 
-      <div className="flex items-center" style={{ marginTop: m(24), borderRadius: m(16), background: "linear-gradient(90deg,#1b0f35,#3b1f63)", padding: m(30), gap: m(26) }}>
-        <img src="/assets/referral/logo-coin.png" alt="" style={{ width: m(150), height: m(150), objectFit: "contain", flexShrink: 0 }} />
-        <div>
-          <div style={{ fontSize: m(48), color: "#fbbf24", fontWeight: 700 }}>{tk(setting.estimatePerInvitee)}</div>
-          <div style={{ fontSize: m(36), color: "#fff", fontWeight: 700, marginTop: m(12) }}>{page.commission}</div>
+      <div className="relative overflow-hidden" style={{ marginTop: m(20), height: m(377), borderRadius: m(10), background: "linear-gradient(90deg,#140a2a,#2d1656 50%,#140a2a)" }}>
+        <img src="/assets/referral/slot-side.png" alt="" className="absolute" style={{ right: 0, bottom: 0, height: "70%", opacity: 0.45, transform: "scaleX(-1)" }} />
+        <div className="relative flex items-center" style={{ padding: `${m(24)} ${m(30)} 0`, gap: m(40) }}>
+          <img src="/assets/referral/logo-coin.png" alt="" style={{ width: m(172), height: m(172), objectFit: "contain", flexShrink: 0 }} />
+          <div style={{ fontSize: m(56), color: "#fff", fontWeight: 700 }}>{page.commission}</div>
+        </div>
+        <div className="relative text-center" style={{ marginTop: m(22), paddingLeft: m(120) }}>
+          <div style={{ fontSize: m(50), color: "#fbbf24", fontWeight: 700 }}>{tk(setting.estimatePerInvitee)}</div>
+          <div style={{ fontSize: m(24), color: "#fff", fontWeight: 700, marginTop: m(16) }}>{page.commission}</div>
         </div>
       </div>
 
-      <div className="text-center" style={{ fontSize: m(38), fontWeight: 700, color: "#222", margin: `${m(34)} 0 ${m(24)}` }}>{page.rewardTitle}</div>
+      <div className="text-center" style={{ fontSize: m(42), fontWeight: 700, color: "#222", margin: `${m(20)} 0 ${m(20)}` }}>{page.rewardTitle}</div>
       {REWARD_TYPES.map((key) => (
-        <div key={key} className="flex items-center" style={{ background: "#eef2fb", borderRadius: m(16), padding: m(26), gap: m(24), marginBottom: m(20) }}>
-          <img src={`/assets/referral/reward-${key}.png`} alt="" style={{ width: m(110), height: m(110), objectFit: "contain", flexShrink: 0 }} />
+        <div key={key} className="flex items-center" style={{ height: m(186), background: "linear-gradient(180deg,#f4f6fb,#e6ebf4)", borderRadius: m(10), padding: `0 ${m(20)}`, gap: m(24), marginBottom: m(22) }}>
+          <img src={`/assets/referral/reward-${key}.png`} alt="" style={{ width: m(170), height: m(170), objectFit: "contain", flexShrink: 0 }} />
           <div>
-            <div style={{ fontSize: m(30), color: "#333" }}>{r.types[key]}</div>
-            <div style={{ fontSize: m(40), color: "#4c2a85", fontWeight: 700, marginTop: m(8) }}>{tk(data.site?.[key]?.amount)}</div>
-            <div style={{ fontSize: m(24), color: "#888", marginTop: m(6) }}>{r.claimedCount.replace("{n}", data.site?.[key]?.members ?? 0)}</div>
+            <div style={{ fontSize: m(34), color: "#444" }}>{r.types[key]}</div>
+            <div style={{ fontSize: m(44), color: "#35287f", fontWeight: 700, marginTop: m(4) }}>{tk(data.site?.[key]?.amount)}</div>
+            <div style={{ fontSize: m(26), color: "#555", marginTop: m(2) }}>{r.claimedCount.replace("{n}", data.site?.[key]?.members ?? 0)}</div>
           </div>
         </div>
       ))}

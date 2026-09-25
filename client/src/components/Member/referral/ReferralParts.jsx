@@ -54,8 +54,8 @@ export const ShareBox = ({ code, domain, title }) => {
   };
 
   return (
-    <div style={{ background: isDesktop ? "#eef1f7" : "#f5f6fa", borderRadius: isDesktop ? 0 : m(16), padding: isDesktop ? "4px 6px 6px" : m(26) }}>
-      <div style={{ fontSize: u(12, 28), fontWeight: 700, color: isDesktop ? "#2b2e83" : "#3b2785", marginBottom: u(2, 14) }}>{title}</div>
+    <div style={{ background: isDesktop ? "#eef1f7" : "#f0f2f8", borderRadius: isDesktop ? 0 : m(10), padding: isDesktop ? "4px 6px 6px" : `${m(10)} ${m(14)} ${m(14)}` }}>
+      <div style={{ fontSize: u(12, 24), fontWeight: 700, color: isDesktop ? "#2b2e83" : "#3b2785", marginBottom: u(2, 6) }}>{title}</div>
 
       <div className="flex" style={{ gap: u(12, 24) }}>
         <button type="button" onClick={saveQr} className="shrink-0 cursor-pointer self-start" title={r.myCode}>

@@ -94,7 +94,8 @@ export const memberPagesLocale = {
     note: "অস্বীকরণ: উপরের ডেটা আপনার ডিভাইসের সময় অনুযায়ী",
     recordType: "প্রকার",
     win: "জয়",
-    profitLoss: "লাভ এবং লস",
+    plLabel: "লাভ এবং লস",
+    gameTabs: { RNG: "স্লট", FISH: "মাছ", LIVE: "লাইভ", PVP: "পোকার", SPORTS: "খেলাধুলা" },
     days7: "7 দিন",
   },
 
@@ -183,7 +184,8 @@ export const memberPagesLocale = {
     note: "Disclaimer: the data above follows your device time",
     recordType: "Type",
     win: "Win",
-    profitLoss: "Profit & loss",
+    plLabel: "Profit & loss",
+    gameTabs: { RNG: "Slot", FISH: "Fish", LIVE: "Live", PVP: "Poker", SPORTS: "Sports" },
     days7: "7 days",
   },
 };
