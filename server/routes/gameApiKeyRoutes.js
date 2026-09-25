@@ -5,6 +5,7 @@ import { protectAdmin, requireMother, requireWrite } from "../middleware/protect
 import { successResponse, errorResponse } from "../utils/response.js";
 import { clearCache } from "../utils/gameCache.js";
 import { loadSetting, verifyWithMaster } from "../utils/masterApi.js";
+import { loadProviderCatalog } from "../utils/providerCatalog.js";
 
 /**
  * অ্যাডমিন — White-label এর API key বসানো, যাচাই, চালু/বন্ধ।
@@ -17,6 +18,15 @@ const text = (value) => String(value ?? "").trim();
 const failMessage = (error) => error?.message || "Verify failed";
 
 router.use(protectAdmin, requireMother);
+
+/** বোনাসের টার্নওভারে প্রোভাইডার বাছার তালিকা (ProviderPicker) */
+router.get("/admin/providers", async (req, res) => {
+  try {
+    return successResponse(res, "Providers loaded", { providers: await loadProviderCatalog() });
+  } catch (error) {
+    return errorResponse(res, error.message || "Master request failed", 502);
+  }
+});
 
 router.get("/", async (req, res) => {
   try {
