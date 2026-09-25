@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 import Icon from "../Icon/Icon";
 import { MODAL_TABS, SECTION_BY_KEY } from "../Member/sections";
 import { useLanguage } from "../../Context/LanguageProvider";
+import { fetchInboxUnread, selectInboxUnread } from "../../features/inbox/inboxSlice";
 
 /**
  * লগইনের পরের "ব্যক্তিগত কেন্দ্র" মডাল (ডেস্কটপ)।
@@ -22,6 +24,13 @@ import { useLanguage } from "../../Context/LanguageProvider";
 const MemberModal = ({ tab = "deposit", onClose, onTab }) => {
   const { t } = useLanguage();
   const section = SECTION_BY_KEY[tab] ?? SECTION_BY_KEY.deposit;
+  const dispatch = useDispatch();
+  const inboxUnread = useSelector(selectInboxUnread);
+
+  // মডাল খুললেই ইনবক্সের না-পড়া সংখ্যা — মেনুর ব্যাজের জন্য
+  useEffect(() => {
+    dispatch(fetchInboxUnread());
+  }, [dispatch]);
 
   return (
     <div
@@ -70,6 +79,11 @@ const MemberModal = ({ tab = "deposit", onClose, onTab }) => {
             >
               <Icon name={item.icon} size={25} />
               <span>{t.member[item.key] ?? item.title(t)}</span>
+              {item.key === "inbox" && inboxUnread > 0 && (
+                <span className="grid place-items-center" style={{ minWidth: 18, height: 18, borderRadius: 9, padding: "0 5px", background: "#fe0404", fontSize: 11, marginLeft: "auto" }}>
+                  {inboxUnread > 99 ? "99+" : inboxUnread}
+                </span>
+              )}
             </button>
           ))}
         </div>

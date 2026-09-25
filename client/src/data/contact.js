@@ -1,9 +1,19 @@
 /**
- * গ্রাহক সেবার লিংক — মূল সাইটের টেলিগ্রাম চ্যানেল।
+ * গ্রাহক সেবার লিংক — হেডার, মেইনটেন্যান্স আর পাসওয়ার্ড ফেরতের পর্দা
+ * একই লিংক খোলে।
  *
- * এক জায়গায় রাখা, যাতে হেডার, মেইনটেন্যান্স আর পাসওয়ার্ড ফেরতের পর্দা
- * একই লিংক খোলে। admin এর Contact Links এলে এটা সেখান থেকে আসবে।
+ * আসল মান admin › Contact Links থেকে (`/api/site-content/public` এর
+ * `contact`); সাইটের কনটেন্ট আসার আগে বা server না পেলে মূল সাইটের
+ * টেলিগ্রাম চ্যানেল।
  */
-export const SUPPORT_URL = "https://t.me/+NpaAP08VuVtiODc1";
+const FALLBACK = "https://t.me/+NpaAP08VuVtiODc1";
+let current = { supportUrl: FALLBACK };
 
-export const openSupport = () => window.open(SUPPORT_URL, "_blank", "noopener");
+export const setContact = (contact) => {
+  if (contact?.supportUrl) current = { ...contact };
+};
+
+export const getContact = () => current;
+export const getSupportUrl = () => current.supportUrl || FALLBACK;
+
+export const openSupport = () => window.open(getSupportUrl(), "_blank", "noopener");

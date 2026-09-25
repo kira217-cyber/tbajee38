@@ -66,6 +66,7 @@ const RootLayout = () => {
   const [dlBarOpen, setDlBarOpen] = useState(true);
 
   const loaded = useSelector(selectGlobalLoaded);
+  const contentPlatform = useSelector((state) => state.global.platform);
   const gameLoaded = useSelector(selectGlobalGameLoaded);
   const popups = useSelector(selectPopups);
   const maintenance = useSelector(selectMaintenance);
@@ -82,9 +83,11 @@ const RootLayout = () => {
     if (!maintenance.loaded) dispatch(fetchMaintenance());
   }, [dispatch, maintenance.loaded]);
 
+  // ব্যানার/পপআপ ডেস্কটপ-মোবাইলে আলাদা — জানালার মাপ বদলালে আবার আনা
   useEffect(() => {
-    if (!loaded) dispatch(fetchGlobalClientData());
-  }, [dispatch, loaded]);
+    const want = isDesktop ? "desktop" : "mobile";
+    if (contentPlatform !== want) dispatch(fetchGlobalClientData(want));
+  }, [dispatch, isDesktop, contentPlatform]);
 
   useEffect(() => {
     if (!gameLoaded) dispatch(fetchGlobalGameData());

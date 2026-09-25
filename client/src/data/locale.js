@@ -215,6 +215,21 @@ export const locale = {
       }
     },
 
+    inboxFlow: {
+      "selectAll": "সব নির্বাচন করুন",
+      "markAllRead": "সব পড়া হয়েছে",
+      "delete": "মুছুন",
+      "cancel": "বাতিল",
+      "deleteConfirm": "{n}টি বার্তা মুছবেন?",
+      "deleted": "মুছে ফেলা হয়েছে",
+      "allRead": "সব বার্তা পড়া হয়েছে",
+      "newest": "নতুন আগে",
+      "oldest": "পুরোনো আগে",
+      "empty": "কোন মেসেজ নেই",
+      "pick": "বাঁ দিক থেকে একটা বার্তা বাছুন",
+      "back": "ফিরে যান"
+    },
+
     records: {
       types: {
         deposit: "জমা",
@@ -568,7 +583,7 @@ export const locale = {
 
     noticeTitle: "Notice",
 
-    promo: { all: "সমস্ত", more: "আরও" },
+    promo: { all: "সমস্ত", more: "আরও", moreMobile: "অধিক", join: "যোগ দিন", close: "বন্ধ", empty: "এখন কোনো প্রমোশন নেই" },
 
     download: {
       desc: "আমরা নতুনত্ব ফ্রি বেট এবং বোনাস আপডেটের জন্য এটিকে আপনার হোম স্ক্রিনে যুক্ত করতে চাই।",
@@ -894,6 +909,21 @@ export const locale = {
         "days7": "7 days",
         "month": "This month"
       }
+    },
+
+    inboxFlow: {
+      "selectAll": "Select all",
+      "markAllRead": "Mark all read",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "deleteConfirm": "Delete {n} message(s)?",
+      "deleted": "Deleted",
+      "allRead": "All messages marked as read",
+      "newest": "Newest first",
+      "oldest": "Oldest first",
+      "empty": "No messages",
+      "pick": "Choose a message on the left",
+      "back": "Back"
     },
 
     records: {
@@ -1244,7 +1274,7 @@ export const locale = {
 
     noticeTitle: "Notice",
 
-    promo: { all: "All", more: "More" },
+    promo: { all: "All", more: "More", moreMobile: "More", join: "Join now", close: "Close", empty: "No promotions right now" },
 
     download: {
       desc: "We would like to add this to your home screen for free bet and bonus updates.",

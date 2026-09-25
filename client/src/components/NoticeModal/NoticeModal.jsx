@@ -4,6 +4,8 @@ import Icon from "../Icon/Icon";
 import { useLanguage } from "../../Context/LanguageProvider";
 import { useIsDesktop } from "../../hook/useIsDesktop";
 import { m } from "../../hook/useUnits";
+import { useNavigate } from "react-router";
+import { followLink } from "../../utils/siteLink";
 
 /**
  * সাইট খুললেই যে "Notice" পপআপ আসে।
@@ -22,6 +24,11 @@ const NoticeModal = ({ items = [], onClose }) => {
   const titleOf = (item) => (lang === "en" && item?.titleEn) || item?.title;
   const isDesktop = useIsDesktop();
   const [active, setActive] = useState(0);
+  const navigate = useNavigate();
+  // ছবিতে চাপলে পপআপের লিংক (প্রমোশন বা বাইরের) — খুললে পপআপ বন্ধ
+  const open = (item) => {
+    if (followLink(item?.link, navigate)) onClose?.();
+  };
 
   if (!items.length) return null;
 
@@ -85,7 +92,7 @@ const NoticeModal = ({ items = [], onClose }) => {
             }}
           >
             {current.image && (
-              <img src={current.image} alt="" style={{ width: "100%", display: "block" }} />
+              <img src={current.image} alt="" onClick={() => open(current)} style={{ width: "100%", display: "block", cursor: current.link ? "pointer" : "default" }} />
             )}
           </div>
         </div>
@@ -179,7 +186,8 @@ const NoticeModal = ({ items = [], onClose }) => {
               <img
                 src={current.image}
                 alt=""
-                style={{ width: "100%", marginTop: 20, display: "block" }}
+                onClick={() => open(current)}
+                style={{ width: "100%", marginTop: 20, display: "block", cursor: current.link ? "pointer" : "default" }}
               />
             )}
           </div>

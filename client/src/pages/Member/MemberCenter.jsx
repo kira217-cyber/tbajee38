@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import Icon from "../../components/Icon/Icon";
 import { useLanguage } from "../../Context/LanguageProvider";
 import { selectUser } from "../../features/auth/authSelectors";
+import { fetchInboxUnread, selectInboxUnread } from "../../features/inbox/inboxSlice";
 import { useRefreshBalance } from "../../features/auth/useRefreshBalance";
 import { useLogout } from "../../features/auth/useLogout";
 import { openSupport } from "../../data/contact";
@@ -71,8 +72,20 @@ const MemberCenter = () => {
   const signOut = useLogout();
   const user = useSelector(selectUser);
   const { refresh, refreshing } = useRefreshBalance();
+  const dispatch = useDispatch();
+  const inboxUnread = useSelector(selectInboxUnread);
 
   useHideBootLoader();
+
+  // ইনবক্সের না-পড়া সংখ্যা — মেইলের ঘরে লাল ব্যাজ
+  useEffect(() => {
+    if (user) dispatch(fetchInboxUnread());
+  }, [dispatch, user]);
+
+  const badgeOf = (item) => {
+    if (item.key === "inbox") return inboxUnread > 0 ? (inboxUnread > 99 ? "99+" : inboxUnread) : null;
+    return item.badge || null;
+  };
 
   // লগইন না থাকলে router এর RequireLogin আগেই লগইন পেজে পাঠায়
   if (!user) return null;
@@ -347,7 +360,7 @@ const MemberCenter = () => {
                     style={{ width: m(54), height: m(54), objectFit: "contain" }}
                   />
                 </span>
-                {item.badge && (
+                {badgeOf(item) ? (
                   <span
                     className="absolute grid place-items-center"
                     style={{
@@ -362,9 +375,9 @@ const MemberCenter = () => {
                       fontWeight: 500,
                     }}
                   >
-                    {item.badge}
+                    {badgeOf(item)}
                   </span>
-                )}
+                ) : null}
               </span>
 
               <span

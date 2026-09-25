@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { useSearchParams } from "react-router";
 
 import { selectPromotions } from "../../features/global/globalSelectors";
 import { useLanguage } from "../../Context/LanguageProvider";
@@ -20,12 +21,85 @@ import { m } from "../../hook/useUnits";
  *
  * মোবাইলে একই কার্ড, কিন্তু এক কলামে পুরো প্রস্থে।
  */
+/** বিস্তারিত — লম্বা ছবিগুলো, ঐচ্ছিক লেখা, আর লিংক থাকলে "যোগ দিন" */
+const PromoBody = ({ promo, desktop = false }) => {
+  const { t, lang } = useLanguage();
+  const text = (lang === "en" && promo.content?.en) || promo.content?.bn || "";
+  return (
+    <div style={desktop ? {} : { background: "#1b1a3d", borderRadius: m(12), padding: m(24), marginTop: m(-8) }}>
+      {(promo.body || []).map((src) => (
+        <img key={src} src={src} alt="" loading="lazy" style={{ width: desktop ? 440 : "100%", maxWidth: "100%", display: "block" }} />
+      ))}
+      {text && <div style={{ whiteSpace: "pre-line", color: "#dcdcea", fontSize: desktop ? 15 : m(26), lineHeight: 1.6, marginTop: desktop ? 16 : m(20) }}>{text}</div>}
+      {promo.link && (
+        <a
+          href={promo.link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-center"
+          style={{ marginTop: desktop ? 18 : m(24), height: desktop ? 40 : m(80), padding: desktop ? "0 30px" : `0 ${m(50)}`, borderRadius: desktop ? 20 : m(40), background: "#c0392f", color: "#fff", fontSize: desktop ? 16 : m(28), fontWeight: 600 }}
+        >
+          {t.promo.join}
+        </a>
+      )}
+    </div>
+  );
+};
+
+/**
+ * ডেস্কটপের বিস্তারিত — মূল সাইটের মতো মাঝখানে গাঢ় মডাল (৯২০ × ৬০০,
+ * radius ২০), উপরে-ডানে সাদা ক্রস, বাঁয়ে সোনালি বড় শিরোনাম, নিচে
+ * লম্বা ছবি স্ক্রল হয়।
+ */
+const PromoModal = ({ promo, title, onClose }) => {
+  const { t } = useLanguage();
+  useEffect(() => {
+    const onKey = (e) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+  return (
+    <div className="fixed inset-0 z-[120] flex items-center justify-center" style={{ background: "rgb(0 0 0 / 0.6)" }} onClick={onClose}>
+      <div
+        className="relative flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+        style={{ width: 920, height: 600, borderRadius: 20, background: "#12112b", padding: "70px 20px 20px" }}
+      >
+        <button type="button" aria-label={t.promo.close} onClick={onClose} className="absolute cursor-pointer" style={{ top: 22, right: 24, color: "#fff", fontSize: 34, lineHeight: 1 }}>
+          ×
+        </button>
+        <div style={{ fontSize: 32, fontWeight: 800, background: "linear-gradient(180deg,#fff3b0,#f5c542 60%,#d99a1e)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent", marginBottom: 20 }}>
+          {title}
+        </div>
+        <div className="hide-scrollbar" style={{ flex: 1, overflowY: "auto" }}>
+          <PromoBody promo={promo} desktop />
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Promotions = () => {
   const { t, lang } = useLanguage();
   const titleOf = (promo) => (lang === "en" && promo.titleEn) || promo.title;
   const isDesktop = useIsDesktop();
   const promotions = useSelector(selectPromotions);
   const [category, setCategory] = useState("all");
+  // খোলা প্রমোশন — ডেস্কটপে মডাল, মোবাইলে কার্ডের নিচে (মূল সাইটের মতো)
+  const [openId, setOpenId] = useState(null);
+  const [params, setParams] = useSearchParams();
+
+  // ব্যানার/পপআপ থেকে `?open=<কোড>` এলে সেই প্রমোশন খোলা
+  const wanted = params.get("open");
+  useEffect(() => {
+    if (!wanted || !promotions.length) return;
+    const hit = promotions.find((p) => p.code === wanted || p.id === wanted || String(p.id) === wanted);
+    if (hit) setOpenId(hit.id);
+    setParams({}, { replace: true });
+  }, [wanted, promotions, setParams]);
+
+  const toggle = (id) => setOpenId((cur) => (cur === id ? null : id));
+  const opened = promotions.find((p) => p.id === openId);
 
   const categories = [{ key: "all", label: t.promo.all }];
 
@@ -74,9 +148,15 @@ const Promotions = () => {
           gap: isDesktop ? "30px 20px" : m(24),
         }}
       >
+        {promotions.length === 0 && (
+          <div style={{ color: "#8c8fa3", fontSize: isDesktop ? 15 : m(28), padding: isDesktop ? "40px 0" : `${m(80)} 0` }}>{t.promo.empty}</div>
+        )}
         {promotions.map((promo) => (
+          <React.Fragment key={promo.id}>
           <div
-            key={promo.id}
+            role="button"
+            tabIndex={0}
+            onClick={() => toggle(promo.id)}
             className="relative cursor-pointer"
             style={{
               aspectRatio: "348 / 217",
@@ -121,12 +201,16 @@ const Promotions = () => {
                   fontWeight: 600,
                 }}
               >
-                {t.promo.more}
+                {isDesktop ? t.promo.more : t.promo.moreMobile}
               </span>
             </div>
           </div>
+          {!isDesktop && openId === promo.id && <PromoBody promo={promo} />}
+          </React.Fragment>
         ))}
       </div>
+
+      {isDesktop && opened && <PromoModal promo={opened} title={titleOf(opened)} onClose={() => setOpenId(null)} />}
     </div>
   );
 };

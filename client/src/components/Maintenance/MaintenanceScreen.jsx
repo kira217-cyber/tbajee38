@@ -4,7 +4,7 @@ import { Wrench } from "lucide-react";
 import { useLanguage } from "../../Context/LanguageProvider";
 import { useIsDesktop } from "../../hook/useIsDesktop";
 import { m } from "../../hook/useUnits";
-import { SUPPORT_URL } from "../../data/contact";
+import { getSupportUrl } from "../../data/contact";
 
 /**
  * সাইট রক্ষণাবেক্ষণে থাকলে পুরো পর্দায় শুধু এই বার্তা।
@@ -104,7 +104,7 @@ const MaintenanceScreen = ({ setting }) => {
         </button>
 
         <a
-          href={SUPPORT_URL}
+          href={getSupportUrl()}
           target="_blank"
           rel="noopener noreferrer"
           className="tb-hover-fade flex w-full items-center justify-center"

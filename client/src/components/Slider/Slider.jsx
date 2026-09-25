@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
@@ -6,6 +7,7 @@ import "swiper/css/pagination";
 
 import { useIsDesktop } from "../../hook/useIsDesktop";
 import { m } from "../../hook/useUnits";
+import { followLink } from "../../utils/siteLink";
 
 /**
  * হোমের ব্যানার স্লাইডার।
@@ -18,6 +20,7 @@ import { m } from "../../hook/useUnits";
  *   মোবাইলে ব্যানার ৩৯০ × ১৫৬ (৭৫০-ডিজাইনে ৩০০ উঁচু)
  */
 const Slider = ({ banners = [] }) => {
+  const navigate = useNavigate();
   const isDesktop = useIsDesktop();
 
   if (!banners.length) return null;
@@ -46,7 +49,8 @@ const Slider = ({ banners = [] }) => {
               src={banner.image}
               alt={banner.title || ""}
               className="h-full w-full"
-              style={{ objectFit: "cover", display: "block" }}
+              onClick={() => followLink(banner.link, navigate)}
+              style={{ objectFit: "cover", display: "block", cursor: banner.link ? "pointer" : "default" }}
               loading={index === 0 ? "eager" : "lazy"}
             />
           </SwiperSlide>

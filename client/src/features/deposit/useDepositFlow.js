@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import api, { API_URL } from "../../api/axios";
+import api from "../../api/axios";
 import { useLanguage } from "../../Context/LanguageProvider";
 import { notify } from "../../utils/notify";
 
@@ -22,8 +22,8 @@ const num = (v) => {
 };
 const money = (v) => Math.round(num(v) * 100) / 100;
 
-/** লোগো `/uploads/…` হলে server এর ঠিকানা সামনে */
-export const assetUrl = (url) => (url && url.startsWith("/uploads/") ? `${API_URL}${url}` : url || "");
+// লোগো `/uploads/…` হলে server এর ঠিকানা সামনে — এক জায়গায় (utils/siteLink)
+export { assetUrl } from "../../utils/siteLink";
 
 const channelPercent = (channel) => {
   if (num(channel?.bonusPercent) > 0) return num(channel.bonusPercent);
