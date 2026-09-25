@@ -42,6 +42,9 @@ import { useHideBootLoader } from "../hook/useHideBootLoader";
  *   - মেম্বার সেন্টার: ডেস্কটপে মডাল (URL বদলায় না)
  *   - নোটিশ: সাইট খোলার পর একবার
  */
+/** এই পাতা-লোডে নোটিশ বন্ধ হয়েছে কিনা (reload এ আবার false) */
+let noticeDismissed = false;
+
 const RootLayout = () => {
   const dispatch = useDispatch();
   const signOut = useLogout();
@@ -62,7 +65,14 @@ const RootLayout = () => {
   // লগইন/নিবন্ধন শেষে কোথায় যাবে (যেমন লগইন ছাড়া "এখন খেলুন" চাপলে সেই গেম)
   const [authAfter, setAuthAfter] = useState(null);
   const [memberTab, setMemberTab] = useState(null);
-  const [noticeClosed, setNoticeClosed] = useState(false);
+  // নোটিশ একবার বন্ধ করলে reload না দেওয়া পর্যন্ত আর আসে না — মোবাইলের
+  // সদস্য-পাতাগুলো এই লেআউটের বাইরে, তাই হোমে ফিরলে লেআউট নতুন করে বসে;
+  // মান তাই কম্পোনেন্টের state এ নয়, পাতার (মডিউলের) ভেরিয়েবলে
+  const [noticeClosed, setNoticeClosedState] = useState(() => noticeDismissed);
+  const setNoticeClosed = useCallback((v) => {
+    noticeDismissed = Boolean(v);
+    setNoticeClosedState(Boolean(v));
+  }, []);
   const [downloadOpen, setDownloadOpen] = useState(false);
   // মোবাইলে হেডারের উপরের অ্যাপ-ডাউনলোড বার; ক্রস চাপলে চলে যায়
   const [dlBarOpen, setDlBarOpen] = useState(true);

@@ -1,8 +1,10 @@
 import React from "react";
-import { Link } from "react-router";
+import { useSelector } from "react-redux";
+import { Link, useLocation, useNavigate } from "react-router";
 
 import { useLanguage } from "../../Context/LanguageProvider";
 import { m } from "../../hook/useUnits";
+import { selectIsLoggedIn } from "../../features/auth/authSelectors";
 
 /**
  * মোবাইলের বটম নেভিগেশন — ডেস্কটপে থাকে না।
@@ -20,13 +22,28 @@ import { m } from "../../hook/useUnits";
 const ITEMS = [
   { key: "home", icon: "/assets/mobile/nav/home.svg", size: "auto 0.7rem", to: "/" },
   { key: "promotions", icon: "/assets/mobile/nav/promo.svg", size: m(60), to: "/promotions" },
-  { key: "share", icon: "/assets/mobile/nav/share.png", size: "contain", to: "/", center: true },
-  { key: "reward", icon: "/assets/mobile/nav/reward.svg", size: m(54), to: "/member/reward" },
-  { key: "member", icon: "/assets/mobile/nav/member.png", size: m(60), to: "/member" },
+  // শেয়ার = বন্ধুদের আমন্ত্রণ; `auth` গুলো লগইন চায় — না থাকলে লগইন পাতা, পরে সেখানেই ফেরা
+  { key: "share", icon: "/assets/mobile/nav/share.png", size: "contain", to: "/member/referral", center: true, auth: true },
+  { key: "reward", icon: "/assets/mobile/nav/reward.svg", size: m(54), to: "/member/reward", auth: true },
+  { key: "member", icon: "/assets/mobile/nav/member.png", size: m(60), to: "/member", auth: true },
 ];
 
 const BottomNavbar = () => {
   const { t } = useLanguage();
+  const loggedIn = useSelector(selectIsLoggedIn);
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+
+  const go = (item) => (e) => {
+    e.preventDefault();
+    if (item.auth && !loggedIn) {
+      navigate("/login", { state: { from: item.to } });
+      return;
+    }
+    if (pathname !== item.to) navigate(item.to);
+    // একই পাতায় থাকলে উপরে ফেরা
+    else window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <nav
@@ -43,6 +60,7 @@ const BottomNavbar = () => {
           <Link
             key={item.key}
             to={item.to}
+            onClick={go(item)}
             className="relative flex justify-center"
             style={{ width: m(150), height: m(110) }}
           >
@@ -79,6 +97,7 @@ const BottomNavbar = () => {
           <Link
             key={item.key}
             to={item.to}
+            onClick={go(item)}
             className="relative flex flex-col items-center"
             style={{ width: m(150), height: m(110) }}
           >
