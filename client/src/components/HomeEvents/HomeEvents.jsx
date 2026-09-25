@@ -16,7 +16,7 @@ import { followLink } from "../../utils/siteLink";
  * বন্ধ অবস্থায় এক ঘরে (৬২ × ৭৮) আইকনগুলো পালা করে আসে, উপরে তীর আর বাঁয়ে
  * ক্রস; তীরে চাপলে সবগুলো কালো-স্বচ্ছ লম্বা পাতে খোলে (প্রতিটা ৭৮ পরপর)।
  * কোন আইকন, কোন কোণে, উপরে-নিচে না পাশাপাশি, কত সেকেন্ড পরপর — সব admin
- * এর "Home Events" থেকে। ক্রস চাপলে এই সেশনে আর দেখায় না।
+ * এর "Home Events" থেকে। ক্রস চাপলে লুকায়, reload দিলে আবার আসে।
  */
 const IMG = "/assets/reward";
 const DEFAULT_IMAGE = {
@@ -30,7 +30,6 @@ const DEFAULT_IMAGE = {
   link: "item-default.png",
 };
 const TICKET_KINDS = ["temu", "redPacket", "wheel"];
-const HIDE_KEY = "tb_events_closed";
 
 const HomeEvents = () => {
   const isDesktop = useIsDesktop();
@@ -43,13 +42,8 @@ const HomeEvents = () => {
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
-  const [closed, setClosed] = useState(() => {
-    try {
-      return sessionStorage.getItem(HIDE_KEY) === "1";
-    } catch {
-      return false;
-    }
-  });
+  // ক্রস চাপলে এই পাতায় লুকায়; reload দিলে আবার দেখায় (কোথাও মনে রাখা হয় না)
+  const [closed, setClosed] = useState(false);
 
   // ডেস্কটপে ৩৯০px ফোনের মাপকে px এ
   const z = (n) => (isDesktop ? `${Math.round(n * 5.2) / 10}px` : m(n));
@@ -98,14 +92,7 @@ const HomeEvents = () => {
     </button>
   );
 
-  const close = () => {
-    setClosed(true);
-    try {
-      sessionStorage.setItem(HIDE_KEY, "1");
-    } catch {
-      /* private mode */
-    }
-  };
+  const close = () => setClosed(true);
 
   return (
     <div
