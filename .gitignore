@@ -25,3 +25,6 @@ server/uploads/*
 .idea/
 .DS_Store
 Thumbs.db
+
+# KYC documents (private, never public)
+server/private/

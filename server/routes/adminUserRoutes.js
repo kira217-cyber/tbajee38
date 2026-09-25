@@ -650,6 +650,7 @@ router.patch(
         user.password = await bcrypt.hash(password, BCRYPT_ROUNDS);
         user.failedLoginAttempts = 0;
         user.lockedUntil = null;
+        user.passwordChangedAt = new Date();
       }
 
       if (body.currency !== undefined) {

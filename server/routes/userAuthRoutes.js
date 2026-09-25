@@ -414,6 +414,7 @@ router.post("/register", authLimiter, async (req, res) => {
     }
 
     user.lastLoginAt = new Date();
+    user.lastLoginIp = req.ip || "";
     await user.save();
 
     return successResponse(
@@ -531,6 +532,7 @@ router.post("/login", authLimiter, async (req, res) => {
     user.failedLoginAttempts = 0;
     user.lockedUntil = null;
     user.lastLoginAt = new Date();
+    user.lastLoginIp = req.ip || "";
     await user.save();
 
     return successResponse(res, "Login successful", {
@@ -593,6 +595,8 @@ router.post("/forgot-password", authLimiter, async (req, res) => {
     user.password = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
     user.failedLoginAttempts = 0;
     user.lockedUntil = null;
+    // ফেরত আনার পর আগের সব লগইন বন্ধ — চোর ঢুকে থাকলে সেও বেরিয়ে যায়
+    user.passwordChangedAt = new Date();
     await user.save();
 
     clearOtp({ flow: "forgotPassword", countryCode, phone });

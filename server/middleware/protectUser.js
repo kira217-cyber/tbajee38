@@ -26,6 +26,11 @@ export const protectUser = async (req, res, next) => {
 
     if (!user) return errorResponse(res, "Not authorized - user not found", 401);
 
+    // পাসওয়ার্ড বদলানোর আগের টোকেন — অন্য কোথাও খোলা থাকা লগইন বন্ধ
+    if (user.passwordChangedAt && decoded.iat * 1000 < user.passwordChangedAt.getTime() - 1000) {
+      return errorResponse(res, "Password was changed — please log in again", 401, "sessionExpired");
+    }
+
     if (!user.isActive) {
       // কোড দেখে সাইট সাথে সাথে লগআউট করায় — admin বন্ধ করলে খোলা
       // ট্যাবেও আর লগইন অবস্থা থাকে না

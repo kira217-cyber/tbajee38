@@ -1,14 +1,38 @@
+import Verification from "../models/Verification.js";
+import VerificationSetting from "../models/VerificationSetting.js";
+
 /**
- * পরিচয় যাচাই (KYC) এর শর্ত — admin চাইলে ডিপোজিট/উত্তোলনের আগে KYC লাগবে।
- *
- * KYC ধাপ এখনো তৈরি হয়নি, তাই আপাতত সবাই যেতে পারেন। KYC এলে এখানেই
- * `VerificationSetting` দেখে আটকানো হবে — যে রুটগুলো ডাকে, সেগুলো বদলাতে হবে না।
+ * পরিচয় যাচাই (KYC) এর শর্ত — admin চাইলে ডিপোজিট/উত্তোলনের আগে KYC লাগে
+ * (admin › Verification এর সুইচ)। অ্যাফিলিয়েটের নিজের সুইচ, শুধু উত্তোলনে।
  *
  * @param {string} userId
  * @param {"deposit"|"withdraw"} action
- * @returns {Promise<{ ok: boolean, message?: string }>}
+ * @param {"user"|"aff-user"} role
+ * @returns {Promise<{ ok: boolean, status?: string, message?: string }>}
  */
-// eslint-disable-next-line no-unused-vars
-export const verificationGate = async (userId, action) => ({ ok: true });
+export const verificationGate = async (userId, action, role = "user") => {
+  const setting = await VerificationSetting.current();
+
+  const needed =
+    role === "aff-user"
+      ? action === "withdraw" && setting.affiliateRequireForWithdraw
+      : action === "deposit"
+        ? setting.requireForDeposit
+        : setting.requireForWithdraw;
+
+  if (!needed) return { ok: true };
+
+  const row = await Verification.findOne({ user: userId }).select("status").lean();
+  if (row?.status === "approved") return { ok: true };
+
+  return {
+    ok: false,
+    status: row?.status || "none",
+    message:
+      row?.status === "pending"
+        ? "Your identity verification is still being checked"
+        : "Please complete identity verification first",
+  };
+};
 
 export default verificationGate;

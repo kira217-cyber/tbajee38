@@ -189,6 +189,13 @@ const userSchema = new Schema(
     failedLoginAttempts: { type: Number, default: 0, select: false },
     lockedUntil: { type: Date, default: null, select: false },
     lastLoginAt: { type: Date, default: null },
+    lastLoginIp: { type: String, default: "" },
+
+    /*
+     * পাসওয়ার্ড শেষ কবে বদলেছে — এর আগে তৈরি টোকেন আর চলে না।
+     * BetChokkor এ পাসওয়ার্ড বদলালেও চুরি হওয়া টোকেন ৭ দিন চলত।
+     */
+    passwordChangedAt: { type: Date, default: null },
   },
   { timestamps: true },
 );
@@ -243,6 +250,8 @@ userSchema.methods.toSafeJSON = function toSafeJSON() {
     affiliateNote: this.affiliateNote,
     verificationStatus: this.verificationStatus,
     hasTxPassword: Boolean(this.txPasswordSetAt),
+    lastLoginAt: this.lastLoginAt,
+    lastLoginIp: this.lastLoginIp,
     pendingRegisterBonus: this.pendingRegisterBonus,
     createdAt: this.createdAt,
   };
