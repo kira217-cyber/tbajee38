@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 
 import { useNavigate } from "react-router";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { selectGameCategories } from "../../features/globalGame/globalGameSelectors";
 
 import Icon from "../Icon/Icon";
-import { logout } from "../../features/auth/authSlice";
+import { useLogout } from "../../features/auth/useLogout";
 import { useLanguage } from "../../Context/LanguageProvider";
 import { useIsDesktop } from "../../hook/useIsDesktop";
 
@@ -82,7 +82,7 @@ const Chevron = ({ open }) => (
 const Sidebar = ({ topOffset = 0, open, onClose, onMember, onSection, onDownload, onSupport }) => {
   const { t, lang, setLang, languages } = useLanguage();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const signOut = useLogout();
   const isDesktop = useIsDesktop();
   const [gameCenterOpen, setGameCenterOpen] = useState(false);
   const [memberOpen, setMemberOpen] = useState(false);
@@ -286,11 +286,7 @@ const Sidebar = ({ topOffset = 0, open, onClose, onMember, onSection, onDownload
             ghost
             muted
             labelSize={16.5}
-            onClick={() => {
-              dispatch(logout());
-              onClose?.();
-              navigate("/");
-            }}
+            onClick={() => signOut(onClose)}
           />
         </Group>
       </aside>

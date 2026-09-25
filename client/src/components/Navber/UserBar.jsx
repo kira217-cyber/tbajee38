@@ -5,6 +5,7 @@ import ProfileMenu from "./ProfileMenu";
 import { useLanguage } from "../../Context/LanguageProvider";
 import { useIsDesktop } from "../../hook/useIsDesktop";
 import { m } from "../../hook/useUnits";
+import { useRefreshBalance } from "../../features/auth/useRefreshBalance";
 
 /**
  * লগইনের পরে হেডারের ডান পাশ।
@@ -21,6 +22,7 @@ const UserBar = ({ user, onDeposit, onWithdraw, onMember, onSupport, onLogout })
   const [menuOpen, setMenuOpen] = useState(false);
   const { t } = useLanguage();
   const isDesktop = useIsDesktop();
+  const { refresh, refreshing } = useRefreshBalance();
 
   const balance = `${user.currency} ${user.balance.toFixed(2)}`;
 
@@ -63,7 +65,10 @@ const UserBar = ({ user, onDeposit, onWithdraw, onMember, onSupport, onLogout })
               {balance}
             </span>
             <span
-              className="flex items-center justify-center"
+              role="button"
+              aria-label="refresh"
+              onClick={refresh}
+              className={`flex items-center justify-center${refreshing ? " tb-spin" : ""}`}
               style={{ width: m(40), height: m(40) }}
             >
               <img
@@ -265,7 +270,13 @@ const UserBar = ({ user, onDeposit, onWithdraw, onMember, onSupport, onLogout })
         style={{ width: 124.5, height: 40, gap: 8, color: "var(--gold)", fontSize: 17 }}
       >
         <span className="truncate">{balance}</span>
-        <span className="cursor-pointer" style={{ opacity: 0.8 }}>
+        <span
+          role="button"
+          aria-label="refresh"
+          onClick={refresh}
+          className={`flex cursor-pointer${refreshing ? " tb-spin" : ""}`}
+          style={{ opacity: 0.8 }}
+        >
           <Icon name="refresh" size={16} />
         </span>
       </div>

@@ -17,11 +17,17 @@ import { MEMBER_LINKS } from "../components/Member/sections";
 
 import { fetchGlobalClientData } from "../features/global/globalSlice";
 import { selectGlobalLoaded, selectPopups } from "../features/global/globalSelectors";
-import { logout } from "../features/auth/authSlice";
+import { refreshMe } from "../features/auth/authSlice";
+import { useLogout } from "../features/auth/useLogout";
+import { selectIsLoggedIn } from "../features/auth/authSelectors";
 import { fetchGlobalGameData } from "../features/globalGame/globalGameSlice";
 import { selectGlobalGameLoaded } from "../features/globalGame/globalGameSelectors";
+import { fetchMaintenance } from "../features/maintenance/maintenanceSlice";
+import { selectMaintenance } from "../features/maintenance/maintenanceSelectors";
+import MaintenanceScreen from "../components/Maintenance/MaintenanceScreen";
 
 import { useIsDesktop } from "../hook/useIsDesktop";
+import { openSupport as openSupportLink } from "../data/contact";
 import { m } from "../hook/useUnits";
 import { useHideBootLoader } from "../hook/useHideBootLoader";
 
@@ -36,9 +42,10 @@ import { useHideBootLoader } from "../hook/useHideBootLoader";
  */
 const RootLayout = () => {
   const dispatch = useDispatch();
+  const signOut = useLogout();
   const navigate = useNavigate();
   const isDesktop = useIsDesktop();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   // খেলার কেন্দ্র (/games/*) মূল সাইটে আলাদা চেহারার পেজ: ডেস্কটপে
   // সাইডবার নেই আর কলাম ১২৩৬ চওড়া; মোবাইলে নিজের হেডার, সাইটের
   // হেডার-ডাউনলোড বার-ফুটার নেই (নিচের নেভবার থাকে)
@@ -50,6 +57,8 @@ const RootLayout = () => {
   //  যায় আর কনটেন্ট কলাম পুরো প্রস্থের মাঝে চলে আসে)
   const [deskSidebarOpen, setDeskSidebarOpen] = useState(true);
   const [authTab, setAuthTab] = useState(null);
+  // লগইন/নিবন্ধন শেষে কোথায় যাবে (যেমন লগইন ছাড়া "এখন খেলুন" চাপলে সেই গেম)
+  const [authAfter, setAuthAfter] = useState(null);
   const [memberTab, setMemberTab] = useState(null);
   const [noticeClosed, setNoticeClosed] = useState(false);
   const [downloadOpen, setDownloadOpen] = useState(false);
@@ -59,6 +68,19 @@ const RootLayout = () => {
   const loaded = useSelector(selectGlobalLoaded);
   const gameLoaded = useSelector(selectGlobalGameLoaded);
   const popups = useSelector(selectPopups);
+  const maintenance = useSelector(selectMaintenance);
+  const loggedIn = useSelector(selectIsLoggedIn);
+
+  // সাইট খুললে ব্যালেন্স/তথ্য server থেকে নতুন করে — রাখা তথ্য পুরোনো হতে পারে
+  useEffect(() => {
+    if (loggedIn) dispatch(refreshMe());
+    // শুধু প্রথমবার; পরে রিফ্রেশ আইকন বা লগইনেই নতুন তথ্য আসে
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!maintenance.loaded) dispatch(fetchMaintenance());
+  }, [dispatch, maintenance.loaded]);
 
   useEffect(() => {
     if (!loaded) dispatch(fetchGlobalClientData());
@@ -79,17 +101,28 @@ const RootLayout = () => {
 
   // ডেস্কটপে মডাল, মোবাইলে পেজ — মূল সাইট ঠিক এভাবেই ভাগ করে
   const openAuth = useCallback(
-    (tab = "login") => {
-      if (isDesktop) setAuthTab(tab);
-      else navigate(tab === "register" ? "/register" : "/login");
+    (tab = "login", { after } = {}) => {
+      if (isDesktop) {
+        setAuthAfter(after || null);
+        setAuthTab(tab);
+        return;
+      }
+      const page = { register: "/register", forgot: "/forget" }[tab] || "/login";
+      // কাজ শেষে `after` এ, নইলে এই পাতাতেই ফেরা
+      navigate(page, { state: { from: after || `${pathname}${search}` } });
     },
-    [isDesktop, navigate],
+    [isDesktop, navigate, pathname, search],
   );
 
   // একই জিনিস, দুই চেহারা — ডেস্কটপে মডাল খোলে, মোবাইলে সেই
   // ফিচারের নিজের পেজে যায় (মূল সাইটেও ঠিক তাই)
   const openMember = useCallback(
     (tab = "deposit") => {
+      // সদস্যের সব কিছু লগইন চায় — না থাকলে আগে লগইন, তারপর সেই জিনিসটা
+      if (!loggedIn) {
+        openAuth("login", isDesktop ? {} : { after: MEMBER_LINKS[tab] ?? "/member" });
+        return;
+      }
       if (isDesktop) {
         setMemberTab(tab);
         return;
@@ -97,7 +130,7 @@ const RootLayout = () => {
       const to = MEMBER_LINKS[tab];
       navigate(to ?? "/member");
     },
-    [isDesktop, navigate],
+    [isDesktop, navigate, loggedIn, openAuth],
   );
 
   // সাইডবারের "গেম সেন্টার" — মূল সাইটের মতো ডেস্কটপে হোমের সেই ক্যাটাগরি
@@ -111,9 +144,7 @@ const RootLayout = () => {
   );
 
   // গ্রাহক সেবা — মূল সাইটের টেলিগ্রাম চ্যানেল
-  const openSupport = useCallback(() => {
-    window.open("https://t.me/+NpaAP08VuVtiODc1", "_blank", "noopener");
-  }, []);
+  const openSupport = useCallback(() => openSupportLink(), []);
 
   const ui = useMemo(
     () => ({
@@ -132,13 +163,19 @@ const RootLayout = () => {
   // মূল সাইটের মতো — সাইটের মূল ডেটা না আসা পর্যন্ত পুরো পর্দায় স্পিনার
   // মূল সাইটের মতো: সাইটের মূল কনটেন্ট (ব্যানার, নোটিশ) এলেই শেল দেখা
   // যায়; গেমের সেকশনগুলো তখন নিজের নিজের স্পিনার দেখায়।
-  const booting = !loaded;
+  // মেইনটেন্যান্স জানার আগে সাইট দেখালে এক ঝলক কনটেন্ট দেখা দিয়ে
+  // তারপর বন্ধ হতো — তাই ওটাও বুট লোডারের অংশ
+  const booting = !loaded || !maintenance.loaded;
 
   useHideBootLoader(!booting);
 
   // বারটা খোলা থাকলে হেডার ও কনটেন্ট ততটা নিচে নামে
   const barOffset = !isDesktop && dlBarOpen && !isGameCenter ? m(125) : 0;
   const ownHeader = isGameCenter && !isDesktop;
+
+  // রক্ষণাবেক্ষণ চললে কনটেন্ট নয়, শুধু বার্তা
+  if (maintenance.isOn) return <MaintenanceScreen setting={maintenance} />;
+
   const sidebarShown = isDesktop && deskSidebarOpen && !isGameCenter;
 
   return (
@@ -160,10 +197,7 @@ const RootLayout = () => {
           onAuth={openAuth}
           onMember={openMember}
           onSupport={openSupport}
-          onLogout={() => {
-            dispatch(logout());
-            navigate("/");
-          }}
+          onLogout={() => signOut()}
         />
         )}
         <Sidebar
@@ -205,6 +239,10 @@ const RootLayout = () => {
           <AuthModal
             tab={authTab}
             onClose={() => setAuthTab(null)}
+            onDone={() => {
+              setAuthTab(null);
+              if (authAfter) navigate(authAfter);
+            }}
             onSwitch={(tab) => setAuthTab(tab)}
           />
         )}

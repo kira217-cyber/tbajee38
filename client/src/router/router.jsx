@@ -4,8 +4,10 @@ import RootLayout from "../RootLayout/RootLayout";
 import Home from "../pages/Home/Home";
 import Promotions from "../pages/Promotions/Promotions";
 import AuthPage from "../pages/Login/AuthPage";
+import ForgotPage from "../pages/Login/ForgotPage";
 import MemberCenter from "../pages/Member/MemberCenter";
 import MemberRoute from "../pages/Member/MemberRoute";
+import RequireLogin from "../components/RequireLogin/RequireLogin";
 import { MOBILE_ROUTES } from "../components/Member/sections";
 import NotFoundPage from "../pages/NotFoundPage/NotFoundPage";
 import GameCenter from "../pages/GameCenter/GameCenter";
@@ -37,10 +39,23 @@ export const routes = createBrowserRouter([
   { path: "/play/:gameUId", element: <PlayGame />, errorElement: <NotFoundPage /> },
   { path: "/login", element: <AuthPage mode="login" />, errorElement: <NotFoundPage /> },
   { path: "/register", element: <AuthPage mode="register" />, errorElement: <NotFoundPage /> },
-  { path: "/member", element: <MemberCenter />, errorElement: <NotFoundPage /> },
+  { path: "/forget", element: <ForgotPage />, errorElement: <NotFoundPage /> },
+  {
+    path: "/member",
+    element: (
+      <RequireLogin>
+        <MemberCenter />
+      </RequireLogin>
+    ),
+    errorElement: <NotFoundPage />,
+  },
   ...MOBILE_ROUTES.map((section) => ({
     path: `/member/${section.path}`,
-    element: <MemberRoute sectionKey={section.key} />,
+    element: (
+      <RequireLogin>
+        <MemberRoute sectionKey={section.key} />
+      </RequireLogin>
+    ),
     errorElement: <NotFoundPage />,
   })),
 ]);

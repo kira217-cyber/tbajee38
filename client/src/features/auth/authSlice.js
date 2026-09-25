@@ -1,60 +1,83 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+
+import { api } from "../../api/axios";
+import { clearSession, readToken, readUser, saveSession, saveUser } from "./tokenStore";
 
 /**
- * লগইন অবস্থা।
+ * লগইন অবস্থা — server এর `/api/user/*` থেকে।
  *
- * server এখনো নেই, তাই লগইন ফর্ম সাবমিট করলে স্ট্যাটিক একটা ইউজার বসে —
- * এতে লগইনের পরের হেডার ও মেম্বার সেন্টার দেখা ও মেলানো যায়। server
- * এলে এই slice এর ভিতরটাই API কলে বদলাবে, বাইরের কম্পোনেন্টগুলো নয়।
- *
- * মান দুটো মূল সাইটে rai182 অ্যাকাউন্টে যা দেখায় তাই: ব্যালেন্স ৳0.00,
- * VIP0।
+ * server এর ইউজারকে (`userId`, `createdAt` …) সাইটের কম্পোনেন্টগুলো যে
+ * নামে পড়ে (`username`, `joinedAt`, `currency: "৳"`) সেভাবে সাজানো হয়,
+ * তাই হেডার-সদস্য কেন্দ্রের কোনো কম্পোনেন্ট বদলাতে হয়নি।
  */
-const STORAGE_KEY = "tbajee:user";
+export const toClientUser = (u) =>
+  u
+    ? {
+        ...u,
+        username: u.userId,
+        nickname: u.userId,
+        balance: Number(u.balance) || 0,
+        vipLevel: Number(u.vipLevel) || 0,
+        currency: "৳",
+        joinedAt: u.createdAt ? String(u.createdAt).slice(0, 10) : "",
+        avatar: "/assets/mobile/avatar.png",
+      }
+    : null;
 
-const readStored = () => {
+/** ব্যালেন্স ও তথ্য নতুন করে — হেডারের রিফ্রেশ, খেলা থেকে ফেরা ইত্যাদি */
+export const refreshMe = createAsyncThunk("auth/refreshMe", async (_, { rejectWithValue }) => {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
+    const { data } = await api.get("/api/user/me");
+    return data?.data?.user || null;
+  } catch (error) {
+    return rejectWithValue(error?.response?.status || 0);
   }
-};
+});
 
-const persist = (user) => {
-  try {
-    if (user) localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
-    else localStorage.removeItem(STORAGE_KEY);
-  } catch {
-    // প্রাইভেট মোডে সেভ না হলেও এই সেশনে লগইন থাকবে
-  }
-};
+const initialToken = readToken();
 
 const authSlice = createSlice({
   name: "auth",
-  initialState: { user: readStored() },
+  initialState: {
+    user: initialToken ? readUser() : null,
+    token: initialToken,
+    refreshing: false,
+  },
   reducers: {
-    login: (state, action) => {
-      const username = action.payload?.username?.trim() || "rai182";
-      state.user = {
-        username,
-        nickname: username,
-        balance: 0,
-        vipLevel: 0,
-        currency: "৳",
-        // সদস্য কেন্দ্রে "যোগদান করেছেন" দেখায় — server আসার আগ পর্যন্ত
-        // আজকের তারিখই বসাই (মূল সাইটেও YYYY-MM-DD)
-        joinedAt: new Date().toISOString().slice(0, 10),
-        avatar: "/assets/mobile/avatar.png",
-      };
-      persist(state.user);
+    setCredentials: (state, action) => {
+      const { token, user, remember = true } = action.payload || {};
+      state.token = token;
+      state.user = toClientUser(user);
+      saveSession({ token, user: state.user, remember });
+    },
+    updateUser: (state, action) => {
+      if (!state.token) return;
+      state.user = toClientUser(action.payload);
+      saveUser(state.user);
     },
     logout: (state) => {
       state.user = null;
-      persist(null);
+      state.token = null;
+      clearSession();
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(refreshMe.pending, (state) => {
+        state.refreshing = true;
+      })
+      .addCase(refreshMe.fulfilled, (state, action) => {
+        state.refreshing = false;
+        if (!state.token || !action.payload) return;
+        state.user = toClientUser(action.payload);
+        saveUser(state.user);
+      })
+      .addCase(refreshMe.rejected, (state) => {
+        // 401 হলে axios নিজেই লগআউট করায়; নেটওয়ার্কের ভুলে আগের তথ্য থাকে
+        state.refreshing = false;
+      });
   },
 });
 
-export const { login, logout } = authSlice.actions;
+export const { setCredentials, updateUser, logout } = authSlice.actions;
 export default authSlice.reducer;

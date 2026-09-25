@@ -1,11 +1,13 @@
 import React from "react";
 import { useNavigate } from "react-router";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 import Icon from "../../components/Icon/Icon";
 import { useLanguage } from "../../Context/LanguageProvider";
 import { selectUser } from "../../features/auth/authSelectors";
-import { logout } from "../../features/auth/authSlice";
+import { useRefreshBalance } from "../../features/auth/useRefreshBalance";
+import { useLogout } from "../../features/auth/useLogout";
+import { openSupport } from "../../data/contact";
 import { m } from "../../hook/useUnits";
 import { MEMBER_SECTIONS, MEMBER_LINKS } from "../../components/Member/sections";
 import { useHideBootLoader } from "../../hook/useHideBootLoader";
@@ -66,15 +68,14 @@ const InfoRow = ({ label, value, children }) => (
 const MemberCenter = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const signOut = useLogout();
   const user = useSelector(selectUser);
+  const { refresh, refreshing } = useRefreshBalance();
 
   useHideBootLoader();
 
-  if (!user) {
-    navigate("/login", { replace: true });
-    return null;
-  }
+  // লগইন না থাকলে router এর RequireLogin আগেই লগইন পেজে পাঠায়
+  if (!user) return null;
 
   const actions = [
     { key: "deposit", label: t.memberPage.depositBtn, to: MEMBER_LINKS.deposit },
@@ -84,12 +85,11 @@ const MemberCenter = () => {
 
   const onItem = (item) => {
     if (item.key === "logout") {
-      dispatch(logout());
-      navigate("/");
+      signOut();
       return;
     }
     if (item.key === "support") {
-      window.open("https://t.me/+NpaAP08VuVtiODc1", "_blank", "noopener");
+      openSupport();
       return;
     }
     const to = MEMBER_LINKS[item.key];
@@ -258,7 +258,8 @@ const MemberCenter = () => {
             <button
               type="button"
               aria-label="refresh"
-              className="cursor-pointer"
+              onClick={refresh}
+              className={`cursor-pointer${refreshing ? " tb-spin" : ""}`}
               style={{ width: m(32), height: m(32) }}
             >
               <img

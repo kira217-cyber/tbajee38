@@ -1,11 +1,9 @@
 import React from "react";
 import Icon from "../Icon/Icon";
 import { useLanguage } from "../../Context/LanguageProvider";
-import { logout } from "../../features/auth/authSlice";
 import { m } from "../../hook/useUnits";
+import { useLogout } from "../../features/auth/useLogout";
 import MemberShell from "./MemberShell";
-import { useNavigate } from "react-router";
-import { useDispatch } from "react-redux";
 
 /**
  * সুরক্ষা কেন্দ্র — মূল সাইটে এটা **শুধু মোবাইলে** আছে,
@@ -29,8 +27,7 @@ const ROWS = [
 
 const SecuritySection = () => {
   const { t } = useLanguage();
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const signOut = useLogout();
   const page = t.memberPage.pages.security;
 
   return (
@@ -103,10 +100,7 @@ const SecuritySection = () => {
               key={row.key}
               type="button"
               onClick={() => {
-                if (row.key === "logout") {
-                  dispatch(logout());
-                  navigate("/");
-                }
+                if (row.key === "logout") signOut();
               }}
               className="flex w-full cursor-pointer items-center text-left"
               style={{
