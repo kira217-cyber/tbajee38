@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { maskNumber } from "../../features/withdraw/useWithdrawFlow";
 import { useIsDesktop } from "../../hook/useIsDesktop";
 import Icon from "../Icon/Icon";
 import { useLanguage } from "../../Context/LanguageProvider";
@@ -59,6 +60,25 @@ const plColor = (n) => (n > 0 ? "#16a34a" : n < 0 ? "#e8474c" : undefined);
  */
 const RANGES = ["today", "yesterday", "days7", "custom"];
 
+/** "স্থিতি: সব ▾" — মূল সাইটের ফিল্টারের ড্রপডাউন */
+const FilterSelect = ({ label, value, onChange, options }) => (
+  <span className="flex items-center" style={{ gap: 8 }}>
+    {label}:
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="cursor-pointer"
+      style={{ height: 30, minWidth: 100, padding: "0 8px", border: "1px solid #ddd", borderRadius: 4, color: "#333", background: "#fff", fontSize: 13, outline: "none" }}
+    >
+      {options.map(([key, text]) => (
+        <option key={key} value={key}>
+          {text}
+        </option>
+      ))}
+    </select>
+  </span>
+);
+
 const Desktop = ({ tab }) => {
   const { t } = useLanguage();
   const [range, setRange] = useState("today");
@@ -67,8 +87,14 @@ const Desktop = ({ tab }) => {
 
   const { lang } = useLanguage();
   const config = t.member.desk[tab];
-  const columns = config.columns;
-  const tabs = config.tabs ?? [];
+  const dr = t.deskRec;
+  const isAccTab = tab === "accountRecord";
+  // অ্যাকাউন্ট রেকর্ড — মূল সাইটের মতো তিন ট্যাব: লেনদেন / জমা / উত্তোলন রেকর্ড
+  const tabs = isAccTab ? dr.tabs : config.tabs ?? [];
+  const columns = isAccTab ? dr.columns[gameTab] : config.columns;
+  const [accType, setAccType] = useState("all");
+  const [status, setStatus] = useState("all");
+  const [method, setMethod] = useState("all");
 
   // বেটিং রেকর্ড server থেকে; অন্য রেকর্ডগুলো নিজ নিজ ধাপে আসবে
   const isBet = tab === "betRecord";
@@ -80,7 +106,18 @@ const Desktop = ({ tab }) => {
 
   const isAcc = tab === "accountRecord";
   const isPL = tab === "profitLoss";
-  const acc = useAccountRecords({ range, type: ACCOUNT_TABS[gameTab], enabled: isAcc });
+  const acc = useAccountRecords({ range, type: accType, enabled: isAcc && gameTab === 0 });
+  const reqKind = isAcc && gameTab === 1 ? "deposit" : isAcc && gameTab === 2 ? "withdraw" : null;
+  const requests = useRequestRecords({ kind: reqKind || "deposit", range, enabled: Boolean(reqKind) });
+  const nameOf = (v) => (v && typeof v === "object" ? v[lang] || v.bn || v.en || "" : v || "");
+  const reqRows = requests.rows.filter(
+    (r) => (status === "all" || r.status === status) && (method === "all" || r.methodId?.toLowerCase() === method),
+  );
+  const methodOptions = [...new Set(requests.rows.map((r) => r.methodId?.toLowerCase()).filter(Boolean))];
+  const statusText = (st) => (
+    <span style={{ color: st === "approved" ? "#16a34a" : st === "rejected" ? "#e8474c" : "#f5a623" }}>{dr.status[st] || st}</span>
+  );
+  const shortId = (r) => String(r._id || "").slice(-10).toUpperCase();
   const pl = useProfitLoss({ range, tab: PL_TABS[gameTab], enabled: isPL });
   const typeLabel = (type) => t.records.types[type] || type;
 
@@ -109,21 +146,70 @@ const Desktop = ({ tab }) => {
           bet.totals.count,
         ],
       }
-    : isAcc
+    : isAcc && gameTab === 0
       ? {
           loading: acc.loading,
           rows: acc.rows.map((row) => ({
             key: row.orderNo,
             cells: [
-              row.orderNo,
+              typeLabel(row.type),
               fmtTime(row.createdAt),
               <span key="a" style={{ color: plColor(row.amount) }}>{signed(row.amount, decimal)}</span>,
               fmt(row.balanceAfter, decimal),
-              `${typeLabel(row.type)}${row.note ? ` · ${row.note}` : ""}`,
+              row.orderNo,
+              row.note || "—",
             ],
           })),
-          totals: [t.member.desk.total, "", <span key="t" style={{ color: plColor(acc.totals.amount) }}>{signed(acc.totals.amount, decimal)}</span>, "", acc.totals.count],
+          totals: [t.member.desk.total, "", <span key="t" style={{ color: plColor(acc.totals.amount) }}>{signed(acc.totals.amount, decimal)}</span>, "", "", ""],
         }
+      : isAcc && gameTab === 1
+        ? {
+            loading: requests.loading,
+            rows: reqRows.map((r) => ({
+              key: r._id,
+              cells: [
+                shortId(r),
+                nameOf(r.display?.methodName) || r.methodId,
+                fmt(r.amount, decimal),
+                r.status === "approved" ? fmt(r.calc?.creditedAmount ?? r.amount, decimal) : "—",
+                fmt(r.calc?.totalBonus, decimal),
+                fmt(0, decimal),
+                fmtTime(r.createdAt),
+                r.approvedAt ? fmtTime(r.approvedAt) : "—",
+                statusText(r.status),
+                r.adminNote || "—",
+              ],
+            })),
+            totals: [
+              t.member.desk.total,
+              "",
+              fmt(reqRows.reduce((sum, r) => sum + Number(r.amount || 0), 0), decimal),
+              fmt(reqRows.filter((r) => r.status === "approved").reduce((sum, r) => sum + Number(r.calc?.creditedAmount ?? r.amount ?? 0), 0), decimal),
+              "",
+              "",
+              "",
+              "",
+              "",
+              "",
+            ],
+          }
+        : isAcc
+          ? {
+              loading: requests.loading,
+              rows: reqRows.map((r) => ({
+                key: r._id,
+                cells: [
+                  shortId(r),
+                  dr.eWallet,
+                  fmt(r.amount, decimal),
+                  `${nameOf(r.walletSnapshot?.methodName) || r.methodId} ${r.walletSnapshot?.walletNumber ? `· ${maskNumber(r.walletSnapshot.walletNumber)}` : ""}`,
+                  fmtTime(r.createdAt),
+                  statusText(r.status),
+                  r.adminNote || "—",
+                ],
+              })),
+              totals: [t.member.desk.total, "", fmt(reqRows.reduce((sum, r) => sum + Number(r.amount || 0), 0), decimal), "", "", "", ""],
+            }
       : isPL
         ? {
             loading: pl.loading,
@@ -167,7 +253,11 @@ const Desktop = ({ tab }) => {
           <button
             key={label}
             type="button"
-            onClick={() => setGameTab(index)}
+            onClick={() => {
+              setGameTab(index);
+              setStatus("all");
+              setMethod("all");
+            }}
             className="relative h-full cursor-pointer"
             style={{
               padding: "0 18px",
@@ -242,7 +332,17 @@ const Desktop = ({ tab }) => {
           {from} 00:00:00~{to} 23:59
         </span>
 
-        {config.vendorSelect && (
+        {isAccTab && gameTab === 0 && (
+          <FilterSelect label={dr.orderType} value={accType} onChange={setAccType} options={dr.typeKeys.map((k) => [k, dr.types[k]])} />
+        )}
+        {isAccTab && gameTab > 0 && (
+          <FilterSelect label={dr.statusLabel} value={status} onChange={setStatus} options={["all", "pending", "approved", "rejected"].map((k) => [k, k === "all" ? t.promo.all : dr.status[k]])} />
+        )}
+        {isAccTab && gameTab === 1 && (
+          <FilterSelect label={dr.methodLabel} value={method} onChange={setMethod} options={[["all", t.promo.all], ...methodOptions.map((k) => [k, k.toUpperCase()])]} />
+        )}
+
+        {config.vendorSelect && !isAccTab && (
           <span className="flex items-center" style={{ gap: 8 }}>
             {t.member.desk.vendorLabel}
             <span

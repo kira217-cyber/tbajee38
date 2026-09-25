@@ -304,6 +304,68 @@ export const locale = {
       }
     },
 
+    deskRec: {
+      "tabs": [
+        "লেনদেন রেকর্ড",
+        "জমা রেকর্ড",
+        "উত্তোলন রেকর্ড"
+      ],
+      "columns": [
+        [
+          "অর্ডার সন্দর্ভ সংখ্যা",
+          "লেনদেনের সময়",
+          "লেনদেনের পরিমান",
+          "বর্তমান ব্যালেন্স",
+          "অর্ডার রেফারেন্স নাম্বার",
+          "কন্টেন্ট"
+        ],
+        [
+          "জমা নং",
+          "জমা পদ্ধতি",
+          "প্রযুক্ত পরিমাণ",
+          "প্রাপ্ত পরিমাণ",
+          "বোনাসের পরিমাণ",
+          "লেনদেন শুল্ক",
+          "জমা সময়",
+          "প্রাপ্তির সময়",
+          "স্থিতি",
+          "ক্রিয়া"
+        ],
+        [
+          "উত্তোলন সংখ্যা",
+          "প্রত্যাহারের ধরন",
+          "উত্তোলনের পরিমান",
+          "ব্যাংকের নাম",
+          "উত্তোলন সময়",
+          "স্থিতি",
+          "মন্তব্য"
+        ]
+      ],
+      "orderType": "অর্ডার সন্দর্ভ সংখ্যা",
+      "statusLabel": "স্থিতি",
+      "methodLabel": "পদ্ধতি",
+      "typeKeys": [
+        "all",
+        "deposit",
+        "withdraw",
+        "rebate",
+        "promotion"
+      ],
+      "types": {
+        "all": "সব",
+        "deposit": "জমা",
+        "withdraw": "উত্তোলন",
+        "rebate": "রিবেট",
+        "promotion": "প্রমোশন"
+      },
+      "status": {
+        "pending": "প্রক্রিয়াধীন",
+        "approved": "সফল",
+        "rejected": "প্রত্যাখ্যাত"
+      },
+      "eWallet": "E wallet"
+    },
+
     records: {
       types: {
         deposit: "জমা",
@@ -1072,6 +1134,68 @@ export const locale = {
         "approved": "Successful",
         "rejected": "Rejected"
       }
+    },
+
+    deskRec: {
+      "tabs": [
+        "Transaction record",
+        "Deposit record",
+        "Withdraw record"
+      ],
+      "columns": [
+        [
+          "Order type",
+          "Time",
+          "Amount",
+          "Balance",
+          "Order reference no.",
+          "Content"
+        ],
+        [
+          "Deposit no.",
+          "Method",
+          "Applied amount",
+          "Received amount",
+          "Bonus",
+          "Fee",
+          "Deposit time",
+          "Received time",
+          "Status",
+          "Action"
+        ],
+        [
+          "Withdraw no.",
+          "Type",
+          "Amount",
+          "Bank name",
+          "Time",
+          "Status",
+          "Remark"
+        ]
+      ],
+      "orderType": "Order type",
+      "statusLabel": "Status",
+      "methodLabel": "Method",
+      "typeKeys": [
+        "all",
+        "deposit",
+        "withdraw",
+        "rebate",
+        "promotion"
+      ],
+      "types": {
+        "all": "All",
+        "deposit": "Deposit",
+        "withdraw": "Withdraw",
+        "rebate": "Rebate",
+        "promotion": "Promotion"
+      },
+      "status": {
+        "pending": "Processing",
+        "approved": "Successful",
+        "rejected": "Rejected"
+      },
+      "eWallet": "E wallet"
     },
 
     records: {
