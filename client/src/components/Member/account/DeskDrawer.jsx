@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
 import { useLanguage } from "../../../Context/LanguageProvider";
@@ -313,13 +313,32 @@ export const KycDrawer = ({ profile, onClose }) => {
  * আর "খালি ই-ওয়ালেট"। মূল সাইটের মতোই লেনদেন পাসওয়ার্ড লাগে।
  */
 export const WalletDrawer = ({ onClose, onChanged }) => {
+  const flow = useWithdrawFlow();
+  return (
+    <Drawer width={780} onClose={onClose}>
+      <WalletPanel flow={flow} onChanged={onChanged} />
+    </Drawer>
+  );
+};
+
+/**
+ * ওয়ালেট যোগ + নিবন্ধিত তালিকা — ড্রয়ারে আর উত্তোলনের "অ্যাকাউন্ট
+ * ব্যবস্থাপনা" ট্যাবে একই জিনিস (মূল সাইটেও একই `.bank-card-model`)।
+ * `flow` = `useWithdrawFlow()` — উত্তোলনের পাতার সাথে একই অবস্থা ভাগ হয়।
+ */
+export const WalletPanel = ({ flow, onChanged }) => {
   const { t } = useLanguage();
   const d = t.deskAcc;
-  const flow = useWithdrawFlow();
   const [methodId, setMethodId] = useState("");
   const [walletNumber, setWalletNumber] = useState("");
   const [accountName, setAccountName] = useState("");
   const [tx, setTx] = useState("");
+
+  // মূল সাইটের মতো প্রথম ধরনটা আগে থেকেই বাছা
+  const firstMethod = flow.methods[0]?.methodId || "";
+  useEffect(() => {
+    if (!methodId && firstMethod) setMethodId(firstMethod);
+  }, [methodId, firstMethod]);
 
   const chosen = flow.methods.find((m) => m.methodId === methodId) || null;
   const full = flow.wallets.length >= flow.cap;
@@ -336,7 +355,6 @@ export const WalletDrawer = ({ onClose, onChanged }) => {
   };
 
   return (
-    <Drawer width={780} onClose={onClose}>
       <div className="flex h-full">
         {/* বাঁ — যোগ করা */}
         <div className="relative flex h-full flex-col" style={{ minWidth: 386, width: 386, paddingTop: 17, borderRight: "1px solid #efefef", boxShadow: "-18px 0 40px -18px rgba(0,0,0,.2)" }}>
@@ -427,6 +445,5 @@ export const WalletDrawer = ({ onClose, onChanged }) => {
           </div>
         </div>
       </div>
-    </Drawer>
   );
 };

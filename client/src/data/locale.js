@@ -278,6 +278,32 @@ export const locale = {
       "walletFull": "সর্বোচ্চ {n}টি ই-ওয়ালেট বাঁধা যায়"
     },
 
+    deskWd: {
+      "tabWithdraw": "উত্তোলন",
+      "tabManage": "অ্যাকাউন্ট ব্যবস্থাপনা",
+      "eWallet": "E wallet",
+      "central": "কেন্দ্রীয় ওয়ালেট",
+      "receive": "প্রাপ্ত পরিমান",
+      "amount": "উত্তোলনের পরিমান",
+      "tx": "লেনদেন পাসওয়ার্ড",
+      "recall": "ফিরে চলুন",
+      "timeTag": "উত্তোলন সময়",
+      "time": "24 ঘন্টা",
+      "recent": "সাম্প্রতিক উত্তোলন",
+      "noHistory": "উত্তোলনের অনুরোধ পাওয়া যায়নি",
+      "refresh": "রিফ্রেশ",
+      "addWallet": "ওয়ালেট যোগ করুন",
+      "emptyWallet": "খালি ই-ওয়ালেট",
+      "setTx": "উত্তোলনের আগে লেনদেন পাসওয়ার্ড সেট করুন",
+      "setTxBtn": "এখনই সেট করুন",
+      "submit": "জমা দিন",
+      "status": {
+        "pending": "প্রক্রিয়াধীন",
+        "approved": "সফল",
+        "rejected": "প্রত্যাখ্যাত"
+      }
+    },
+
     records: {
       types: {
         deposit: "জমা",
@@ -1020,6 +1046,32 @@ export const locale = {
       "emptyWallet": "No e-wallet",
       "remove": "Remove",
       "walletFull": "You can bind up to {n} e-wallets"
+    },
+
+    deskWd: {
+      "tabWithdraw": "Withdraw",
+      "tabManage": "Account management",
+      "eWallet": "E wallet",
+      "central": "Main wallet",
+      "receive": "You receive",
+      "amount": "Withdraw amount",
+      "tx": "Transaction password",
+      "recall": "Refresh",
+      "timeTag": "Withdraw time",
+      "time": "24 hours",
+      "recent": "Recent withdrawals",
+      "noHistory": "No withdrawal requests",
+      "refresh": "Refresh",
+      "addWallet": "Add wallet",
+      "emptyWallet": "No e-wallet",
+      "setTx": "Set a transaction password before withdrawing",
+      "setTxBtn": "Set it now",
+      "submit": "Submit",
+      "status": {
+        "pending": "Processing",
+        "approved": "Successful",
+        "rejected": "Rejected"
+      }
     },
 
     records: {

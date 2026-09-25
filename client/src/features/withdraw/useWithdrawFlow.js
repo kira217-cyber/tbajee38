@@ -195,6 +195,7 @@ export const useWithdrawFlow = () => {
   };
 
   return {
+    reload: load,
     loading,
     elig,
     block,

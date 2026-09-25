@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import DeskWithdraw from "./account/DeskWithdraw";
 import { Trash2 } from "lucide-react";
 
 import Icon from "../Icon/Icon";
@@ -406,20 +407,6 @@ const WalletTab = () => {
   );
 };
 
-const Desktop = () => {
-  const f = useWithdrawFlow();
-  return (
-    <div className="flex flex-col" style={{ width: 1110, height: 620, background: "#fff" }}>
-      <WalletTab />
-      <div className="hide-scrollbar min-h-0 flex-1" style={{ overflowY: "auto", padding: "22px 40px 30px" }}>
-        <div style={{ maxWidth: 720 }}>
-          <Body f={{ ...f, isDesktop: true }} />
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const Mobile = () => {
   const { t } = useLanguage();
   const f = useWithdrawFlow();
@@ -435,7 +422,8 @@ const Mobile = () => {
 
 const WithdrawSection = () => {
   const isDesktop = useIsDesktop();
-  return isDesktop ? <Desktop /> : <Mobile />;
+  // ডেস্কটপ: মূল সাইটের `.withdraw-page` (account/DeskWithdraw)
+  return isDesktop ? <DeskWithdraw /> : <Mobile />;
 };
 
 export default WithdrawSection;
