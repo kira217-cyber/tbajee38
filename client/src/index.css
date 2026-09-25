@@ -448,3 +448,8 @@ body::-webkit-scrollbar,
   from { transform: translateX(40px); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
+
+/* সদস্য মডালের মেনু — ঘোরালে মূল সাইটের মতো লাল (#DA394F) */
+.tb-menu-item:hover {
+  background: #da394f;
+}

@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import Icon from "../Icon/Icon";
 import { MODAL_TABS, SECTION_BY_KEY } from "../Member/sections";
 import { useLanguage } from "../../Context/LanguageProvider";
 import { fetchInboxUnread, selectInboxUnread } from "../../features/inbox/inboxSlice";
@@ -21,6 +20,35 @@ import { fetchInboxUnread, selectInboxUnread } from "../../features/inbox/inboxS
  *   ডান পাশ radius `0 10px 10px 0` — **হালকা থিম**, বাকি সাইটের উল্টো
  *   ক্লোজ বোতাম ৩১ × ৩১ বৃত্ত bg #2B3248, উপরে-ডানে (১২৪৯, ১০)
  */
+/**
+ * মেনুর আইকন — মূল সাইটের নিজের sprite (`.acmc_icon`, ৩৫০ × ১২০ PNG),
+ * সাদা রেখার আইকন; প্রতিটার background-position তাদের CSS থেকে।
+ * "বন্ধুদের আমন্ত্রণ" আলাদা ২০ × ২০ ছবি।
+ */
+const MENU_ICON = {
+  myAccount: "-148px -84px",
+  deposit: "-316px -15px",
+  withdraw: "-14px -49px",
+  betRecord: "-59px -48px",
+  accountRecord: "-274px -53px",
+  profitLoss: "-57px -84px",
+  reward: "-106px -49px",
+  inbox: "-148px -48px",
+  manualRebate: "-182px -84px",
+};
+
+const MenuIcon = ({ id }) =>
+  id === "referral" ? (
+    <span className="shrink-0" style={{ width: 25, height: 25, display: "grid", placeItems: "center" }}>
+      <img src="/assets/member-desk/menu-referral.png" alt="" style={{ width: 20, height: 20 }} />
+    </span>
+  ) : (
+    <span
+      className="shrink-0"
+      style={{ width: 25, height: 25, backgroundImage: "url(/assets/member-desk/menu-icons.png)", backgroundRepeat: "no-repeat", backgroundPosition: MENU_ICON[id] || MENU_ICON.myAccount }}
+    />
+  );
+
 const MemberModal = ({ tab = "deposit", onClose, onTab }) => {
   const { t } = useLanguage();
   const section = SECTION_BY_KEY[tab] ?? SECTION_BY_KEY.deposit;
@@ -54,10 +82,8 @@ const MemberModal = ({ tab = "deposit", onClose, onTab }) => {
             overflowY: "auto",
           }}
         >
-          <div
-            className="text-center"
-            style={{ padding: "22px 10px", color: "#fff", fontSize: 20, fontWeight: 600 }}
-          >
+          {/* মূল সাইটের `.br_acmc_mltitle` — ২৭px ৬০০, padding `30px 0`, দুই লাইনে */}
+          <div className="text-center" style={{ padding: "30px 10px", color: "#fff", fontSize: 27, fontWeight: 600, lineHeight: 1.33 }}>
             {t.member.title}
           </div>
 
@@ -66,21 +92,22 @@ const MemberModal = ({ tab = "deposit", onClose, onTab }) => {
               key={item.key}
               type="button"
               onClick={() => onTab?.(item.key)}
-              className="flex w-full cursor-pointer items-center text-left"
+              className="tb-menu-item relative flex w-full cursor-pointer items-center text-left"
               style={{
                 width: 180,
                 height: 50,
-                padding: "0 10px",
-                gap: 13,
+                padding: "0 0 0 10px",
                 color: "#fff",
                 fontSize: 15,
-                background: item.key === tab ? "#e8474c" : "transparent",
+                lineHeight: 1.33,
+                background: item.key === tab ? "#da394f" : undefined,
               }}
             >
-              <Icon name={item.icon} size={25} />
-              <span>{t.member[item.key] ?? item.title(t)}</span>
+              <MenuIcon id={item.key} />
+              <span style={{ maxWidth: 136, marginLeft: 10 }}>{t.member[item.key] ?? item.title(t)}</span>
+              {/* মূল সাইটের `.tip_fixd` — আইকনের উপরে-ডানে লাল সংখ্যা */}
               {item.key === "inbox" && inboxUnread > 0 && (
-                <span className="grid place-items-center" style={{ minWidth: 18, height: 18, borderRadius: 9, padding: "0 5px", background: "#fe0404", fontSize: 11, marginLeft: "auto" }}>
+                <span className="absolute grid place-items-center" style={{ left: 25, top: 1, minWidth: 20, height: 18, borderRadius: 9, padding: "0 5px", background: "#f00", fontSize: 12, lineHeight: "14px" }}>
                   {inboxUnread > 99 ? "99+" : inboxUnread}
                 </span>
               )}
@@ -108,7 +135,7 @@ const MemberModal = ({ tab = "deposit", onClose, onTab }) => {
             color: "#fff",
           }}
         >
-          <Icon name="popup-close" size={16} />
+          <img src="/assets/member-desk/modal-close.png" alt="" style={{ width: 10, height: 10 }} />
         </button>
       </div>
     </div>
