@@ -10,6 +10,9 @@ import SecuritySection from "./SecuritySection";
 import FeedbackSection from "./FeedbackSection";
 import HelpSection from "./HelpSection";
 import CardsSection from "./CardsSection";
+import ClaimCenter from "./reward/ClaimCenter";
+import SignInPage from "./reward/SignInPage";
+import TemuHistory from "./reward/TemuHistory";
 
 /**
  * সদস্য কেন্দ্রের **একটাই তালিকা**।
@@ -121,7 +124,6 @@ export const MEMBER_SECTIONS = [
     gridIcon: "rewcen3",
     inModal: true,
     inGrid: true,
-    badge: 3,
     title: (t) => t.memberPage.items.reward,
     render: () => <RewardSection />,
   },
@@ -191,6 +193,31 @@ export const MEMBER_SECTIONS = [
     inGrid: false,
     title: (t) => t.memberPage.cardBtn,
     render: () => <CardsSection />,
+  },
+  // ─ পুরস্কার কেন্দ্রের ভিতরের পাতা (মোবাইল) — ডেস্কটপে এগুলো পুরস্কার ট্যাবের ভিতরেই ─
+  {
+    key: "rewardClaim",
+    path: "reward/claim",
+    inModal: false,
+    inGrid: false,
+    title: (t) => t.memberPage.pages.reward.tiles.claim,
+    render: () => <ClaimCenter />,
+  },
+  {
+    key: "rewardSignIn",
+    path: "reward/signin",
+    inModal: false,
+    inGrid: false,
+    title: (t) => t.rewardFlow.signIn,
+    render: () => <SignInPage />,
+  },
+  {
+    key: "rewardTemu",
+    path: "reward/temu",
+    inModal: false,
+    inGrid: false,
+    title: (t) => t.rewardFlow.temuHistory,
+    render: () => <TemuHistory />,
   },
 ];
 

@@ -366,6 +366,87 @@ export const locale = {
       "eWallet": "E wallet"
     },
 
+    rewardFlow: {
+      "coupon": "কুপন",
+      "kinds": {
+        "temu": "টেমু টিকিট",
+        "wheel": "লাকি হুইল",
+        "redPacket": "লাল প্যাকেজ"
+      },
+      "prize": "পুরস্কার",
+      "desc": "বর্ণনা",
+      "claimedLabel": "দাবিকৃত",
+      "expired": "মেয়াদোত্তীর্ণ",
+      "due": "নির্ধারিত তারিখ",
+      "days": "দিন",
+      "claim": "দাবি",
+      "congrats": "অভিনন্দন! আপনি পেয়েছেন",
+      "ok": "ঠিক আছে",
+      "open": "খুলুন",
+      "openNow": "এখনই খুলুন",
+      "spinHint": "GO চেপে চাকা ঘোরান",
+      "claimedSoFar": "দাবি করা হয়েছে",
+      "ends": "শেষ",
+      "soon": "শীঘ্রই দাবি করা হবে",
+      "reached": "লক্ষ্য পূর্ণ! এখনই দাবি করুন",
+      "away1": "দাবির জন্য",
+      "away2": "মাত্র দূরে",
+      "claimNow": "এখনই দাবি করুন",
+      "inviteFaster": "বন্ধুদের আমন্ত্রণ জানিয়ে দাবি দ্রুত করুন",
+      "tabs": {
+        "task": "কাজ",
+        "desc": "বর্ণনা",
+        "detail": "কাজের বিস্তারিত"
+      },
+      "tasks": {
+        "wallet": "প্রত্যাহারের তথ্য আবদ্ধ করুন",
+        "invite": "বন্ধুদের রেজিস্টার করতে আমন্ত্রণ জানান",
+        "deposit": "জমা করুন"
+      },
+      "randomReward": "র‍্যান্ডম পুরস্কার দাবি করুন",
+      "temuRules": "১. টিকিট পাওয়ার সাথে সাথে লক্ষ্যের বড় একটা অংশ আপনার হিসাবে যোগ হয়।\n২. প্রতিটা কাজ (উত্তোলনের ওয়ালেট বাঁধা, জমা, প্রতি যোগ্য বন্ধু) শেষ হলে বাকি অংশের এলোমেলো একটা ভাগ যোগ হয়।\n৩. ৳ {target} পূর্ণ হলে পুরো টাকা একবারে ব্যালেন্সে আসে।\n৪. মেয়াদ শেষ হওয়ার আগে দাবি করতে হবে।",
+      "records": "টিকিটের রেকর্ড",
+      "signIn": "সাইন ইন",
+      "checkinDays": "চেক-ইন দিন",
+      "signinTotal": "সাইন ইন মোট পুরস্কার",
+      "signedToday": "আজ চেক ইন করা হয়েছে",
+      "notSignedToday": "আজও চেক ইন করা হয়নি",
+      "depositReq": "ডিপোজিট শর্ত：",
+      "betReq": "বেটিং শর্ত：",
+      "today": "আজ:",
+      "day": "দিন",
+      "signedShort": "সম্পন্ন",
+      "rules": "সাইন-ইন নিয়ম",
+      "temuHistory": "TEMU টিকিট ইতিহাস",
+      "totalClaimed": "মোট দাবিকৃত পরিমাণ",
+      "noHistory": "এখনো কোনো রেকর্ড নেই",
+      "date": "তারিখ",
+      "ticketName": "টিকিটের নাম",
+      "condition": "শর্ত",
+      "added": "যোগ করা পরিমাণ",
+      "conditions": {
+        "claimInitScore": "প্রাথমিক পয়েন্ট দাবি করুন",
+        "wallet": "প্রত্যাহারের তথ্য আবদ্ধ করুন",
+        "deposit": "জমা করুন",
+        "invite": "বন্ধুকে আমন্ত্রণ"
+      },
+      "copied": "কপি করা হয়েছে",
+      "typeLabel": "টিকিটের ধরন",
+      "recordCols": ["টিকিটের নাম", "টিকিটের ধরন", "ব্যবহৃত সময়", "অবস্থা", "পরিমাণ"],
+      "err": {
+        "notFound": "টিকিট পাওয়া যায়নি",
+        "alreadyClaimed": "এই টিকিট আগেই দাবি করা হয়েছে",
+        "expired": "টিকিটের মেয়াদ শেষ",
+        "notReached": "এখনো লক্ষ্য পূর্ণ হয়নি",
+        "noPrize": "এই টিকিটে কোনো পুরস্কার সেট নেই",
+        "wrongKind": "এই টিকিট এভাবে খোলা যায় না",
+        "signInOff": "সাইন-ইন এখন বন্ধ",
+        "signedToday": "আজ ইতিমধ্যে সাইন ইন করেছেন",
+        "signInNotMet": "আজকের জমা ও বাজির শর্ত এখনো পূরণ হয়নি",
+        "tooMany": "একটু পরে আবার চেষ্টা করুন"
+      }
+    },
+
     feedbackFlow: {
       types: { deposit: "আমানত", withdraw: "উত্তোলন", game: "খেলা", service: "গ্রাহক সেবা", agent: "এজেন্ট আবেদন", other: "অন্যান্য" },
       sent: "পাঠানো হয়েছে",
@@ -1093,6 +1174,8 @@ export const locale = {
       "lastTime": "Last login time",
       "lastIp": "Last login IP",
       "copied": "Copied",
+      "typeLabel": "Ticket type",
+      "recordCols": ["Ticket name", "Ticket type", "Used time", "Status", "Amount"],
       "payee": "Payee name",
       "nickname": "Nickname",
       "birthday": "Date of birth",
@@ -1213,6 +1296,85 @@ export const locale = {
         "rejected": "Rejected"
       },
       "eWallet": "E wallet"
+    },
+
+    rewardFlow: {
+      "coupon": "Coupon",
+      "kinds": {
+        "temu": "TEMU ticket",
+        "wheel": "Lucky wheel",
+        "redPacket": "Red packet"
+      },
+      "prize": "Prize",
+      "desc": "Details",
+      "claimedLabel": "Claimed",
+      "expired": "Expired",
+      "due": "Due date",
+      "days": "d",
+      "claim": "Claim",
+      "congrats": "Congratulations! You won",
+      "ok": "OK",
+      "open": "Open",
+      "openNow": "Open now",
+      "spinHint": "Tap GO to spin the wheel",
+      "claimedSoFar": "claimed",
+      "ends": "left",
+      "soon": "Almost there",
+      "reached": "Target reached! Claim now",
+      "away1": "Only",
+      "away2": "away from claiming",
+      "claimNow": "Claim now",
+      "inviteFaster": "Invite friends to claim faster",
+      "tabs": {
+        "task": "Tasks",
+        "desc": "Description",
+        "detail": "Task details"
+      },
+      "tasks": {
+        "wallet": "Bind withdrawal info",
+        "invite": "Invite friends to register",
+        "deposit": "Make a deposit"
+      },
+      "randomReward": "random reward",
+      "temuRules": "1. As soon as you get the ticket, a large part of the target is added for you.\n2. Each finished task (bind a withdrawal wallet, deposit, every qualified friend) adds a random share of what is left.\n3. When ৳ {target} is reached the full amount goes to your balance.\n4. Claim it before the ticket expires.",
+      "records": "Ticket records",
+      "signIn": "Sign In",
+      "checkinDays": "Check-in days",
+      "signinTotal": "Total sign-in rewards",
+      "signedToday": "Checked in today",
+      "notSignedToday": "Not checked in today",
+      "depositReq": "Deposit condition:",
+      "betReq": "Betting condition:",
+      "today": "Today:",
+      "day": "Day",
+      "signedShort": "Done",
+      "rules": "Sign-in rules",
+      "temuHistory": "TEMU ticket history",
+      "totalClaimed": "Total claimed",
+      "noHistory": "No records yet",
+      "date": "Date",
+      "ticketName": "Ticket name",
+      "condition": "Condition",
+      "added": "Amount added",
+      "conditions": {
+        "claimInitScore": "Claim initial points",
+        "wallet": "Bind withdrawal info",
+        "deposit": "Deposit",
+        "invite": "Invite a friend"
+      },
+      "copied": "Copied",
+      "err": {
+        "notFound": "Ticket not found",
+        "alreadyClaimed": "This ticket was already claimed",
+        "expired": "This ticket has expired",
+        "notReached": "The target is not reached yet",
+        "noPrize": "No prize is set on this ticket",
+        "wrongKind": "This ticket can't be opened this way",
+        "signInOff": "Sign-in is off right now",
+        "signedToday": "You already signed in today",
+        "signInNotMet": "Today's deposit and betting conditions are not met yet",
+        "tooMany": "Please try again in a moment"
+      }
     },
 
     feedbackFlow: {

@@ -6,6 +6,7 @@ import Icon from "../../components/Icon/Icon";
 import { useLanguage } from "../../Context/LanguageProvider";
 import { selectUser } from "../../features/auth/authSelectors";
 import { fetchInboxUnread, selectInboxUnread } from "../../features/inbox/inboxSlice";
+import { fetchRewardSummary, selectRewardAvailable } from "../../features/reward/rewardSlice";
 import { useRefreshBalance } from "../../features/auth/useRefreshBalance";
 import { useLogout } from "../../features/auth/useLogout";
 import { openSupport } from "../../data/contact";
@@ -74,16 +75,21 @@ const MemberCenter = () => {
   const { refresh, refreshing } = useRefreshBalance();
   const dispatch = useDispatch();
   const inboxUnread = useSelector(selectInboxUnread);
+  const rewardAvailable = useSelector(selectRewardAvailable);
 
   useHideBootLoader();
 
   // ইনবক্সের না-পড়া সংখ্যা — মেইলের ঘরে লাল ব্যাজ
   useEffect(() => {
-    if (user) dispatch(fetchInboxUnread());
+    if (user) {
+      dispatch(fetchInboxUnread());
+      dispatch(fetchRewardSummary());
+    }
   }, [dispatch, user]);
 
   const badgeOf = (item) => {
     if (item.key === "inbox") return inboxUnread > 0 ? (inboxUnread > 99 ? "99+" : inboxUnread) : null;
+    if (item.key === "reward") return rewardAvailable > 0 ? (rewardAvailable > 99 ? "99+" : rewardAvailable) : null;
     return item.badge || null;
   };
 

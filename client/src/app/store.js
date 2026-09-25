@@ -9,6 +9,7 @@ import globalReducer from "../features/global/globalSlice";
 import globalGameReducer from "../features/globalGame/globalGameSlice";
 import maintenanceReducer from "../features/maintenance/maintenanceSlice";
 import inboxReducer from "../features/inbox/inboxSlice";
+import rewardReducer from "../features/reward/rewardSlice";
 
 /** Redux এর বাইরে (axios থেকে) বর্তমান ভাষার লেখা — LanguageProvider যেখানে রাখে সেখান থেকে */
 const currentLocale = () => {
@@ -26,6 +27,7 @@ export const store = configureStore({
     globalGame: globalGameReducer,
     maintenance: maintenanceReducer,
     inbox: inboxReducer,
+    reward: rewardReducer,
   },
 });
 

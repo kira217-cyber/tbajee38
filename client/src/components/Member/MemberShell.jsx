@@ -70,7 +70,7 @@ export const FilterChips = ({ options, value, onChange }) => (
   </div>
 );
 
-const MemberShell = ({ title, action, headerIcon, tabs, onTab, children }) => {
+const MemberShell = ({ title, action, headerIcon, right, tabs, onTab, children }) => {
   const navigate = useNavigate();
   const [tab, setTab] = useState(tabs?.[0]?.key);
 
@@ -125,6 +125,13 @@ const MemberShell = ({ title, action, headerIcon, tabs, onTab, children }) => {
               }}
             />
           </button>
+        )}
+
+        {/* পেজের নিজের ডান-কোণের জিনিস (যেমন পুরস্কারের টিকিট-রেকর্ড) */}
+        {right && (
+          <span className="absolute flex items-center" style={{ right: m(40) }}>
+            {right}
+          </span>
         )}
 
         {action && (

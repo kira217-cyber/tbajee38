@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { MODAL_TABS, SECTION_BY_KEY } from "../Member/sections";
 import { useLanguage } from "../../Context/LanguageProvider";
 import { fetchInboxUnread, selectInboxUnread } from "../../features/inbox/inboxSlice";
+import { fetchRewardSummary, selectRewardAvailable } from "../../features/reward/rewardSlice";
 
 /**
  * লগইনের পরের "ব্যক্তিগত কেন্দ্র" মডাল (ডেস্কটপ)।
@@ -54,10 +55,12 @@ const MemberModal = ({ tab = "deposit", onClose, onTab }) => {
   const section = SECTION_BY_KEY[tab] ?? SECTION_BY_KEY.deposit;
   const dispatch = useDispatch();
   const inboxUnread = useSelector(selectInboxUnread);
+  const rewardAvailable = useSelector(selectRewardAvailable);
 
   // মডাল খুললেই ইনবক্সের না-পড়া সংখ্যা — মেনুর ব্যাজের জন্য
   useEffect(() => {
     dispatch(fetchInboxUnread());
+    dispatch(fetchRewardSummary());
   }, [dispatch]);
 
   return (
@@ -106,11 +109,14 @@ const MemberModal = ({ tab = "deposit", onClose, onTab }) => {
               <MenuIcon id={item.key} />
               <span style={{ maxWidth: 136, marginLeft: 10 }}>{t.member[item.key] ?? item.title(t)}</span>
               {/* মূল সাইটের `.tip_fixd` — আইকনের উপরে-ডানে লাল সংখ্যা */}
-              {item.key === "inbox" && inboxUnread > 0 && (
-                <span className="absolute grid place-items-center" style={{ left: 25, top: 1, minWidth: 20, height: 18, borderRadius: 9, padding: "0 5px", background: "#f00", fontSize: 12, lineHeight: "14px" }}>
-                  {inboxUnread > 99 ? "99+" : inboxUnread}
-                </span>
-              )}
+              {(() => {
+                const n = item.key === "inbox" ? inboxUnread : item.key === "reward" ? rewardAvailable : 0;
+                return n > 0 ? (
+                  <span className="absolute grid place-items-center" style={{ left: 25, top: 1, minWidth: 20, height: 18, borderRadius: 9, padding: "0 5px", background: "#f00", fontSize: 12, lineHeight: "14px" }}>
+                    {n > 99 ? "99+" : n}
+                  </span>
+                ) : null;
+              })()}
             </button>
           ))}
         </div>
