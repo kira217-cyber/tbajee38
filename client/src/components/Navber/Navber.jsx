@@ -205,6 +205,8 @@ const Navber = ({ topOffset = 0, onToggleSidebar, onAuth, onMember, onSupport, o
           onDeposit={() => onMember?.("deposit")}
           onWithdraw={() => onMember?.("withdraw")}
           onMember={(tab) => onMember?.(typeof tab === "string" ? tab : "myAccount")}
+          onSupport={onSupport}
+          onLogout={onLogout}
         />
       ) : (
       <div className="flex shrink-0 items-center" style={{ gap: 14 }}>
