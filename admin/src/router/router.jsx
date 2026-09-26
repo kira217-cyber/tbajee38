@@ -42,6 +42,7 @@ import HomeEvents from "../pages/SiteContent/HomeEvents";
 import AppDownload from "../pages/SiteContent/AppDownload";
 import AffWithdrawRequests from "../pages/AffWithdrawRequests/AffWithdrawRequests";
 import BulkAdjustment from "../pages/BulkAdjustment/BulkAdjustment";
+import RegisterBonus from "../pages/RegisterBonus/RegisterBonus";
 import AffWithdrawMethods from "../pages/AffWithdrawMethods/AffWithdrawMethods";
 import IdentityPage from "../pages/SiteSettings/SiteIdentity";
 import FooterPage from "../pages/SiteSettings/FooterSetting";
@@ -109,6 +110,7 @@ const REAL_PAGES = {
   "/app-download": <AppDownload />,
   "/aff-withdraw-requests": <AffWithdrawRequests />,
   "/bulk-adjustment": <BulkAdjustment />,
+  "/register-bonus": <RegisterBonus />,
   "/aff-withdraw-methods": <AffWithdrawMethods />,
   "/aff-identity": <IdentityPage title="Affiliate Identity" subtitle="Affiliate site name, logo and favicon." endpoint="aff-identify" Icon={UserRoundCheck} />,
   "/aff-footer": <FooterPage title="Affiliate Footer" subtitle="Affiliate footer logo, description and copyright." endpoint="aff-footer" logoKey="logo" fields={AFF_FOOTER_FIELDS} Icon={Handshake} />,

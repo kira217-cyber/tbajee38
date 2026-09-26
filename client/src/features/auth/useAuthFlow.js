@@ -220,7 +220,9 @@ export const useAuthFlow = (mode, { onDone, initialReferral = "", defaultRemembe
 
   const finishLogin = (data) => {
     dispatch(setCredentials({ token: data.token, user: data.user, remember }));
-    notify.success(mode === "register" ? t.notify.registerOk : t.notify.loginOk, data.user?.userId);
+    // রেজিস্টার বোনাস পেলে নিচের ছোট লেখায় সেটাই
+    const bonusNote = data.bonus?.amount ? t.notify.registerBonus.replace("{amount}", data.bonus.amount) : "";
+    notify.success(mode === "register" ? t.notify.registerOk : t.notify.loginOk, bonusNote || data.user?.userId);
     onDone?.({ type: mode });
   };
 

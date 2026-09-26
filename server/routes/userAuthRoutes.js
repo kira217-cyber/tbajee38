@@ -4,6 +4,7 @@ import rateLimit from "express-rate-limit";
 
 import User from "../models/User.js";
 import generateToken from "../utils/generateToken.js";
+import { grantRegisterBonus } from "../utils/registerBonus.js";
 import { successResponse, errorResponse } from "../utils/response.js";
 import { protectUser } from "../middleware/protectUser.js";
 import {
@@ -396,9 +397,6 @@ router.post("/register", authLimiter, async (req, res) => {
       await referrer.save();
     }
 
-    // রেজিস্টার বোনাস (ক্যাম্পেইন + টার্নওভার) বোনাসের ধাপে যোগ হবে
-    const bonus = null;
-
     clearOtp({ flow: "register", countryCode, phone });
 
     /*
@@ -421,10 +419,14 @@ router.post("/register", authLimiter, async (req, res) => {
     user.lastLoginIp = req.ip || "";
     await user.save();
 
+    // রেজিস্টার বোনাস (চালু ক্যাম্পেইন থাকলে) — শুধু খেলোয়াড়; ব্যালেন্স বদলায় বলে নতুন করে পড়া
+    const bonus = await grantRegisterBonus(user._id);
+    const fresh = bonus ? (await User.findById(user._id)) || user : user;
+
     return successResponse(
       res,
       "Registration successful",
-      { token: issueToken(user), user: user.toSafeJSON(), bonus },
+      { token: issueToken(fresh), user: fresh.toSafeJSON(), bonus },
       201,
     );
   } catch (error) {
