@@ -197,59 +197,64 @@ router.get("/commission-history", protectUser, onlyAffiliate, async (req, res) =
  * টাকা যায় না, আর নতুনটা হারায় না। নেট ঋণাত্মক হলে ব্যালেন্স যতটুকু আছে
  * ততটুকুই কাটে, বাকি দেনা জিতের ঘরে থেকে যায়।
  */
+export const settleAffiliate = async (user, { by, note = "" } = {}) => {
+  const c = commissionOf(user);
+  const b = c.balances;
+  if (!b.refer && !b.deposit && !b.gameLoss && !b.gameWin) return { ok: false, status: 400, message: "Nothing to settle" };
+
+  const claimed = await User.updateOne(
+    {
+      _id: user._id,
+      referCommissionBalance: user.referCommissionBalance,
+      depositCommissionBalance: user.depositCommissionBalance,
+      gameLossCommissionBalance: user.gameLossCommissionBalance,
+      gameWinCommissionBalance: user.gameWinCommissionBalance,
+    },
+    { $set: { referCommissionBalance: 0, depositCommissionBalance: 0, gameLossCommissionBalance: 0, gameWinCommissionBalance: 0 } },
+  );
+  if (!claimed.modifiedCount) return { ok: false, status: 409, message: "The commission just changed — refresh and try again" };
+
+  let applied = c.net;
+  let carried = 0;
+  if (c.net < 0) {
+    const fresh = await User.findById(user._id).select("balance").lean();
+    applied = -Math.min(Math.max(0, money(fresh?.balance)), -c.net);
+    carried = money(-c.net + applied);
+    if (carried > 0) await User.updateOne({ _id: user._id }, { $inc: { gameWinCommissionBalance: carried } });
+  }
+
+  let balance = null;
+  if (applied !== 0) {
+    const credited = await creditUser(user._id, applied);
+    balance = credited?.balance ?? null;
+    await writeLogs(user._id, balance, [{ type: "commission", amount: applied, refType: "AffSettlement", note: note || "Affiliate commission settled" }], { by });
+  }
+
+  const settlement = await AffSettlement.create({
+    user: user._id,
+    userIdText: user.userId,
+    refer: b.refer,
+    deposit: b.deposit,
+    gameLoss: b.gameLoss,
+    gameWin: b.gameWin,
+    net: c.net,
+    applied: money(applied),
+    carried,
+    by,
+    note: note.slice(0, 200),
+  });
+  return { ok: true, settlement, balance };
+};
+
 router.post("/admin/:id/settle", protectAdmin, requirePermission("affiliates"), requireWrite, async (req, res) => {
   try {
     if (!isId(req.params.id)) return errorResponse(res, "Bad id", 400);
     const user = await User.findOne({ _id: req.params.id, role: "aff-user" });
     if (!user) return errorResponse(res, "Affiliate not found", 404);
 
-    const c = commissionOf(user);
-    const b = c.balances;
-    if (!b.refer && !b.deposit && !b.gameLoss && !b.gameWin) return errorResponse(res, "Nothing to settle", 400);
-
-    const claimed = await User.updateOne(
-      {
-        _id: user._id,
-        referCommissionBalance: user.referCommissionBalance,
-        depositCommissionBalance: user.depositCommissionBalance,
-        gameLossCommissionBalance: user.gameLossCommissionBalance,
-        gameWinCommissionBalance: user.gameWinCommissionBalance,
-      },
-      { $set: { referCommissionBalance: 0, depositCommissionBalance: 0, gameLossCommissionBalance: 0, gameWinCommissionBalance: 0 } },
-    );
-    if (!claimed.modifiedCount) return errorResponse(res, "The commission just changed — refresh and try again", 409);
-
-    let applied = c.net;
-    let carried = 0;
-    if (c.net < 0) {
-      const fresh = await User.findById(user._id).select("balance").lean();
-      applied = -Math.min(money(fresh?.balance), -c.net);
-      carried = money(-c.net + applied);
-      if (carried > 0) await User.updateOne({ _id: user._id }, { $inc: { gameWinCommissionBalance: carried } });
-    }
-
-    let balance = null;
-    if (applied !== 0) {
-      const credited = await creditUser(user._id, applied);
-      balance = credited?.balance ?? null;
-      await writeLogs(user._id, balance, [{ type: "commission", amount: applied, refType: "AffSettlement", note: text(req.body?.note) || "Affiliate commission settled" }], { by: req.admin._id });
-    }
-
-    const settlement = await AffSettlement.create({
-      user: user._id,
-      userIdText: user.userId,
-      refer: b.refer,
-      deposit: b.deposit,
-      gameLoss: b.gameLoss,
-      gameWin: b.gameWin,
-      net: c.net,
-      applied: money(applied),
-      carried,
-      by: req.admin._id,
-      note: text(req.body?.note).slice(0, 200),
-    });
-
-    return successResponse(res, "Commission settled", { settlement, balance });
+    const r = await settleAffiliate(user, { by: req.admin._id, note: text(req.body?.note) });
+    if (!r.ok) return errorResponse(res, r.message, r.status);
+    return successResponse(res, "Commission settled", { settlement: r.settlement, balance: r.balance });
   } catch (error) {
     return errorResponse(res, error.message, 500);
   }
