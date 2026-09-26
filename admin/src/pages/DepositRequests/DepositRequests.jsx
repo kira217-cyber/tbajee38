@@ -19,6 +19,7 @@ import {
   taka,
   UserCell,
 } from "../../components/HistoryBits/HistoryBits";
+import ProviderChips from "../../components/ProviderPicker/ProviderChips";
 
 const fetchRequests = async (status, q, page) => {
   const params = new URLSearchParams({
@@ -418,9 +419,7 @@ const DepositRequests = () => {
 
               {open.calc?.eligibleProviders?.length > 0 && (
                 <Row label="Eligible providers">
-                  {open.calc.eligibleProviders
-                    .map((item) => `${item.providerCode} ${item.percent}%`)
-                    .join(", ")}
+                  <ProviderChips list={open.calc.eligibleProviders} />
                 </Row>
               )}
 

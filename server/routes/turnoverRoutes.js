@@ -8,6 +8,7 @@ import { protectUser } from "../middleware/protectUser.js";
 import { protectAdmin, requirePermission } from "../middleware/protectAdmin.js";
 import { successResponse, errorResponse } from "../utils/response.js";
 import { num } from "../utils/money.js";
+import { loadProviderCatalog } from "../utils/providerCatalog.js";
 
 const router = express.Router();
 
@@ -31,19 +32,37 @@ router.get("/my", protectUser, async (req, res) => {
     const filter = { user: req.user._id };
     const status = text(req.query.status);
 
-    if (["running", "completed"].includes(status)) filter.status = status;
+    if (["running", "completed", "cancelled"].includes(status)) filter.status = status;
 
-    const [turnovers, total] = await Promise.all([
+    // অ্যাকাউন্ট রেকর্ডের "টার্নওভার" ট্যাব — তারিখের সীমা (তৈরির সময় ধরে)
+    const from = req.query.from ? new Date(req.query.from) : null;
+    const to = req.query.to ? new Date(req.query.to) : null;
+    if (from && !Number.isNaN(from.getTime())) filter.createdAt = { ...filter.createdAt, $gte: from };
+    if (to && !Number.isNaN(to.getTime())) filter.createdAt = { ...filter.createdAt, $lte: to };
+
+    const [turnovers, total, catalog] = await Promise.all([
       TurnOver.find(filter)
         .sort({ createdAt: -1 })
         .skip((page - 1) * limit)
         .limit(limit)
         .lean(),
       TurnOver.countDocuments(filter),
+      // প্রোভাইডারের নাম-ছবি — গেম সার্ভার না পেলে শুধু কোড দেখাবে
+      loadProviderCatalog().catch(() => []),
     ]);
 
+    const byCode = new Map(catalog.map((p) => [p.providerCode, p]));
+    const withProviders = (row) => ({
+      ...row,
+      eligibleProviders: (row.eligibleProviders || []).map((item) => ({
+        ...item,
+        providerName: byCode.get(item.providerCode)?.providerName || item.providerCode,
+        image: byCode.get(item.providerCode)?.image || "",
+      })),
+    });
+
     return successResponse(res, "Turnovers loaded", {
-      turnovers: turnovers.map(withPercent),
+      turnovers: turnovers.map((row) => withProviders(withPercent(row))),
       meta: { page, limit, total, totalPages: Math.ceil(total / limit) || 1 },
     });
   } catch (error) {

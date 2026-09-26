@@ -309,7 +309,8 @@ export const locale = {
       "tabs": [
         "লেনদেন রেকর্ড",
         "জমা রেকর্ড",
-        "উত্তোলন রেকর্ড"
+        "উত্তোলন রেকর্ড",
+        "টার্নওভার রেকর্ড"
       ],
       "columns": [
         [
@@ -340,6 +341,16 @@ export const locale = {
           "উত্তোলন সময়",
           "স্থিতি",
           "মন্তব্য"
+        ],
+        [
+          "উৎস",
+          "বোনাসের পরিমাণ",
+          "প্রয়োজনীয় টার্নওভার",
+          "সম্পন্ন",
+          "অগ্রগতি",
+          "প্রযোজ্য প্রোভাইডার",
+          "শুরুর সময়",
+          "স্থিতি"
         ]
       ],
       "orderType": "অর্ডার সন্দর্ভ সংখ্যা",
@@ -364,7 +375,20 @@ export const locale = {
         "approved": "সফল",
         "rejected": "প্রত্যাখ্যাত"
       },
-      "eWallet": "E wallet"
+      "eWallet": "E wallet",
+      "turnover": {
+        "status": { "running": "চলমান", "completed": "সম্পন্ন", "cancelled": "বাতিল" },
+        "source": {
+          "register-bonus": "নিবন্ধন বোনাস",
+          "deposit": "জমা বোনাস",
+          "auto-deposit": "জমা বোনাস",
+          "admin-manual-deposit": "জমা",
+          "reward": "পুরস্কার"
+        },
+        "anyProvider": "সব প্রোভাইডার",
+        "remaining": "বাকি",
+        "completedAt": "সম্পন্নের সময়"
+      }
     },
 
     rewardFlow: {
@@ -851,6 +875,7 @@ export const locale = {
         profitLoss: "লাভ এবং লস",
         depositRecord: "জমা রেকর্ড",
         withdrawRecord: "উত্তোলন রেকর্ড",
+        turnoverRecord: "টার্নওভার রেকর্ড",
         accountRecord: "অ্যাকাউন্ট রেকর্ড",
         myAccount: "আমার অ্যাকাউন্ট",
         security: "সুরক্ষা কেন্দ্র",
@@ -1252,7 +1277,8 @@ export const locale = {
       "tabs": [
         "Transaction record",
         "Deposit record",
-        "Withdraw record"
+        "Withdraw record",
+        "Turnover record"
       ],
       "columns": [
         [
@@ -1283,6 +1309,16 @@ export const locale = {
           "Time",
           "Status",
           "Remark"
+        ],
+        [
+          "Source",
+          "Bonus amount",
+          "Required turnover",
+          "Completed",
+          "Progress",
+          "Eligible providers",
+          "Start time",
+          "Status"
         ]
       ],
       "orderType": "Order type",
@@ -1307,7 +1343,20 @@ export const locale = {
         "approved": "Successful",
         "rejected": "Rejected"
       },
-      "eWallet": "E wallet"
+      "eWallet": "E wallet",
+      "turnover": {
+        "status": { "running": "Running", "completed": "Completed", "cancelled": "Cancelled" },
+        "source": {
+          "register-bonus": "Register bonus",
+          "deposit": "Deposit bonus",
+          "auto-deposit": "Deposit bonus",
+          "admin-manual-deposit": "Deposit",
+          "reward": "Reward"
+        },
+        "anyProvider": "Any provider",
+        "remaining": "Remaining",
+        "completedAt": "Completed at"
+      }
     },
 
     rewardFlow: {
@@ -1787,6 +1836,7 @@ export const locale = {
         profitLoss: "Profit and Loss",
         depositRecord: "Deposit Record",
         withdrawRecord: "Withdrawal Record",
+        turnoverRecord: "Turnover Record",
         accountRecord: "Account Record",
         myAccount: "My Account",
         security: "Security Center",

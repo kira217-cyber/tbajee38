@@ -4,6 +4,7 @@ import { History, Loader2, RefreshCw, Search } from "lucide-react";
 
 import { api } from "../../api/axios";
 import { Pager, UserCell } from "../../components/HistoryBits/HistoryBits";
+import ProviderChips from "../../components/ProviderPicker/ProviderChips";
 
 const fetchTurnovers = async (status, source, q, page) => {
   const params = new URLSearchParams({
@@ -261,11 +262,7 @@ const TurnoverHistory = () => {
                   </td>
 
                   <td className="px-4 py-3 text-[12px] text-[var(--text-muted)]">
-                    {row.eligibleProviders?.length
-                      ? row.eligibleProviders
-                          .map((item) => `${item.providerCode} ${item.percent}%`)
-                          .join(", ")
-                      : "Any"}
+                    <ProviderChips list={row.eligibleProviders} />
                   </td>
 
                   <td className="px-4 py-3">

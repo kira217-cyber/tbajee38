@@ -60,6 +60,7 @@ const ORDER = [
   "profitLoss",
   "depositRecord",
   "withdrawRecord",
+  "turnoverRecord",
   "accountRecord",
   "myAccount",
   "security",

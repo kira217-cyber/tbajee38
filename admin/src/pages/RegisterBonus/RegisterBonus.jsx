@@ -13,6 +13,7 @@ import {
 
 import { api } from "../../api/axios";
 import ProviderPicker from "../../components/ProviderPicker/ProviderPicker";
+import ProviderChips from "../../components/ProviderPicker/ProviderChips";
 
 const fetchCampaigns = async () => {
   const { data } = await api.get("/api/register-bonus");
@@ -501,14 +502,7 @@ const RegisterBonus = () => {
 
                       {campaign.eligibleProviders?.length ? (
                         <>
-                          {campaign.eligibleProviders.map((item) => (
-                            <span
-                              key={item.providerCode}
-                              className="rounded-full bg-white/[0.06] px-2 py-[2px] font-semibold text-[var(--text-secondary)]"
-                            >
-                              {item.providerCode} {item.percent}%
-                            </span>
-                          ))}
+                          <ProviderChips list={campaign.eligibleProviders} />
 
                           <span className="text-[var(--text-disabled)]">
                             · open{" "}

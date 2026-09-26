@@ -94,3 +94,15 @@ export const useRequestRecords = ({ kind, range, enabled = true }) =>
     },
     { rows: [] },
   );
+
+/** টার্নওভার রেকর্ড — বোনাসের খেলার শর্ত, অগ্রগতি আর প্রোভাইডারসহ (তারিখ server এ ছাঁকা) */
+export const useTurnoverRecords = ({ range, enabled = true }) =>
+  useLoad(
+    enabled,
+    [range],
+    async () => {
+      const { data } = await api.get("/api/turnover/my", { params: { ...iso(range), limit: 100 } });
+      return { rows: data?.data?.turnovers || [] };
+    },
+    { rows: [] },
+  );

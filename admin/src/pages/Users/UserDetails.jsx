@@ -29,6 +29,7 @@ import {
 import { api } from "../../api/axios";
 import HistoryTable from "./HistoryTable";
 import ConfirmModal from "../../components/ConfirmModal/ConfirmModal";
+import ProviderChips from "../../components/ProviderPicker/ProviderChips";
 
 
 const money = (value) => Number(value || 0).toFixed(2);
@@ -1242,10 +1243,7 @@ const UserDetails = ({ kind }) => {
           {
             key: "providers",
             label: "Providers",
-            render: (r) =>
-              r.eligibleProviders?.length
-                ? r.eligibleProviders.map((p) => `${p.providerCode} ${p.percent}%`).join(", ")
-                : "Any",
+            render: (r) => <ProviderChips list={r.eligibleProviders} />,
           },
           {
             key: "done",

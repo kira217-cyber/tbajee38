@@ -13,6 +13,7 @@ import {
   useAccountRecords,
   useProfitLoss,
   useRequestRecords,
+  useTurnoverRecords,
 } from "../../features/history/useRecords";
 
 /** "09/25 16:12:30" — রেকর্ডের সময় */
@@ -31,6 +32,32 @@ const fmt = (value, decimal = true) => {
   return decimal
     ? n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
     : Math.round(n).toLocaleString("en-US");
+};
+
+/**
+ * টার্নওভারের প্রোভাইডার — ছবি (নাম tooltip এ), `withName` দিলে পাশে নামও।
+ * খালি তালিকা মানে যে কোনো প্রোভাইডারে খেললেই গোনে।
+ */
+const ProviderIcons = ({ list, size, withName = false, anyText }) => {
+  if (!list?.length) return <span>{anyText}</span>;
+  return (
+    <span className="inline-flex flex-wrap items-center" style={{ gap: withName ? "4px 10px" : 4, justifyContent: "inherit" }}>
+      {list.map((p) => (
+        <span key={p.providerCode} title={`${p.providerName || p.providerCode} ${p.percent ?? 100}%`} className="inline-flex items-center" style={{ gap: 4 }}>
+          {p.image ? (
+            <img src={p.image} alt={p.providerName || p.providerCode} style={{ width: size, height: size, objectFit: "contain", borderRadius: 4, background: "#2b2b2b" }} />
+          ) : (
+            <span style={{ fontWeight: 600 }}>{p.providerCode}</span>
+          )}
+          {withName && (
+            <span>
+              {p.providerName || p.providerCode} {p.percent ?? 100}%
+            </span>
+          )}
+        </span>
+      ))}
+    </span>
+  );
 };
 
 /** লাভ/ক্ষতির রঙ — লাভ সবুজ, ক্ষতি লাল */
@@ -176,6 +203,13 @@ const Desktop = ({ tab }) => {
   );
   const shortId = (r) => String(r._id || "").slice(-10).toUpperCase();
   const pl = useProfitLoss({ range, tab: PL_TABS[gameTab], enabled: isPL });
+  const isTurn = isAcc && gameTab === 3;
+  const turn = useTurnoverRecords({ range, enabled: isTurn });
+  const tv = dr.turnover;
+  const turnRows = turn.rows.filter((r) => status === "all" || r.status === status);
+  const turnStatus = (st) => (
+    <span style={{ color: st === "completed" ? "#16a34a" : st === "cancelled" ? "#999" : "#f5a623" }}>{tv.status[st] || st}</span>
+  );
   const typeLabel = (type) => t.records.types[type] || type;
 
   const vendorOptions = [...new Set(bet.rows.map((row) => row.providerCode).filter(Boolean))];
@@ -252,7 +286,7 @@ const Desktop = ({ tab }) => {
               "",
             ],
           }
-        : isAcc
+        : isAcc && gameTab === 2
           ? {
               loading: requests.loading,
               rows: reqRows.map((r) => ({
@@ -269,6 +303,33 @@ const Desktop = ({ tab }) => {
               })),
               totals: [t.member.desk.total, "", fmt(reqRows.reduce((sum, r) => sum + Number(r.amount || 0), 0), decimal), "", "", "", ""],
             }
+      : isTurn
+        ? {
+            loading: turn.loading,
+            rows: turnRows.map((r) => ({
+              key: r._id,
+              cells: [
+                tv.source[r.sourceType] || r.title || r.sourceType,
+                fmt(r.creditedAmount, decimal),
+                fmt(r.required, decimal),
+                fmt(Math.min(r.progress, r.required), decimal),
+                `${r.percent ?? 0}%`,
+                <ProviderIcons key="p" list={r.eligibleProviders} size={20} anyText={tv.anyProvider} />,
+                fmtTime(r.createdAt),
+                turnStatus(r.status),
+              ],
+            })),
+            totals: [
+              t.member.desk.total,
+              fmt(turnRows.reduce((sum, r) => sum + Number(r.creditedAmount || 0), 0), decimal),
+              fmt(turnRows.reduce((sum, r) => sum + Number(r.required || 0), 0), decimal),
+              fmt(turnRows.reduce((sum, r) => sum + Math.min(Number(r.progress || 0), Number(r.required || 0)), 0), decimal),
+              "",
+              "",
+              "",
+              "",
+            ],
+          }
       : isPL
         ? {
             loading: pl.loading,
@@ -361,7 +422,10 @@ const Desktop = ({ tab }) => {
         <span style={{ width: 1, height: 30, background: "#e5e5e5", margin: "0 10px" }} />
 
         {isAccTab && gameTab === 0 && <FilterSelect label={dr.orderType} value={accType} onChange={setAccType} options={dr.typeKeys.map((k) => [k, dr.types[k]])} />}
-        {isAccTab && gameTab > 0 && (
+        {isTurn && (
+          <FilterSelect label={dr.statusLabel} value={status} onChange={setStatus} options={["all", "running", "completed", "cancelled"].map((k) => [k, k === "all" ? dr.types.all : tv.status[k]])} />
+        )}
+        {isAccTab && gameTab > 0 && !isTurn && (
           <FilterSelect label={dr.statusLabel} value={status} onChange={setStatus} options={["all", "pending", "approved", "rejected"].map((k) => [k, k === "all" ? dr.types.all : dr.status[k]])} />
         )}
         {isAccTab && gameTab === 1 && <FilterSelect label={dr.methodLabel} value={method} onChange={setMethod} options={[["all", dr.types.all], ...methodOptions.map((k) => [k, k.toUpperCase()])]} />}
@@ -508,7 +572,9 @@ const Mobile = ({ tab, titleKey, withGameTabs = false, withDays7 = false, pageTi
   const bet = useBetRecords({ range, tab: gameTab, enabled: isBet });
 
   // মোবাইলে জমা/উত্তোলন রেকর্ড আলাদা পাতা — আবেদনের তালিকা, অবস্থাসহ
-  const requestKind = titleKey === "depositRecord" ? "deposit" : titleKey === "withdrawRecord" ? "withdraw" : "";
+  const isTurn = titleKey === "turnoverRecord";
+  // টার্নওভার রেকর্ডও জমা/উত্তোলনের মতো আলাদা পাতা, একই ফিল্টারের চেহারা
+  const requestKind = titleKey === "depositRecord" ? "deposit" : titleKey === "withdrawRecord" ? "withdraw" : isTurn ? "turnover" : "";
   const isAcc = tab === "accountRecord" && !requestKind;
   const isPL = tab === "profitLoss";
   const [accType, setAccType] = useState("all");
@@ -516,7 +582,9 @@ const Mobile = ({ tab, titleKey, withGameTabs = false, withDays7 = false, pageTi
   const [method, setMethod] = useState("all");
   const [vendor, setVendor] = useState("all");
   const acc = useAccountRecords({ range, type: accType, enabled: isAcc });
-  const rawRequests = useRequestRecords({ kind: requestKind, range, enabled: Boolean(requestKind) });
+  const rawRequests = useRequestRecords({ kind: requestKind, range, enabled: Boolean(requestKind) && !isTurn });
+  const rawTurn = useTurnoverRecords({ range, enabled: isTurn });
+  const turn = { ...rawTurn, rows: rawTurn.rows.filter((r) => status === "all" || r.status === status) };
   const requests = {
     ...rawRequests,
     rows: rawRequests.rows.filter(
@@ -571,9 +639,15 @@ const Mobile = ({ tab, titleKey, withGameTabs = false, withDays7 = false, pageTi
             ))}
           </div>
           <div className="flex items-center" style={{ background: "#f0f0f2", padding: `${m(20)} ${m(32)}`, gap: m(40) }}>
-            <SelectChip value={status} onChange={setStatus} options={["all", "pending", "approved", "rejected"].map((k) => [k, k === "all" ? dr.types.all : dr.status[k]])}>
-              {status === "all" ? dr.types.all : dr.status[status]}
-            </SelectChip>
+            {isTurn ? (
+              <SelectChip value={status} onChange={setStatus} options={["all", "running", "completed", "cancelled"].map((k) => [k, k === "all" ? dr.types.all : dr.turnover.status[k]])}>
+                {status === "all" ? dr.types.all : dr.turnover.status[status]}
+              </SelectChip>
+            ) : (
+              <SelectChip value={status} onChange={setStatus} options={["all", "pending", "approved", "rejected"].map((k) => [k, k === "all" ? dr.types.all : dr.status[k]])}>
+                {status === "all" ? dr.types.all : dr.status[status]}
+              </SelectChip>
+            )}
             {requestKind === "deposit" && (
               <SelectChip value={method} onChange={setMethod} options={[["all", dr.types.all], ...methodOptions.map((k) => [k, k.toUpperCase()])]}>
                 {method === "all" ? t.memberPage.pages.recordType : method.toUpperCase()}
@@ -660,7 +734,7 @@ const Mobile = ({ tab, titleKey, withGameTabs = false, withDays7 = false, pageTi
       )}
 
       {!isBet ? (
-        <MobileRows kind={requestKind || (isPL ? "pl" : isAcc ? "acc" : "")} acc={acc} requests={requests} pl={pl} />
+        <MobileRows kind={requestKind || (isPL ? "pl" : isAcc ? "acc" : "")} acc={acc} requests={requests} pl={pl} turn={turn} />
       ) : betRows.length > 0 ? (
         <div style={{ padding: `${m(20)} ${m(24)} ${m(200)}`, background: "#f5f5f9" }}>
           {betRows.map((row) => (
@@ -745,11 +819,11 @@ const Mobile = ({ tab, titleKey, withGameTabs = false, withDays7 = false, pageTi
 };
 
 /** মোবাইলের অ্যাকাউন্ট রেকর্ড / জমা-উত্তোলন রেকর্ড / লাভ-ক্ষতির কার্ড */
-const MobileRows = ({ kind, acc, requests, pl }) => {
+const MobileRows = ({ kind, acc, requests, pl, turn }) => {
   const { t } = useLanguage();
   const r = t.records;
 
-  const card = (key, head, lines, right) => (
+  const card = (key, head, lines, right, footer = null) => (
     <div key={key} style={{ background: "#fff", borderRadius: m(16), padding: m(24), marginBottom: m(16), fontSize: m(26), color: "#333" }}>
       <div className="flex items-center" style={{ gap: m(12), marginBottom: m(10) }}>
         <span className="min-w-0 flex-1 truncate" style={{ fontSize: m(30), fontWeight: 700 }}>{head}</span>
@@ -761,6 +835,7 @@ const MobileRows = ({ kind, acc, requests, pl }) => {
           <span style={{ color: "#333", fontWeight: 600, textAlign: "right" }}>{value}</span>
         </div>
       ))}
+      {footer}
     </div>
   );
 
@@ -809,6 +884,36 @@ const MobileRows = ({ kind, acc, requests, pl }) => {
           ...(row.status === "rejected" && row.adminNote ? [[r.reason, row.adminNote]] : []),
         ],
         badge(row.status),
+      ),
+    );
+  } else if (kind === "turnover") {
+    loading = turn.loading;
+    const tv = t.deskRec.turnover;
+    const cols = t.deskRec.columns[3];
+    const color = (st) => (st === "completed" ? "#16a34a" : st === "cancelled" ? "#999" : "#f59e0b");
+    list = turn.rows.map((row) =>
+      card(
+        row._id,
+        tv.source[row.sourceType] || row.title || row.sourceType,
+        [
+          [cols[1], `৳ ${fmt(row.creditedAmount)}`],
+          [cols[2], fmt(row.required)],
+          [cols[3], fmt(Math.min(row.progress, row.required))],
+          ...(row.status === "running" ? [[tv.remaining, fmt(Math.max(0, row.required - row.progress))]] : []),
+          [cols[5], <ProviderIcons key="p" list={row.eligibleProviders} size={m(36)} withName anyText={tv.anyProvider} />],
+          [cols[6], fmtTime(row.createdAt)],
+          ...(row.completedAt ? [[tv.completedAt, fmtTime(row.completedAt)]] : []),
+        ],
+        <span style={{ fontSize: m(22), color: color(row.status), border: `1px solid ${color(row.status)}`, borderRadius: m(20), padding: `${m(4)} ${m(14)}` }}>
+          {tv.status[row.status] || row.status}
+        </span>,
+        // অগ্রগতির দাগ — কতটা খেলা হয়েছে
+        <div style={{ marginTop: m(12) }}>
+          <div style={{ height: m(12), borderRadius: m(6), background: "#eee", overflow: "hidden" }}>
+            <div style={{ width: `${row.percent ?? 0}%`, height: "100%", background: "#1e9bf0" }} />
+          </div>
+          <div style={{ textAlign: "right", fontSize: m(22), color: "#1e9bf0", marginTop: m(4) }}>{row.percent ?? 0}%</div>
+        </div>,
       ),
     );
   } else if (kind === "pl") {

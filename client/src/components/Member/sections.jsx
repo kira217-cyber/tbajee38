@@ -118,6 +118,15 @@ export const MEMBER_SECTIONS = [
     render: () => <RecordSection tab="accountRecord" titleKey="withdrawRecord" />,
   },
   {
+    key: "turnoverRecord",
+    path: "turnover-record",
+    gridIcon: "turnover3",
+    inModal: false,
+    inGrid: true,
+    title: (t) => t.memberPage.items.turnoverRecord,
+    render: () => <RecordSection tab="accountRecord" titleKey="turnoverRecord" />,
+  },
+  {
     key: "reward",
     path: "reward",
     icon: "reward",

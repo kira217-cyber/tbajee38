@@ -1,34 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Loader2, TriangleAlert } from "lucide-react";
 
-import { api } from "../../api/axios";
-
-/**
- * প্রোভাইডারের তালিকা একবারই আনা হয়।
- *
- * এক পাতায় picker কয়েকটাও থাকতে পারে (প্রতিটা প্রোমোশনের নিজেরটা) —
- * প্রত্যেকে আলাদা করে আনলে একই তালিকা বারবার টানা হতো।
- */
-let cache = null;
-let inflight = null;
-
-const loadProviders = () => {
-  if (cache) return Promise.resolve(cache);
-
-  if (!inflight) {
-    inflight = api
-      .get("/api/admin/game-api-key/admin/providers")
-      .then(({ data }) => {
-        cache = data?.data?.providers || [];
-        return cache;
-      })
-      .finally(() => {
-        inflight = null;
-      });
-  }
-
-  return inflight;
-};
+import { cachedProviders, loadProviders, providerImage } from "./providers";
 
 const clamp = (value) => Math.min(100, Math.max(0, Number(value) || 0));
 
@@ -44,12 +17,12 @@ const clamp = (value) => Math.min(100, Math.max(0, Number(value) || 0));
  * প্রোমোশন) আর Auto Deposit এর প্রতিটা বোনাসে।
  */
 const ProviderPicker = ({ value, onChange }) => {
-  const [providers, setProviders] = useState(cache || []);
-  const [loading, setLoading] = useState(!cache);
+  const [providers, setProviders] = useState(cachedProviders() || []);
+  const [loading, setLoading] = useState(!cachedProviders());
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (cache) return undefined;
+    if (cachedProviders()) return undefined;
 
     let alive = true;
 
@@ -165,9 +138,9 @@ const ProviderPicker = ({ value, onChange }) => {
                     className="h-[14px] w-[14px] shrink-0 cursor-pointer"
                   />
 
-                  {provider.providerIconUrl ? (
+                  {providerImage(provider) ? (
                     <img
-                      src={provider.providerIconUrl}
+                      src={providerImage(provider)}
                       alt=""
                       className="h-7 w-7 shrink-0 rounded-[8px] object-contain"
                     />
