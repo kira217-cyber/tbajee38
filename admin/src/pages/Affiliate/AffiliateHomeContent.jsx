@@ -179,20 +179,15 @@ const AffiliateHomeContent = () => {
       <div className="flex flex-col gap-6">
         {/* Hero */}
         <Card title="1 · Hero">
-          <LangRow label="Badge / eyebrow" value={h.badge} onChange={(v) => patch((n) => (n.hero.badge = v))} />
+          <LangRow label="Badge" value={h.badge} onChange={(v) => patch((n) => (n.hero.badge = v))} />
           <LangRow label="Title" value={h.title} onChange={(v) => patch((n) => (n.hero.title = v))} />
           <LangRow label="Text" textarea value={h.text} onChange={(v) => patch((n) => (n.hero.text = v))} />
           <div className="grid gap-3 sm:grid-cols-2">
             <LangRow label="Join button" value={h.joinBtn} onChange={(v) => patch((n) => (n.hero.joinBtn = v))} />
             <LangRow label="Login button" value={h.loginBtn} onChange={(v) => patch((n) => (n.hero.loginBtn = v))} />
-            <LangRow label="Card pill (e.g. 50%)" value={h.pill} onChange={(v) => patch((n) => (n.hero.pill = v))} />
-            <LangRow label="Earn figure (e.g. ৳5,00,000)" value={h.earnFigure} onChange={(v) => patch((n) => (n.hero.earnFigure = v))} />
-            <LangRow label="Active players value" value={h.activePlayersValue} onChange={(v) => patch((n) => (n.hero.activePlayersValue = v))} />
-            <LangRow label="Active players label" value={h.activePlayersLabel} onChange={(v) => patch((n) => (n.hero.activePlayersLabel = v))} />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <ImageRow label="Banner (desktop)" shown={shownHero("heroDesktop", h.desktopImage)} onPick={(f) => pickHero("heroDesktop", f)} onClear={() => { setImgs((p) => { const n = { ...p }; delete n.heroDesktop; return n; }); patch((n) => (n.hero.desktopImage = "")); }} />
-            <ImageRow label="Banner (mobile)" shown={shownHero("heroMobile", h.mobileImage)} onPick={(f) => pickHero("heroMobile", f)} onClear={() => { setImgs((p) => { const n = { ...p }; delete n.heroMobile; return n; }); patch((n) => (n.hero.mobileImage = "")); }} />
+            <ImageRow label="Banner" shown={shownHero("heroDesktop", h.desktopImage)} onPick={(f) => pickHero("heroDesktop", f)} onClear={() => { setImgs((p) => { const n = { ...p }; delete n.heroDesktop; return n; }); patch((n) => (n.hero.desktopImage = "")); }} />
           </div>
         </Card>
 
@@ -209,13 +204,8 @@ const AffiliateHomeContent = () => {
 
         {/* Commission */}
         <Card title="3 · Commission" action={<button type="button" onClick={() => patch((n) => n.commission.tiers.push({ players: L(), share: 0 }))} className="ad-btn ad-btn--ghost ad-btn--sm"><Plus size={14} /> Tier</button>}>
-          <LangRow label="Eyebrow" value={c.commission.eyebrow} onChange={(v) => patch((n) => (n.commission.eyebrow = v))} />
           <LangRow label="Title" value={c.commission.title} onChange={(v) => patch((n) => (n.commission.title = v))} />
           <LangRow label="Text" textarea value={c.commission.text} onChange={(v) => patch((n) => (n.commission.text = v))} />
-          <div className="grid gap-3 sm:grid-cols-2">
-            <LangRow label="Col: Tier label" value={c.commission.tierLabel} onChange={(v) => patch((n) => (n.commission.tierLabel = v))} />
-            <LangRow label="Col: Revenue share" value={c.commission.revenueShare} onChange={(v) => patch((n) => (n.commission.revenueShare = v))} />
-          </div>
           {c.commission.tiers.map((t, i) => (
             <div key={i} className="rounded-[12px] border border-white/[0.07] p-3">
               <div className="mb-2 flex items-center justify-between"><p className="text-[13px] font-bold text-[var(--neutral100)]">Tier {i + 1}</p><button type="button" onClick={() => patch((n) => n.commission.tiers.splice(i, 1))} className="ad-btn ad-btn--danger ad-btn--sm"><Trash2 size={13} /></button></div>
@@ -227,7 +217,6 @@ const AffiliateHomeContent = () => {
 
         {/* How it works */}
         <Card title="4 · How it works" action={<button type="button" onClick={() => patch((n) => n.howItWorks.steps.push({ icon: "Circle", title: L(), text: L() }))} className="ad-btn ad-btn--ghost ad-btn--sm"><Plus size={14} /> Step</button>}>
-          <LangRow label="Eyebrow" value={c.howItWorks.eyebrow} onChange={(v) => patch((n) => (n.howItWorks.eyebrow = v))} />
           <LangRow label="Title" value={c.howItWorks.title} onChange={(v) => patch((n) => (n.howItWorks.title = v))} />
           {c.howItWorks.steps.map((s, i) => (
             <div key={i} className="rounded-[12px] border border-white/[0.07] p-3">
@@ -241,7 +230,6 @@ const AffiliateHomeContent = () => {
 
         {/* Why us */}
         <Card title="5 · Why us" action={<button type="button" onClick={() => patch((n) => n.whyUs.features.push({ icon: "Circle", title: L(), text: L() }))} className="ad-btn ad-btn--ghost ad-btn--sm"><Plus size={14} /> Feature</button>}>
-          <LangRow label="Eyebrow" value={c.whyUs.eyebrow} onChange={(v) => patch((n) => (n.whyUs.eyebrow = v))} />
           <LangRow label="Title" value={c.whyUs.title} onChange={(v) => patch((n) => (n.whyUs.title = v))} />
           {c.whyUs.features.map((f, i) => (
             <div key={i} className="rounded-[12px] border border-white/[0.07] p-3">
@@ -271,7 +259,6 @@ const AffiliateHomeContent = () => {
 
         {/* FAQ */}
         <Card title="7 · FAQ" action={<button type="button" onClick={() => patch((n) => n.faq.items.push({ q: L(), a: L() }))} className="ad-btn ad-btn--ghost ad-btn--sm"><Plus size={14} /> Question</button>}>
-          <LangRow label="Eyebrow" value={c.faq.eyebrow} onChange={(v) => patch((n) => (n.faq.eyebrow = v))} />
           <LangRow label="Title" value={c.faq.title} onChange={(v) => patch((n) => (n.faq.title = v))} />
           {c.faq.items.map((x, i) => (
             <div key={i} className="rounded-[12px] border border-white/[0.07] p-3">

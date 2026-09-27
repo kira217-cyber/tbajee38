@@ -261,6 +261,33 @@ const AffWithdrawMethods = () => {
               </p>
             </div>
           </div>
+
+          {/* উত্তোলন পাতার উপরের নোট — অ্যাফিলিয়েট সাইটে যেমন দেখায় */}
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            {[
+              ["bn", "Note on the withdraw page (Bangla)"],
+              ["en", "Note on the withdraw page (English)"],
+            ].map(([code, label]) => (
+              <div key={code}>
+                <label className="ad-label" htmlFor={`aff-note-${code}`}>
+                  {label}
+                </label>
+                <textarea
+                  id={`aff-note-${code}`}
+                  rows={3}
+                  value={setting.note?.[code] || ""}
+                  onChange={(event) =>
+                    setSetting((prev) => ({
+                      ...prev,
+                      note: { ...(prev.note || {}), [code]: event.target.value },
+                    }))
+                  }
+                  onBlur={() => saveSetting({ note: setting.note || {} })}
+                  className="ad-input"
+                />
+              </div>
+            ))}
+          </div>
         </div>
       ) : null}
 

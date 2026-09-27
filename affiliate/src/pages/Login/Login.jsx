@@ -136,11 +136,12 @@ const Login = () => {
   return (
     <AuthCard
       variant="login"
+      main
       title={t("loginTitle")}
       subtitle={t("loginSubtitle")}
+      footerLead={t("noAccount")}
       footer={
         <>
-          {t("noAccount")}{" "}
           <Link
             to="/register"
             className="font-semibold text-[var(--auth-link)] underline underline-offset-4"

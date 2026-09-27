@@ -11,14 +11,17 @@ import { selectAffiliateAuth, selectSiteIdentify } from "../../features/global/g
  * শিরোনাম, তারপর গাঢ় কার্ডে ফর্ম। ইনপুট bg #010E22 + বর্ডার #D6E2F4,
  * সাবমিট বেগুনি #BC43F4, লিংক সবুজ #7BC242 (সব `.tb-auth` টোকেনে)।
  */
-const AuthCard = ({ title, subtitle, width = "460px", children, footer, variant }) => {
+const AuthCard = ({ title, subtitle, width = "460px", children, footer, footerLead, variant, main = false }) => {
   const { t, tv } = useLanguage();
   const auth = useSelector(selectAffiliateAuth);
   const siteIdentify = useSelector(selectSiteIdentify);
   const c = (variant && auth?.[variant]) || {};
 
-  const heading = tv(c.title) || title;
-  const sub = tv(c.subtitle) || subtitle;
+  // admin এর লেখা শুধু পাতার মূল ধাপে — OTP বা "আবেদন পাঠানো হয়েছে" ধাপের
+  // নিজের শিরোনাম থাকে, সেখানে বসালে ভুল কথা দেখাত
+  const heading = (main && tv(c.title)) || title;
+  const sub = (main && tv(c.subtitle)) || subtitle;
+  const lead = (main && tv(c.footerText)) || footerLead;
   const logo = c.image || siteIdentify?.brandLogo || siteIdentify?.logo || "";
 
   return (
@@ -52,7 +55,10 @@ const AuthCard = ({ title, subtitle, width = "460px", children, footer, variant 
           </div>
 
           {footer && (
-            <p className="mt-5 text-center text-[14px] text-[var(--text-muted)]">{footer}</p>
+            <p className="mt-5 text-center text-[14px] text-[var(--text-muted)]">
+              {lead && <>{lead} </>}
+              {footer}
+            </p>
           )}
 
           <p className="mt-5 text-center text-[12px] text-[var(--text-faint)]">

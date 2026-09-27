@@ -121,11 +121,12 @@ const ForgotPassword = () => {
   return (
     <AuthCard
       variant="forgot"
+      main
       title={t("forgotPassword")}
       subtitle={t("loginSubtitle")}
+      footerLead={t("haveAccount")}
       footer={
         <>
-          {t("haveAccount")}{" "}
           <Link
             to="/login"
             className="font-semibold text-[var(--auth-link)] underline underline-offset-4"
