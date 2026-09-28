@@ -7,6 +7,7 @@ import EWallet from "../models/EWallet.js";
 import TurnOver from "../models/TurnOver.js";
 import User from "../models/User.js";
 import WithdrawSetting from "../models/WithdrawSetting.js";
+import AutoWithdraw from "../models/AutoWithdraw.js";
 
 import { protectUser } from "../middleware/protectUser.js";
 import { protectAdmin, requirePermission, requireWrite } from "../middleware/protectAdmin.js";
@@ -17,6 +18,7 @@ import { verificationGate } from "../utils/verificationGate.js";
 import { checkTxPassword } from "../utils/txPassword.js";
 import { creditUser, writeLogs } from "../utils/wallet.js";
 import { dayStart } from "../utils/referral.js";
+import { lockWithdraw, unlockWithdraw } from "../utils/withdrawLock.js";
 
 const router = express.Router();
 
@@ -31,14 +33,19 @@ const isId = (value) => mongoose.Types.ObjectId.isValid(String(value));
  * করতে হবে।
  */
 /** আজ (বাংলাদেশের দিন) আর কতবার তোলা যাবে — `null` মানে সীমা নেই */
-const remainingToday = async (userId) => {
+// ম্যানুয়াল আর অটো দুটো মিলিয়েই গোনা — একটায় সীমা শেষ হলে অন্যটায় আবার শুরু হয় না
+export const remainingToday = async (userId) => {
   const { dailyCount } = await WithdrawSetting.current();
   if (!dailyCount) return { limit: 0, remaining: null };
-  const used = await WithdrawRequest.countDocuments({ user: userId, createdAt: { $gte: dayStart() }, status: { $ne: "rejected" } });
-  return { limit: dailyCount, remaining: Math.max(0, dailyCount - used) };
+  const since = { $gte: dayStart() };
+  const [manual, auto] = await Promise.all([
+    WithdrawRequest.countDocuments({ user: userId, createdAt: since, status: { $ne: "rejected" } }),
+    AutoWithdraw.countDocuments({ user: userId, createdAt: since, status: { $ne: "REJECTED" } }),
+  ]);
+  return { limit: dailyCount, remaining: Math.max(0, dailyCount - manual - auto) };
 };
 
-const checkEligibility = async (userId) => {
+export const checkEligibility = async (userId) => {
   // পরিচয় যাচাই সবার আগে — টার্নওভার বা ঝুলে থাকা আবেদনের কথা বলার
   // আগে এটাই বলা উচিত, কারণ এটা না হলে বাকিগুলো মিটিয়েও লাভ নেই
   const gate = await verificationGate(userId, "withdraw", "user");
@@ -52,10 +59,10 @@ const checkEligibility = async (userId) => {
     };
   }
 
-  const pending = await WithdrawRequest.findOne({
-    user: userId,
-    status: "pending",
-  }).sort({ createdAt: -1 });
+  // ঝুলে থাকা আবেদন — ম্যানুয়াল বা অটো, যেকোনোটা থাকলেই নতুনটা নয়
+  const pending =
+    (await WithdrawRequest.findOne({ user: userId, status: "pending" }).sort({ createdAt: -1 })) ||
+    (await AutoWithdraw.findOne({ user: userId, status: { $in: ["PENDING", "PROCESSING"] } }).sort({ createdAt: -1 }));
 
   if (pending) {
     return {
@@ -128,10 +135,17 @@ router.get("/eligibility", protectUser, async (req, res) => {
  * যেত ব্যালেন্স নেই।
  */
 router.post("/", protectUser, async (req, res) => {
+  // ম্যানুয়াল আর অটো মিলিয়ে একসাথে একটাই আবেদন (utils/withdrawLock.js)
+  if (!(await lockWithdraw(req.user._id))) {
+    return errorResponse(res, "You already have a withdraw waiting for review", 409, "pendingWithdraw");
+  }
   try {
     const walletId = text(req.body?.walletId);
     const amount = money(num(req.body?.amount));
 
+    if ((await WithdrawSetting.current()).manualEnabled === false) {
+      return errorResponse(res, "Manual withdraw is off right now", 400, "manualOff");
+    }
     if (!isId(walletId)) return errorResponse(res, "Choose an e-wallet", 400, "chooseWallet");
     if (amount <= 0) return errorResponse(res, "Enter a valid amount", 400, "missingFields");
 
@@ -263,6 +277,8 @@ router.post("/", protectUser, async (req, res) => {
     }
   } catch (error) {
     return errorResponse(res, error.message, 500);
+  } finally {
+    await unlockWithdraw(req.user._id);
   }
 });
 
@@ -315,8 +331,10 @@ router.get("/admin/setting", protectAdmin, async (req, res) => {
 router.put("/admin/setting", protectAdmin, requireWrite, async (req, res) => {
   try {
     if (req.admin?.role !== "mother") return errorResponse(res, "Only the main admin can change this", 403);
-    const dailyCount = Math.min(1000, Math.max(0, Math.floor(num(req.body?.dailyCount))));
-    const setting = await WithdrawSetting.findOneAndUpdate({ key: "main" }, { $set: { dailyCount } }, { upsert: true, returnDocument: "after", setDefaultsOnInsert: true });
+    const set = {};
+    if (req.body?.dailyCount !== undefined) set.dailyCount = Math.min(1000, Math.max(0, Math.floor(num(req.body.dailyCount))));
+    if (typeof req.body?.manualEnabled === "boolean") set.manualEnabled = req.body.manualEnabled;
+    const setting = await WithdrawSetting.findOneAndUpdate({ key: "main" }, { $set: set }, { upsert: true, returnDocument: "after", setDefaultsOnInsert: true });
     return successResponse(res, "Saved", { setting });
   } catch (error) {
     return errorResponse(res, error.message, 500);

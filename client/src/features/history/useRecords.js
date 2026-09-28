@@ -5,6 +5,7 @@ import api from "../../api/axios";
 import { selectIsLoggedIn } from "../auth/authSelectors";
 import { notify } from "../../utils/notify";
 import { rangeOf } from "./dateRange";
+import { autoDepositRow, autoWithdrawRow } from "../payment/usePaymentModes";
 
 /**
  * রেকর্ডের ডেটা — অ্যাকাউন্ট রেকর্ড (টাকার খাতা), লাভ-ক্ষতি, আর মোবাইলের
@@ -84,12 +85,20 @@ export const useRequestRecords = ({ kind, range, enabled = true }) =>
     [kind, range],
     async () => {
       const url = kind === "withdraw" ? "/api/withdraw-requests/my" : "/api/deposit-requests/my";
-      const { data } = await api.get(url, { params: { limit: 100 } });
+      // অটো লেনদেনও একই তালিকায় — একই রূপে এনে সময় ধরে সাজানো
+      const autoUrl = kind === "withdraw" ? "/api/auto-withdraw/history/my" : "/api/auto-deposit/history/my";
+      const [{ data }, auto] = await Promise.all([
+        api.get(url, { params: { limit: 100 } }),
+        api.get(autoUrl, { params: { limit: 100 } }).catch(() => null),
+      ]);
+      const autoRows = kind === "withdraw" ? (auto?.data?.data?.withdrawals || []).map(autoWithdrawRow) : (auto?.data?.data?.deposits || []).map(autoDepositRow);
       const { from, to } = rangeOf(range);
-      const rows = (data?.data?.requests || data?.data?.rows || []).filter((r) => {
-        const at = new Date(r.createdAt);
-        return at >= from && at <= to;
-      });
+      const rows = [...(data?.data?.requests || data?.data?.rows || []), ...autoRows]
+        .filter((r) => {
+          const at = new Date(r.createdAt);
+          return at >= from && at <= to;
+        })
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       return { rows };
     },
     { rows: [] },

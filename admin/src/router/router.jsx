@@ -43,6 +43,10 @@ import AppDownload from "../pages/SiteContent/AppDownload";
 import AffWithdrawRequests from "../pages/AffWithdrawRequests/AffWithdrawRequests";
 import BulkAdjustment from "../pages/BulkAdjustment/BulkAdjustment";
 import RegisterBonus from "../pages/RegisterBonus/RegisterBonus";
+import AutoDeposit from "../pages/AutoDeposit/AutoDeposit";
+import AutoDepositHistory from "../pages/AutoDepositHistory/AutoDepositHistory";
+import AutoWithdraw from "../pages/AutoWithdraw/AutoWithdraw";
+import AutoWithdrawHistory from "../pages/AutoWithdrawHistory/AutoWithdrawHistory";
 import AffWithdrawMethods from "../pages/AffWithdrawMethods/AffWithdrawMethods";
 import IdentityPage from "../pages/SiteSettings/SiteIdentity";
 import FooterPage from "../pages/SiteSettings/FooterSetting";
@@ -111,6 +115,10 @@ const REAL_PAGES = {
   "/aff-withdraw-requests": <AffWithdrawRequests />,
   "/bulk-adjustment": <BulkAdjustment />,
   "/register-bonus": <RegisterBonus />,
+  "/auto-deposit": <AutoDeposit />,
+  "/auto-deposit-history": <AutoDepositHistory />,
+  "/auto-withdraw": <AutoWithdraw />,
+  "/auto-withdraw-history": <AutoWithdrawHistory />,
   "/aff-withdraw-methods": <AffWithdrawMethods />,
   "/aff-identity": <IdentityPage title="Affiliate Identity" subtitle="Affiliate site name, logo and favicon." endpoint="aff-identify" Icon={UserRoundCheck} />,
   "/aff-footer": <FooterPage title="Affiliate Footer" subtitle="Affiliate footer logo, description and copyright." endpoint="aff-footer" logoKey="logo" fields={AFF_FOOTER_FIELDS} Icon={Handshake} />,

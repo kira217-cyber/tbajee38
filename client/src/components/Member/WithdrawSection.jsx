@@ -10,6 +10,7 @@ import { m } from "../../hook/useUnits";
 import MemberShell from "./MemberShell";
 import { assetUrl } from "../../features/deposit/useDepositFlow";
 import { maskNumber, useWithdrawFlow } from "../../features/withdraw/useWithdrawFlow";
+import PaymentModeGate from "./PaymentModeGate";
 
 /**
  * উত্তোলন — মূল সাইটের নকশায় (`/m/withdraw`, ডেস্কটপে মডালের "উত্তোলন"),
@@ -326,7 +327,8 @@ const MainForm = ({ f }) => {
     { key: "time", text: money.withdrawTime, dim: true },
     ...(f.elig?.today?.remaining != null ? [{ key: "daily", text: w.dailyLine.replace("{n}", f.elig.today.limit).replace("{left}", f.elig.today.remaining), dim: true }] : []),
     { key: "main", text: `${w.centralWallet} : ৳ ${fmt(f.balance)}` },
-    ...(f.method ? [{ key: "limit", text: `${w.limit} : ৳ ${fmt(f.min)} - ৳ ${fmt(f.max)}` }] : []),
+    ...(f.method || f.isAuto ? [{ key: "limit", text: `${w.limit} : ৳ ${fmt(f.min)} - ৳ ${fmt(f.max)}` }] : []),
+    ...(f.isAuto && f.supportedList ? [{ key: "auto", text: t.payMode.supported.replace("{list}", f.supportedList), dim: true }] : []),
   ];
 
   return (
@@ -353,6 +355,12 @@ const MainForm = ({ f }) => {
         </button>
       </div>
 
+      {f.unsupported && !f.block && (
+        <div style={{ marginTop: u(14, 26), borderRadius: u(8, 14), background: "#fff6f6", border: `${u(1, 2)} solid #ffd0d1`, padding: u("10px 14px", 24), fontSize: u(13, 25), color: RED, lineHeight: 1.5 }}>
+          {t.payMode.unsupported}
+        </div>
+      )}
+
       {f.block ? (
         <BlockPanel f={f} />
       ) : (
@@ -376,7 +384,7 @@ const MainForm = ({ f }) => {
             value={f.txPassword}
             onChange={(e) => f.setTxPassword(e.target.value)}
           />
-          <PrimaryButton disabled={f.busy} active={Boolean(f.amount && f.txPassword && f.wallet)} onClick={f.submit}>
+          <PrimaryButton disabled={f.busy} active={Boolean(f.amount && f.txPassword && f.wallet && !f.unsupported)} onClick={f.submit}>
             {money.submit}
           </PrimaryButton>
         </>
@@ -398,7 +406,7 @@ const Body = ({ f }) => {
 };
 
 /** "E wallet" ট্যাব — মূল সাইটের মতো একটাই */
-const WalletTab = () => {
+const WalletTab = ({ auto }) => {
   const { t } = useLanguage();
   const { u } = useSize();
   return (
@@ -406,14 +414,14 @@ const WalletTab = () => {
       <span className="grid place-items-center" style={{ width: u(34, 60), height: u(34, 60), borderRadius: "50%", background: "#ff2d9b" }}>
         <Icon name="cashback" size={u(20, 36)} />
       </span>
-      <span style={{ fontSize: u(16, 30), color: RED }}>{t.money.wallet}</span>
+      <span style={{ fontSize: u(16, 30), color: RED }}>{auto ? `${t.money.wallet} · ${t.payMode.autoWithdraw}` : t.money.wallet}</span>
     </div>
   );
 };
 
-const Mobile = () => {
+const Mobile = ({ mode }) => {
   const { t } = useLanguage();
-  const f = useWithdrawFlow();
+  const f = useWithdrawFlow({ mode });
   const [params, setParams] = useSearchParams();
   const { setView } = f;
   // "আমার কার্ড" এর "+" থেকে এলে সরাসরি ওয়ালেট যোগের ফর্ম
@@ -424,8 +432,8 @@ const Mobile = () => {
     }
   }, [params, setParams, setView]);
   return (
-    <MemberShell title={t.money.withdrawTitle} headerIcon="withrec3">
-      <WalletTab />
+    <MemberShell title={f.isAuto ? t.payMode.autoWithdraw : t.money.withdrawTitle} headerIcon="withrec3">
+      <WalletTab auto={f.isAuto} />
       <div style={{ background: "#fff", padding: `${m(35)} ${m(40)} ${m(60)}` }}>
         <Body f={{ ...f, isDesktop: false }} />
       </div>
@@ -435,8 +443,17 @@ const Mobile = () => {
 
 const WithdrawSection = () => {
   const isDesktop = useIsDesktop();
-  // ডেস্কটপ: মূল সাইটের `.withdraw-page` (account/DeskWithdraw)
-  return isDesktop ? <DeskWithdraw /> : <Mobile />;
+  // ডেস্কটপ: মূল সাইটের `.withdraw-page` (account/DeskWithdraw)।
+  // আগে কোন পথ (ম্যানুয়াল/অটো) — PaymentModeGate; `key` দিয়ে পথ বদলালে
+  // ফর্ম নতুন করে বসে, আগের পথের লেখা পরিমাণ/পাসওয়ার্ড থেকে যায় না
+  return (
+    <PaymentModeGate
+      kind="withdraw"
+      render={(mode, onChange) =>
+        isDesktop ? <DeskWithdraw key={mode} mode={mode} onChangeMode={onChange} /> : <Mobile key={mode} mode={mode} />
+      }
+    />
+  );
 };
 
 export default WithdrawSection;

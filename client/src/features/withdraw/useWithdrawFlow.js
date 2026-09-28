@@ -15,6 +15,11 @@ import { refreshMe } from "../auth/authSlice";
  *
  * `view`: main | addWallet | setTx — ওয়ালেট যোগ আর লেনদেন পাসওয়ার্ড বসানো
  * একই পাতার ভিতরে আলাদা ধাপ।
+ *
+ * `mode: "auto"` — অটো উত্তোলন: একই বাঁধা ই-ওয়ালেট, একই শর্ত আর লেনদেন
+ * পাসওয়ার্ড; শুধু সীমা অটোর সেটিং থেকে, আবেদন যায় `/api/auto-withdraw/create`
+ * এ। অটো যে ওয়ালেট সমর্থন করে না (যেমন উপায় ছাড়া অন্য কিছু) সেটা বাছলে
+ * জমা দেওয়ার আগেই বলে দেওয়া হয়।
  */
 
 const num = (v) => {
@@ -30,7 +35,8 @@ export const maskNumber = (value = "") => {
 
 const TX_RULE = /^[A-Za-z0-9]{6,12}$/;
 
-export const useWithdrawFlow = () => {
+export const useWithdrawFlow = ({ mode = "manual" } = {}) => {
+  const isAuto = mode === "auto";
   const dispatch = useDispatch();
   const { t, lang } = useLanguage();
   const w = t.withdrawFlow;
@@ -41,6 +47,7 @@ export const useWithdrawFlow = () => {
   const [wallets, setWallets] = useState([]);
   const [cap, setCap] = useState(2);
   const [methods, setMethods] = useState([]);
+  const [autoStatus, setAutoStatus] = useState(null);
   const [walletId, setWalletId] = useState("");
   const [amount, setAmount] = useState("");
   const [txPassword, setTxPassword] = useState("");
@@ -51,18 +58,20 @@ export const useWithdrawFlow = () => {
     (error) => {
       const code = error?.response?.data?.code;
       if (error?.response?.status === 401) return t.games.needLogin;
-      return w.err?.[code] || error?.response?.data?.message || t.authErr.generic;
+      return w.err?.[code] || t.payMode?.err?.[code] || error?.response?.data?.message || t.authErr.generic;
     },
     [t, w],
   );
 
   const load = useCallback(async () => {
     try {
-      const [e, list, m] = await Promise.all([
+      const [e, list, m, auto] = await Promise.all([
         api.get("/api/withdraw-requests/eligibility"),
         api.get("/api/e-wallets"),
         api.get("/api/withdraw-methods/public"),
+        isAuto ? api.get("/api/auto-withdraw/status") : Promise.resolve(null),
       ]);
+      setAutoStatus(auto?.data?.data || null);
       setElig(e.data?.data || null);
       const ws = list.data?.data?.wallets || [];
       setWallets(ws);
@@ -74,7 +83,7 @@ export const useWithdrawFlow = () => {
     } finally {
       setLoading(false);
     }
-  }, [errorText]);
+  }, [errorText, isAuto]);
 
   useEffect(() => {
     load();
@@ -82,8 +91,13 @@ export const useWithdrawFlow = () => {
 
   const wallet = wallets.find((x) => x._id === walletId) || null;
   const method = methods.find((m) => m.methodId === wallet?.methodId) || null;
-  const min = num(method?.minimumWithdrawAmount);
-  const max = num(method?.maximumWithdrawAmount);
+  // অটোতে সীমা অটোর মাধ্যম থেকে (না থাকলে অটোর সাধারণ সীমা)
+  const autoMethods = autoStatus?.methods || [];
+  const autoMethod = autoMethods.find((m) => m.code === String(wallet?.methodId || "").toLowerCase()) || null;
+  const unsupported = isAuto && Boolean(wallet) && !autoMethod;
+  const supportedList = autoMethods.map((m) => tv(m.name) || m.code).join(", ");
+  const min = isAuto ? num(autoMethod?.minAmount) || num(autoStatus?.minAmount) : num(method?.minimumWithdrawAmount);
+  const max = isAuto ? num(autoMethod?.maxAmount) || num(autoStatus?.maxAmount) : num(method?.maximumWithdrawAmount);
   const balance = num(elig?.balance);
 
   /** কেন আটকে আছে — null মানে তোলা যাবে */
@@ -106,6 +120,7 @@ export const useWithdrawFlow = () => {
   const submit = async () => {
     if (busy) return;
     if (!wallet) return notify.warning(w.chooseWallet);
+    if (unsupported) return notify.warning(t.payMode.unsupported);
     const amt = num(amount);
     if (!amt) return notify.warning(w.enterAmount);
     if ((min && amt < min) || (max && amt > max)) {
@@ -117,7 +132,7 @@ export const useWithdrawFlow = () => {
     setBusy(true);
     const done = notify.pending(w.submitting);
     try {
-      await api.post("/api/withdraw-requests", { walletId, amount: amt, txPassword });
+      await api.post(isAuto ? "/api/auto-withdraw/create" : "/api/withdraw-requests", { walletId, amount: amt, txPassword });
       done();
       notify.success(w.submitted, w.submittedHint);
       setAmount("");
@@ -195,6 +210,10 @@ export const useWithdrawFlow = () => {
   };
 
   return {
+    mode,
+    isAuto,
+    unsupported,
+    supportedList,
     reload: load,
     loading,
     elig,

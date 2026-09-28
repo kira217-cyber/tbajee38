@@ -14,6 +14,7 @@ import {
 
 import { api } from "../../api/axios";
 import DailyLimitCard from "./DailyLimitCard";
+import ManualSwitch from "../../components/ManualSwitch/ManualSwitch";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -233,6 +234,7 @@ const WithdrawMethods = () => {
         </div>
       </div>
 
+      <ManualSwitch kind="withdraw" />
       <DailyLimitCard />
 
       {editing && (

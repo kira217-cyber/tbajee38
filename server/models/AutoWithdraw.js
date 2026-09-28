@@ -63,6 +63,19 @@ const autoWithdrawSchema = new Schema(
     },
     reviewNote: { type: String, default: "", trim: true },
 
+    /**
+     * গেটওয়ের webhook ঠিকানায় বসানো এই লেনদেনের গোপন চাবি।
+     * OraclePay webhook এ কোনো সই পাঠায় না — তাই ঠিকানাটাই প্রমাণ: চাবিটা
+     * শুধু আমরা আর গেটওয়ে জানে, বাইরের কেউ নকল "COMPLETED" পাঠাতে পারে না।
+     */
+    callbackKey: { type: String, default: "", select: false },
+
+    /** কোন বাঁধা ই-ওয়ালেট থেকে — ম্যানুয়াল উত্তোলনের একই ওয়ালেট */
+    wallet: { type: Schema.Types.ObjectId, ref: "EWallet", default: null },
+    methodName: {
+      bn: { type: String, default: "", trim: true },
+      en: { type: String, default: "", trim: true },
+    },
     completedAt: { type: Date, default: null },
   },
   { timestamps: true },

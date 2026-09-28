@@ -8,7 +8,9 @@ import { useLanguage } from "../../Context/LanguageProvider";
 import { m } from "../../hook/useUnits";
 import MemberShell from "./MemberShell";
 import { assetUrl, useDepositFlow } from "../../features/deposit/useDepositFlow";
+import { useAutoDeposit } from "../../features/deposit/useAutoDeposit";
 import { useUI } from "../../Context/uiContext";
+import PaymentModeGate, { ChangeModeButton } from "./PaymentModeGate";
 
 /**
  * ম্যানুয়াল ডিপোজিট — মূল সাইটের নকশায়, BetChokkor এর কাজে।
@@ -84,7 +86,7 @@ const DeskRow = ({ label, children, wide }) => (
   </div>
 );
 
-const Desktop = () => {
+const Desktop = ({ onChangeMode }) => {
   const { t } = useLanguage();
   const { openMember } = useUI();
   const d = t.depositFlow;
@@ -140,6 +142,7 @@ const Desktop = () => {
           <span style={{ width: 4, height: 16, background: "#23e63a" }} />
           <span style={{ fontSize: 16, color: "#000" }}>{payStep ? d.payTitle : t.member.depositInfo}</span>
           <span className="flex-1" />
+          <ChangeModeButton desktop onChange={payStep ? null : onChangeMode} />
           {/* "জমা রেকর্ড" — অ্যাকাউন্ট রেকর্ডের জমা ট্যাব খোলে */}
           <button
             type="button"
@@ -647,9 +650,291 @@ const MobilePay = ({ f }) => {
   );
 };
 
+/* ─────────────────── অটো ডিপোজিট ─────────────────── */
+
+/** admin লোগো না দিলে সাইটের নিজের ছবি (যেগুলো আছে) */
+const OWN_LOGO = { bkash: "/assets/mobile/bank/BKASH.png", nagad: "/assets/mobile/bank/NAGAD.png" };
+
+/** অটোর মাধ্যম → `MethodLogo` এর রূপ */
+const autoLogo = (item) => ({ logoUrl: item.logoUrl || OWN_LOGO[item.code] || "", methodName: item.name, methodId: item.code });
+
+/** বোনাসের ছোট লেখা — "+১০%" বা "+৳৫০" */
+const bonusValue = (b) => (b.bonusType === "percent" ? `+${Number(b.bonusValue) || 0}%` : `+৳${fmt(b.bonusValue)}`);
+
+/** "জমা রেকর্ড" — অ্যাকাউন্ট রেকর্ডের জমা ট্যাব */
+const useOpenDepositRecord = () => {
+  const { openMember } = useUI();
+  return () => {
+    try {
+      sessionStorage.setItem("tb_rec_sub", "1");
+    } catch {
+      /* private mode */
+    }
+    openMember("accountRecord");
+  };
+};
+
+const AutoDesktop = ({ onChangeMode }) => {
+  const { t } = useLanguage();
+  const p = t.payMode;
+  const d = t.depositFlow;
+  const a = useAutoDeposit();
+  const openRecord = useOpenDepositRecord();
+  const methods = a.status?.methods || [];
+
+  return (
+    <div className="flex" style={{ width: 1110, height: 620 }}>
+      {/* সমর্থিত মাধ্যম — গেটওয়ের পাতায় এর যেকোনোটা বাছা যায় */}
+      <div className="hide-scrollbar" style={{ width: 255, height: 620, background: "#f7f7f7", padding: "22px 25px", overflowY: "auto" }}>
+        <div style={{ fontSize: 13, color: "#999", marginBottom: 12 }}>{p.methodsTitle}</div>
+        {methods.map((item) => (
+          <div
+            key={item.code}
+            className="flex items-center"
+            style={{ width: 205, height: 68, borderRadius: 6, background: "#fff", marginBottom: 15, padding: "0 14px", gap: 12, color: "#666", fontSize: 14 }}
+          >
+            <MethodLogo method={autoLogo(item)} size={38} radius={6} />
+            <span className="truncate">{a.tv(item.name) || item.code}</span>
+          </div>
+        ))}
+        {methods.length > 0 && <div style={{ fontSize: 12, color: "#aaa", lineHeight: 1.5 }}>{p.methodsHint}</div>}
+      </div>
+
+      <div className="flex flex-col" style={{ width: 855, height: 620, background: "#fff" }}>
+        <div className="flex items-center" style={{ height: 47, padding: "0 61px 0 20px", gap: 8, flexShrink: 0, borderBottom: "1px solid #eee" }}>
+          <span style={{ width: 4, height: 16, background: "#23e63a" }} />
+          <span style={{ fontSize: 16, color: "#000" }}>{p.autoDeposit}</span>
+          <span className="flex-1" />
+          <ChangeModeButton desktop onChange={onChangeMode} />
+          <button
+            type="button"
+            onClick={openRecord}
+            className="flex cursor-pointer items-center"
+            style={{ height: 32, padding: "0 14px", borderRadius: 16, border: "2px solid #c9d5fb", color: "#5076f3", fontSize: 14 }}
+          >
+            {d.recordBtn}
+          </button>
+        </div>
+
+        <div className="hide-scrollbar min-h-0 flex-1" style={{ padding: "18px 20px 0", overflowY: "auto" }}>
+          {a.loading ? (
+            <div style={{ color: "#999", fontSize: 13, padding: 20 }}>{p.loading}</div>
+          ) : (
+            <>
+              <div
+                style={{ display: "inline-block", border: "1px solid #f9dacb", borderRadius: 10, background: "#fdeee6", color: DRED, fontSize: 14, lineHeight: "20px", padding: "9px 15px", marginBottom: 20 }}
+              >
+                {p.autoNote}
+              </div>
+
+              {a.bonuses.length > 0 && (
+                <DeskRow label={p.bonusTitle}>
+                  <div className="flex flex-wrap" style={{ gap: 12 }}>
+                    <DeskChip active={!a.bonusId} onClick={() => a.setBonusId("")}>
+                      {p.noBonus}
+                    </DeskChip>
+                    {a.bonuses.map((b) => (
+                      <DeskChip key={b._id} active={a.bonusId === b._id} onClick={() => a.setBonusId(b._id)}>
+                        {a.tv(b.title)}
+                        <span style={{ marginInlineStart: 6, color: "#3fbf6e", fontSize: 12 }}>{bonusValue(b)}</span>
+                        {b.bonusScope === "first-deposit" && <span style={{ marginInlineStart: 6, color: "#f5a623", fontSize: 11 }}>{p.firstOnlyTag}</span>}
+                      </DeskChip>
+                    ))}
+                  </div>
+                </DeskRow>
+              )}
+
+              <DeskRow label={t.member.amountLabel}>
+                <div className="flex flex-wrap" style={{ columnGap: 6, rowGap: 17, maxWidth: 650 }}>
+                  {a.presets.map((value) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => a.setAmount(value)}
+                      className="cursor-pointer"
+                      style={{
+                        width: 66,
+                        height: 38,
+                        borderRadius: 6,
+                        border: `1px solid ${String(value) === a.amount ? DRED : "rgba(236,37,55,.25)"}`,
+                        color: String(value) === a.amount ? DRED : "#646464",
+                        fontSize: 14,
+                        background: "#fff",
+                      }}
+                    >
+                      {value.toLocaleString("en-US")}
+                    </button>
+                  ))}
+                </div>
+                <input
+                  value={a.amount}
+                  onChange={(e) => a.setAmount(e.target.value)}
+                  inputMode="decimal"
+                  placeholder={t.member.amountPlaceholder}
+                  style={{ width: 223, height: 34, marginTop: 10, border: "1px solid #e5e5e5", borderRadius: 5, background: "#f5f5f5", padding: "0 12px", fontSize: 13, color: "#646464", outline: "none", display: "block" }}
+                />
+                <div style={{ marginTop: 14, fontSize: 14, color: "#f00", wordSpacing: 3 }}>
+                  {t.member.limit} ৳ {fmt(a.min)} - ৳ {fmt(a.max)}
+                </div>
+                {a.preview.bonus > 0 && (
+                  <div style={{ marginTop: 6, fontSize: 13, color: "#3fbf6e" }}>
+                    {p.bonus}: +৳ {fmt(a.preview.bonus)} · {p.credited}: ৳ {fmt(a.preview.credited)}
+                    {a.preview.target > 0 && ` · ${p.turnover}: ৳ ${fmt(a.preview.target)} (×${a.preview.multiplier})`}
+                  </div>
+                )}
+              </DeskRow>
+            </>
+          )}
+        </div>
+
+        <div className="flex items-center" style={{ height: 48, padding: "0 30px", gap: 12, flexShrink: 0, borderTop: "1px solid #eee" }}>
+          <button
+            type="button"
+            disabled={a.busy || a.loading}
+            onClick={a.pay}
+            className="tb-hover-fade cursor-pointer"
+            style={{ height: 34, padding: "0 10px", minWidth: 171, borderRadius: 17, background: DRED, color: "#fff", fontSize: 13, fontWeight: 700, opacity: a.busy || a.loading ? 0.6 : 1 }}
+          >
+            {p.pay}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const AutoMobile = () => {
+  const { t } = useLanguage();
+  const p = t.payMode;
+  const money = t.money;
+  const a = useAutoDeposit();
+  const methods = a.status?.methods || [];
+
+  return (
+    <MemberShell title={p.autoDeposit} headerIcon="deprecm3">
+      <div style={{ padding: `0 ${m(20)} ${m(140)}`, background: "#fff" }}>
+        {a.loading ? (
+          <div style={{ padding: m(40), color: "#999", fontSize: m(26) }}>{p.loading}</div>
+        ) : (
+          <>
+            {methods.length > 0 && (
+              <>
+                <SectionTitle dot="#f5a623">{p.methodsTitle}</SectionTitle>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: m(6) }}>
+                  {methods.map((item) => (
+                    <div
+                      key={item.code}
+                      className="flex flex-col items-center"
+                      style={{ height: m(160), padding: m(15), borderRadius: m(10), border: `${m(2)} solid #e4e4e4`, background: "#fff" }}
+                    >
+                      <span className="grid w-full place-items-center" style={{ height: m(70) }}>
+                        <MethodLogo method={autoLogo(item)} size={m(64)} radius={m(8)} />
+                      </span>
+                      <span className="text-center" style={{ marginTop: m(16), fontSize: m(20), fontWeight: 700, color: "#333", lineHeight: 1.15 }}>
+                        {a.tv(item.name) || item.code}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ marginTop: m(12), fontSize: m(22), color: "#999" }}>{p.methodsHint}</div>
+              </>
+            )}
+
+            <div style={{ marginTop: m(20), fontSize: m(26), color: RED, lineHeight: 1.5 }}>{p.autoNote}</div>
+
+            {a.bonuses.length > 0 && (
+              <>
+                <SectionTitle dot="#ff7a45">{p.bonusTitle}</SectionTitle>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: m(10) }}>
+                  <MobChip height={m(90)} active={!a.bonusId} onClick={() => a.setBonusId("")}>
+                    {p.noBonus}
+                  </MobChip>
+                  {a.bonuses.map((b) => (
+                    <MobChip key={b._id} height={m(110)} active={a.bonusId === b._id} onClick={() => a.setBonusId(b._id)}>
+                      {a.tv(b.title)}
+                      <div style={{ color: "#3fbf6e", fontSize: m(20) }}>
+                        {bonusValue(b)}
+                        {b.bonusScope === "first-deposit" && <span style={{ color: "#f5a623" }}> · {p.firstOnlyTag}</span>}
+                      </div>
+                    </MobChip>
+                  ))}
+                </div>
+              </>
+            )}
+
+            <SectionTitle dot="#8e6fd8">{money.amountTitle}</SectionTitle>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", gap: m(12) }}>
+              {a.presets.map((value) => {
+                const active = String(value) === a.amount;
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => a.setAmount(value)}
+                    className="cursor-pointer"
+                    style={{
+                      height: m(71),
+                      borderRadius: m(12),
+                      border: `${m(2)} solid ${active ? RED : "rgb(236 37 41 / 0.2)"}`,
+                      background: "#fff",
+                      color: active ? RED : "#565656",
+                      fontSize: m(24),
+                      fontWeight: 700,
+                    }}
+                  >
+                    {value.toLocaleString("en-US")}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex items-center" style={{ marginTop: m(20), height: m(70), borderRadius: m(12), border: `${m(2)} solid #e4e4e4` }}>
+              <span style={{ padding: `0 ${m(20)}`, fontSize: m(26), fontWeight: 700, color: "#1c1c1c" }}>৳</span>
+              <input
+                value={a.amount}
+                onChange={(e) => a.setAmount(e.target.value)}
+                inputMode="decimal"
+                placeholder={`${fmt(a.min)} - ${fmt(a.max)}`}
+                style={{ flex: 1, height: "100%", border: "none", outline: "none", background: "transparent", fontSize: m(28), color: "#333" }}
+              />
+            </div>
+
+            {a.preview.bonus > 0 && (
+              <div style={{ marginTop: m(14), fontSize: m(24), color: "#3fbf6e", lineHeight: 1.5 }}>
+                {p.bonus}: +৳ {fmt(a.preview.bonus)} · {p.credited}: ৳ {fmt(a.preview.credited)}
+                {a.preview.target > 0 && ` · ${p.turnover}: ৳ ${fmt(a.preview.target)}`}
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      <div className="fixed right-0 bottom-0 left-0 flex" style={{ height: m(110), zIndex: 5 }}>
+        <button
+          type="button"
+          disabled={a.busy || a.loading}
+          onClick={a.pay}
+          className="flex-1 cursor-pointer"
+          style={{ background: a.amount && !a.busy ? RED : "#cdcdcd", color: "#fff", fontSize: m(32) }}
+        >
+          {p.pay}
+        </button>
+      </div>
+    </MemberShell>
+  );
+};
+
 const DepositSection = () => {
   const isDesktop = useIsDesktop();
-  return isDesktop ? <Desktop /> : <Mobile />;
+  return (
+    <PaymentModeGate
+      kind="deposit"
+      render={(mode, onChange) => {
+        if (mode === "auto") return isDesktop ? <AutoDesktop onChangeMode={onChange} /> : <AutoMobile />;
+        return isDesktop ? <Desktop onChangeMode={onChange} /> : <Mobile />;
+      }}
+    />
+  );
 };
 
 export default DepositSection;

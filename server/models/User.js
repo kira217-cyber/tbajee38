@@ -193,6 +193,8 @@ const userSchema = new Schema(
      */
     txPassword: { type: String, default: "", select: false },
     txPasswordSetAt: { type: Date, default: null },
+    /** উত্তোলনের আবেদন চলাকালীন ছোট তালা — utils/withdrawLock.js */
+    withdrawBusyUntil: { type: Date, default: null, select: false },
     failedTxAttempts: { type: Number, default: 0, select: false },
     txLockedUntil: { type: Date, default: null, select: false },
 

@@ -7,6 +7,7 @@ import DepositFieldConfig from "../models/DepositFieldConfig.js";
 import DepositBonusTurnover from "../models/DepositBonusTurnover.js";
 import TurnOver from "../models/TurnOver.js";
 import User from "../models/User.js";
+import DepositSetting from "../models/DepositSetting.js";
 
 import { protectUser } from "../middleware/protectUser.js";
 import { protectAdmin, requirePermission, requireWrite } from "../middleware/protectAdmin.js";
@@ -29,6 +30,9 @@ const isId = (value) => mongoose.Types.ObjectId.isValid(String(value));
 /** ডিপোজিট রিকোয়েস্ট জমা */
 router.post("/", protectUser, async (req, res) => {
   try {
+    if ((await DepositSetting.current()).manualEnabled === false) {
+      return errorResponse(res, "Manual deposit is off right now", 400, "manualOff");
+    }
     const methodId = text(req.body?.methodId).toLowerCase();
     const channelId = text(req.body?.channelId);
     const promoId = text(req.body?.promoId) || "none";

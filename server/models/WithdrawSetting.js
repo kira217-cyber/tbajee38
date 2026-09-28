@@ -9,6 +9,8 @@ const withdrawSettingSchema = new mongoose.Schema(
   {
     key: { type: String, default: "main", unique: true },
     dailyCount: { type: Number, default: 99, min: 0, max: 1000 },
+    /** ম্যানুয়াল উত্তোলন চালু কিনা — বন্ধ থাকলে ক্লায়েন্টে শুধু অটো (থাকলে) দেখায় */
+    manualEnabled: { type: Boolean, default: true },
   },
   { timestamps: true },
 );

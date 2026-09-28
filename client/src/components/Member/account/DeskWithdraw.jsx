@@ -6,6 +6,8 @@ import { useWithdrawFlow, maskNumber } from "../../../features/withdraw/useWithd
 import { useProfile } from "../../../features/profile/useProfile";
 import { assetUrl } from "../../../utils/siteLink";
 import { TxDrawer, WalletPanel } from "./DeskDrawer";
+import { ChangeModeButton } from "../PaymentModeGate";
+import { autoWithdrawRow } from "../../../features/payment/usePaymentModes";
 
 /**
  * ডেস্কটপের "উত্তোলন" — মূল সাইটের `#mc_container.withdraw-page`, তাদের
@@ -66,8 +68,13 @@ const useRecentWithdraws = () => {
   const [rows, setRows] = useState(null);
   const load = useCallback(async () => {
     try {
-      const { data } = await api.get("/api/withdraw-requests/my", { params: { limit: 5 } });
-      setRows(data?.data?.requests || []);
+      // ম্যানুয়াল আর অটো দুটো মিলিয়ে সবচেয়ে নতুন পাঁচটা
+      const [manual, auto] = await Promise.all([
+        api.get("/api/withdraw-requests/my", { params: { limit: 5 } }),
+        api.get("/api/auto-withdraw/history/my", { params: { limit: 5 } }).catch(() => null),
+      ]);
+      const list = [...(manual.data?.data?.requests || []), ...(auto?.data?.data?.withdrawals || []).map(autoWithdrawRow)];
+      setRows(list.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5));
     } catch {
       setRows([]);
     }
@@ -200,18 +207,18 @@ const TxSetup = ({ onClose }) => {
 
 /* ─────────────── মূল কম্পোনেন্ট ─────────────── */
 
-const DeskWithdraw = () => {
+const DeskWithdraw = ({ mode = "manual", onChangeMode = null }) => {
   const { t } = useLanguage();
   const w = t.deskWd;
   const wf = t.withdrawFlow;
-  const f = useWithdrawFlow();
+  const f = useWithdrawFlow({ mode });
   const recent = useRecentWithdraws();
   const [tab, setTab] = useState("withdraw");
   const [showPw, setShowPw] = useState(false);
   const [txDrawer, setTxDrawer] = useState(false);
 
   const amount = Number(f.amount) || 0;
-  const canSubmit = Boolean(f.wallet) && amount > 0 && Boolean(f.txPassword) && !f.busy && !f.block;
+  const canSubmit = Boolean(f.wallet) && amount > 0 && Boolean(f.txPassword) && !f.busy && !f.block && !f.unsupported;
   const turnoverBlock = f.block && f.block !== "noTx";
 
   const submit = async () => {
@@ -224,7 +231,7 @@ const DeskWithdraw = () => {
       {/* ট্যাব */}
       <div className="flex" style={{ height: 47, borderBottom: "1px solid #efefef", paddingLeft: 30 }}>
         {[
-          ["withdraw", w.tabWithdraw],
+          ["withdraw", f.isAuto ? t.payMode.autoWithdraw : w.tabWithdraw],
           ["manage", w.tabManage],
         ].map(([key, label]) => (
           <button
@@ -237,6 +244,12 @@ const DeskWithdraw = () => {
             {label}
           </button>
         ))}
+        {/* দুটো পথ খোলা থাকলে — "সাম্প্রতিক উত্তোলন" এর বাঁয়ে */}
+        {onChangeMode && (
+          <span className="flex items-center" style={{ marginLeft: "auto", marginRight: 310 }}>
+            <ChangeModeButton desktop onChange={onChangeMode} />
+          </span>
+        )}
       </div>
 
       {tab === "manage" ? (
@@ -355,7 +368,16 @@ const DeskWithdraw = () => {
                   {wf.limit}: ৳{two(f.min)} - ৳{two(f.max)}
                 </div>
               ) : null}
+              {f.isAuto && f.supportedList && (
+                <div style={{ marginTop: 6, fontSize: 12, color: "#8a6a55", lineHeight: 1.5 }}>{t.payMode.supported.replace("{list}", f.supportedList)}</div>
+              )}
             </div>
+
+            {f.unsupported && (
+              <div style={{ width: 288, marginLeft: 47, marginTop: 14, borderRadius: 10, border: "1px solid #ffd0d1", background: "#fff6f6", padding: 14, fontSize: 13, color: RED, lineHeight: 1.5 }}>
+                {t.payMode.unsupported}
+              </div>
+            )}
 
             {turnoverBlock && (
               <div style={{ width: 288, marginLeft: 47, marginTop: 14, borderRadius: 10, border: "1px solid #ffd0d1", background: "#fff6f6", padding: 14 }}>

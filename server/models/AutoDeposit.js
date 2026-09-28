@@ -114,6 +114,13 @@ const autoDepositSchema = new Schema(
     },
     reviewNote: { type: String, default: "", trim: true },
 
+    /**
+     * গেটওয়ের webhook ঠিকানায় বসানো এই লেনদেনের গোপন চাবি।
+     * OraclePay webhook এ কোনো সই পাঠায় না — তাই ঠিকানাটাই প্রমাণ: চাবিটা
+     * শুধু আমরা আর গেটওয়ে জানে, বাইরের কেউ নকল "COMPLETED" পাঠাতে পারে না।
+     */
+    callbackKey: { type: String, default: "", select: false },
+
     paidAt: { type: Date, default: null },
 
     /** টাকা ব্যালেন্সে যোগ হয়ে গেছে কিনা — দুবার যোগ ঠেকাতে */

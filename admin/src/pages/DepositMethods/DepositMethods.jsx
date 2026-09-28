@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 import { api } from "../../api/axios";
+import ManualSwitch from "../../components/ManualSwitch/ManualSwitch";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -272,6 +273,8 @@ const DepositMethods = () => {
           </button>
         </div>
       </div>
+
+      <ManualSwitch kind="deposit" />
 
       {editing && (
         <div className="ad-card mb-4">
