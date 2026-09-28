@@ -145,6 +145,8 @@ router.post("/create", protectUser, async (req, res) => {
     if (!wallet) return errorResponse(res, "This e-wallet was not found", 404, "chooseWallet");
 
     const code = String(wallet.methodId || "").toLowerCase();
+    // ওয়ালেট নম্বর শূন্য ছাড়া জমা থাকে (1711…) — গেটওয়ে পুরো ১১ অঙ্ক চায় (01711…)
+    const walletNumber = /^1\d{9}$/.test(wallet.walletNumber) ? `0${wallet.walletNumber}` : wallet.walletNumber;
     const method = (setting.methods || []).find((m) => m.code === code && m.active !== false);
     if (!ALLOWED.includes(code) || !method) return errorResponse(res, "Auto withdraw does not support this e-wallet", 400, "autoMethodOff");
 
@@ -183,8 +185,8 @@ router.post("/create", protectUser, async (req, res) => {
         paymentMethod: code,
         methodName: method.name,
         wallet: wallet._id,
-        userIdentityAddress: wallet.walletNumber,
-        accountNumber: wallet.walletNumber,
+        userIdentityAddress: walletNumber,
+        accountNumber: walletNumber,
         callbackKey,
         status: "PENDING",
         balanceBefore: money(num(user.balance) + amount),
@@ -196,7 +198,7 @@ router.post("/create", protectUser, async (req, res) => {
     }
 
     await writeLogs(user._id, user.balance, [
-      { type: "withdraw", amount: -amount, refType: "AutoWithdraw", refId: record._id, note: `Auto ${method.name?.en || code} ${wallet.walletNumber}` },
+      { type: "withdraw", amount: -amount, refType: "AutoWithdraw", refId: record._id, note: `Auto ${method.name?.en || code} ${walletNumber}` },
     ]);
 
     const server = text(process.env.PUBLIC_SERVER_URL).replace(/\/+$/, "");
@@ -204,8 +206,8 @@ router.post("/create", protectUser, async (req, res) => {
       const data = await gatewayPost(gatewayUrl(), setting.businessToken, {
         amount,
         payment_method: code,
-        user_identity_address: wallet.walletNumber,
-        account_number: wallet.walletNumber,
+        user_identity_address: walletNumber,
+        account_number: walletNumber,
         callback_url: `${server}/api/auto-withdraw/webhook/${callbackKey}`,
         checkout_items: [{ userId: user.userId }, { withdrawal_type: "user" }],
       });
