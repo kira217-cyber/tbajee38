@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 
 import { api } from "../../api/axios";
+import { UserLink } from "../../components/HistoryBits/HistoryBits";
 
 const money = (value) => {
   const num = Number(value || 0);
@@ -350,9 +351,7 @@ const AutoDepositHistory = () => {
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-2">
                           <User size={13} className="text-[var(--primary500)]" />
-                          <span className="text-[13px] font-bold text-[var(--neutral100)]">
-                            {item.user?.userId || item.userIdText || "Unknown"}
-                          </span>
+                          <UserLink user={item.user} name={item.user?.userId || item.userIdText} />
                         </div>
                         <div className="mt-1 flex items-center gap-2 text-[12px] text-[var(--text-muted)]">
                           <Phone size={12} />

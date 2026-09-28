@@ -21,6 +21,7 @@ import {
 import { api } from "../../api/axios";
 import ImageLightbox from "../../components/ImageLightbox/ImageLightbox";
 import ConfirmModal from "../../components/ConfirmModal/ConfirmModal";
+import { UserLink } from "../../components/HistoryBits/HistoryBits";
 
 const money = (value) => {
   const num = Number(value || 0);
@@ -372,9 +373,7 @@ const AutoWithdrawHistory = () => {
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-2">
                           <User size={13} className="text-[var(--primary500)]" />
-                          <span className="text-[13px] font-bold text-[var(--neutral100)]">
-                            {row.user?.userId || row.userIdText || "Unknown"}
-                          </span>
+                          <UserLink user={row.user} name={row.user?.userId || row.userIdText} />
                         </div>
                         <div className="mt-1 flex items-center gap-2 text-[12px] text-[var(--text-muted)]">
                           <Phone size={12} />

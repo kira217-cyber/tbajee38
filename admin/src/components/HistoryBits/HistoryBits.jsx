@@ -153,6 +153,27 @@ export const UserCell = ({ user, userId, sub }) => {
 };
 
 /**
+ * শুধু নামটা লিংক হিসেবে — যেসব পাতার ঘর নিজের নকশায় (আইকন, ফোন) সাজানো,
+ * সেখানে নামের জায়গায় বসে। ক্লিকে ইউজার বা অ্যাফিলিয়েটের বিস্তারিত পাতা।
+ */
+export const UserLink = ({ user, name, className = "text-[13px] font-bold" }) => {
+  const navigate = useNavigate();
+  const id = String(user?._id || user || "").trim();
+  const label = name || user?.userId || "Unknown";
+  if (!id) return <span className={`${className} text-[var(--neutral100)]`}>{label}</span>;
+  return (
+    <button
+      type="button"
+      title="Open user details"
+      onClick={() => navigate(`/${user?.role === "aff-user" ? "affiliates" : "users"}/${id}`)}
+      className={`${className} cursor-pointer text-left text-[var(--neutral100)] underline decoration-[var(--primary500)]/40 underline-offset-4 transition hover:text-[var(--primary500)]`}
+    >
+      {label}
+    </button>
+  );
+};
+
+/**
  * উপরের সারাংশের কার্ডগুলো।
  *
  * `items` এ `[label, value, tone?, sub?]` — এক নজরে মোট কত, কত গেল,
