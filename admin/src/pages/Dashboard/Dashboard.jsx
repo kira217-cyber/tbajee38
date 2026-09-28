@@ -139,14 +139,15 @@ const Dashboard = () => {
     }
   };
 
+  // প্রথম লোড — effect এর ভিতরে সরাসরি setState না করে পরের মাইক্রোটাস্কে
   useEffect(() => {
-    loadSummary();
+    queueMicrotask(loadSummary);
   }, []);
   useEffect(() => {
-    loadToday(selectedDate);
+    queueMicrotask(() => loadToday(selectedDate));
   }, [selectedDate]);
 
-  const cards = summary?.cards || {};
+  const cards = useMemo(() => summary?.cards || {}, [summary]);
 
   const activeUsers = Number(cards.activeUsers || 0);
   const inactiveUsers = Math.max(0, Number(cards.allUsers || 0) - activeUsers);
