@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Receipt } from "lucide-react";
+import { Link } from "react-router";
+import { BanknoteArrowDown, CircleCheck, CircleX, Clock3, MessageSquareText, Receipt } from "lucide-react";
 
-import {
-  Card,
-  Empty,
-  Loading,
-  Pager,
-  TableWrap,
-} from "../../components/Panel/Panel";
+import { Loading, Pager } from "../../components/Panel/Panel";
+import { Badge, Blank, Glass, Hero, Segmented } from "../../components/Panel/Pro";
+import { TONES } from "../../components/Panel/tones";
 import { money, when } from "../../components/Panel/panelFormat";
 import { useLanguage } from "../../Context/LanguageProvider";
 import { fetchMyWithdraws } from "../../features/affiliate/affiliateApi";
+
+const TONE = TONES.history;
 
 const FILTERS = [
   { key: "all", label: "filterAll" },
@@ -19,22 +18,22 @@ const FILTERS = [
   { key: "rejected", label: "statusRejected" },
 ];
 
-const TONE = {
-  pending: "var(--status-pending)",
-  approved: "var(--status-success)",
-  rejected: "var(--status-danger)",
+const STATUS = {
+  pending: { tone: TONES.pending, Icon: Clock3, label: "statusPending" },
+  approved: { tone: TONES.success, Icon: CircleCheck, label: "statusApproved" },
+  rejected: { tone: TONES.danger, Icon: CircleX, label: "statusRejected" },
 };
 
-/** নিজের তোলা টাকার ইতিহাস */
+/**
+ * নিজের তোলা টাকার ইতিহাস — "টাইমলাইন", নীল রঙে।
+ *
+ * প্রতিটা আবেদন একটা খাড়া রেখার উপর বিন্দু, বিন্দুর রঙ অবস্থা বলে।
+ * আবেদনের সময় যে ঘরগুলো ভরা হয়েছিল সেগুলোর নাম আবেদনের সাথেই তোলা
+ * থাকে — admin পরে উপায় বদলালেও পুরোনো আবেদনে সেই নামই দেখায়।
+ */
 const WithdrawHistory = () => {
   const { t, tv } = useLanguage();
 
-  /**
-   * ঘরের নামটা আবেদনের সাথেই তুলে রাখা আছে।
-   *
-   * অ্যাডমিন পরে উপায়টা বদলে ফেললেও পুরোনো আবেদনে যা চাওয়া হয়েছিল
-   * সেই নামই দেখা যায়।
-   */
   const labelOf = (row, key) => {
     const field = (row.methodSnapshot?.fields || []).find((f) => f.key === key);
     return field ? tv(field.label) : key;
@@ -47,128 +46,120 @@ const WithdrawHistory = () => {
 
   useEffect(() => {
     let alive = true;
-
     fetchMyWithdraws({ page, status: status === "all" ? "" : status })
       .then((next) => alive && setData(next))
       .catch(() => alive && setData({ requests: [], meta: {} }))
       .finally(() => alive && setLoading(false));
-
     return () => {
       alive = false;
     };
   }, [page, status]);
 
   return (
-    <Card title={t("navWithdrawHistory")} subtitle={t("withdrawHistoryText")}>
-      <div className="mb-4 flex flex-wrap gap-2">
-        {FILTERS.map((item) => (
-          <button
-            key={item.key}
-            type="button"
-            onClick={() => {
-              setStatus(item.key);
+    <div className="flex flex-col gap-5">
+      <Hero
+        tone={TONE}
+        Icon={Receipt}
+        eyebrow={t("navDashboard")}
+        title={t("navWithdrawHistory")}
+        subtitle={t("withdrawHistoryText")}
+        aside={
+          <Link to="/dashboard/withdraw" className="pbtn pbtn--rgb rgb-edge h-12 self-start px-6 lg:self-center">
+            <BanknoteArrowDown size={17} style={{ color: TONES.withdraw }} />
+            {t("navWithdraw")}
+          </Link>
+        }
+      >
+        <div className="mt-5">
+          <Segmented
+            tone={TONE}
+            items={FILTERS.map((item) => ({ key: item.key, label: t(item.label) }))}
+            value={status}
+            onChange={(key) => {
+              setStatus(key);
               setPage(1);
             }}
-            className="h-9 cursor-pointer rounded-[10px] px-3 text-[13px] transition"
-            style={{
-              background:
-                status === item.key ? "var(--primary500)" : "var(--neutral800)",
-              color:
-                status === item.key
-                  ? "var(--neutral1000)"
-                  : "var(--text-secondary)",
-              fontWeight: status === item.key ? 700 : 400,
-            }}
-          >
-            {t(item.label)}
-          </button>
-        ))}
-      </div>
+          />
+        </div>
+      </Hero>
 
-      {loading ? (
-        <Loading label={t("loading")} />
-      ) : data.requests.length === 0 ? (
-        <Empty label={t("noWithdrawYet")} Icon={Receipt} />
-      ) : (
-        <TableWrap minWidth={760}>
-          <table className="w-full border-collapse text-left">
-            <thead>
-              <tr className="border-b border-white/[0.07]">
-                {["thWhen", "thMethod", "thDetails", "thAmount", "thAfter", "thStatus"].map(
-                  (key) => (
-                    <th
-                      key={key}
-                      className="px-3 py-2 text-[12px] font-bold uppercase tracking-wide text-[var(--text-muted)]"
-                    >
-                      {t(key)}
-                    </th>
-                  ),
-                )}
-              </tr>
-            </thead>
+      <Glass tone={TONE} lined className="p-4 lg:p-6">
+        {loading ? (
+          <Loading label={t("loading")} />
+        ) : data.requests.length === 0 ? (
+          <Blank tone={TONE} Icon={Receipt} label={t("noWithdrawYet")} />
+        ) : (
+          <ol className="relative flex flex-col gap-4 ps-8 lg:ps-10">
+            {/* টাইমলাইনের খাড়া রেখা */}
+            <span
+              aria-hidden="true"
+              className="absolute bottom-3 top-3 start-[13px] w-[2px] rounded-full lg:start-[17px]"
+              style={{ background: `linear-gradient(${TONE}, color-mix(in srgb, ${TONE}, transparent 85%))` }}
+            />
+            {data.requests.map((row) => {
+              const s = STATUS[row.status] || STATUS.pending;
+              const fields = Object.entries(row.fields || {});
+              return (
+                <li key={row._id} className="relative">
+                  <span
+                    className="absolute top-4 -start-8 flex h-7 w-7 items-center justify-center rounded-full lg:-start-10 lg:h-9 lg:w-9"
+                    style={{ background: "var(--neutral900)", border: `2px solid ${s.tone}`, color: s.tone, boxShadow: `0 0 14px -2px ${s.tone}` }}
+                  >
+                    <s.Icon size={15} />
+                  </span>
 
-            <tbody>
-              {data.requests.map((row) => (
-                <tr
-                  key={row._id}
-                  className="border-b border-white/[0.05] last:border-0"
-                >
-                  <td className="px-3 py-3 text-[12px] text-[var(--text-muted)]">
-                    {when(row.createdAt)}
-                  </td>
+                  <div className="rounded-[16px] border border-white/[0.06] bg-[rgb(1_9_40_/_0.45)] p-4 transition hover:border-white/[0.12]">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-[15px] font-bold text-[var(--text-primary)]">{tv(row.methodSnapshot?.name) || row.methodId}</p>
+                        <p className="mt-0.5 text-[12px] text-[var(--text-muted)]">{when(row.createdAt)}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[22px] font-black leading-tight" style={{ color: TONES.withdraw }}>
+                          {money(row.amount)}
+                        </p>
+                        <Badge tone={s.tone}>{t(s.label)}</Badge>
+                      </div>
+                    </div>
 
-                  <td className="px-3 py-3 text-[13px] text-[var(--text-secondary)]">
-                    {tv(row.methodSnapshot?.name) || row.methodId}
-                  </td>
-
-                  {/* অ্যাডমিনের চাওয়া ঘরগুলো যেভাবে ভরা হয়েছিল */}
-                  <td className="max-w-[240px] px-3 py-3 text-[12px] text-[var(--text-primary)]">
-                    {Object.entries(row.fields || {}).length === 0
-                      ? "—"
-                      : Object.entries(row.fields).map(([key, value]) => (
-                          <span key={key} className="block truncate">
-                            {labelOf(row, key)}: {value}
-                          </span>
-                        ))}
-                  </td>
-
-                  <td className="px-3 py-3 text-[14px] font-bold text-[var(--primary500)]">
-                    {money(row.amount)}
-                  </td>
-
-                  <td className="px-3 py-3 text-[13px] text-[var(--text-muted)]">
-                    {money(row.balanceAfter)}
-                  </td>
-
-                  <td className="px-3 py-3">
-                    <span
-                      className="text-[12px] font-bold uppercase"
-                      style={{ color: TONE[row.status] }}
-                    >
-                      {row.status}
-                    </span>
+                    <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                      {fields.length === 0 ? null : (
+                        <div className="rounded-[12px] bg-white/[0.03] p-2.5 text-[12.5px] text-[var(--text-secondary)]">
+                          {fields.map(([key, value]) => (
+                            <p key={key} className="truncate">
+                              <span className="text-[var(--text-muted)]">{labelOf(row, key)}:</span> <span className="font-semibold">{value}</span>
+                            </p>
+                          ))}
+                        </div>
+                      )}
+                      <div className="rounded-[12px] bg-white/[0.03] p-2.5 text-[12.5px]">
+                        <p className="text-[var(--text-muted)]">{t("thAfter")}</p>
+                        <p className="font-bold text-[var(--text-primary)]">{money(row.balanceAfter)}</p>
+                      </div>
+                    </div>
 
                     {row.adminNote ? (
-                      <p className="mt-0.5 text-[11px] text-[var(--text-disabled)]">
+                      <p className="mt-3 flex items-start gap-2 text-[12.5px]" style={{ color: s.tone }}>
+                        <MessageSquareText size={14} className="mt-0.5 shrink-0" />
                         {row.adminNote}
                       </p>
                     ) : null}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </TableWrap>
-      )}
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        )}
 
-      <Pager
-        page={data.meta.page || 1}
-        totalPages={data.meta.totalPages || 1}
-        busy={loading}
-        onChange={setPage}
-        labels={{ prev: t("labelPrev"), next: t("labelNext") }}
-      />
-    </Card>
+        <Pager
+          page={data.meta.page || 1}
+          totalPages={data.meta.totalPages || 1}
+          busy={loading}
+          onChange={setPage}
+          labels={{ prev: t("labelPrev"), next: t("labelNext") }}
+        />
+      </Glass>
+    </div>
   );
 };
 

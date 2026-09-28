@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { BadgeCheck, Clock3, TriangleAlert, Upload, X } from "lucide-react";
+import { BadgeCheck, Car, Check, Clock3, IdCard, Info, Plane, ShieldCheck, TriangleAlert, Upload, X } from "lucide-react";
 
-import { Card, Loading } from "../../components/Panel/Panel";
+import { Loading } from "../../components/Panel/Panel";
+import { Glass, Hero, Ring, Title } from "../../components/Panel/Pro";
+import { TONES } from "../../components/Panel/tones";
 import FormAlert from "../../components/FormAlert/FormAlert";
 import FormField from "../../components/FormField/FormField";
 import { useLanguage } from "../../Context/LanguageProvider";
@@ -9,28 +11,25 @@ import OtpStep from "../../components/OtpStep/OtpStep";
 import { useSelector } from "react-redux";
 import { selectUser } from "../../features/auth/authSelectors";
 import { authError, sendOtp } from "../../features/auth/authApi";
-import {
-  fetchVerification,
-  submitVerification,
-} from "../../features/verification/verificationApi";
+import { fetchVerification, submitVerification } from "../../features/verification/verificationApi";
 
-const DOC_TYPES = ["nid", "passport", "driving"];
+const TONE = TONES.verify;
 
-const DOC_LABEL = {
-  nid: "docNid",
-  passport: "docPassport",
-  driving: "docDriving",
-};
+const DOC_TYPES = [
+  { key: "nid", label: "docNid", Icon: IdCard },
+  { key: "passport", label: "docPassport", Icon: Plane },
+  { key: "driving", label: "docDriving", Icon: Car },
+];
 
 /**
- * অ্যাফিলিয়েটের পরিচয় যাচাই।
+ * অ্যাফিলিয়েটের পরিচয় যাচাই — "নিরাপত্তা", সবুজ রঙে।
  *
- * খেলোয়াড়ের পাতার মতোই কাজ, কিন্তু আলাদা করে লেখা — অ্যাফিলিয়েট
- * অ্যাপের ইনপুট ও কার্ডের মাপ আলাদা (৪৮px fixed, ক্লায়েন্টের `--u`
- * ভিত্তিক নয়), শেয়ার করা কম্পোনেন্ট বসালে চেহারা মিলত না।
+ * ব্যানারে তিন ধাপের পথ (জমা → যাচাই চলছে → সম্পন্ন), এখন কোন ধাপে
+ * আছেন সেটা আলো করে দেখায়। কাগজের ধরন আইকনের টাইলে, ছবি তোলার ঘর
+ * বড় ফাঁকা বাক্সে — বাছার পর প্রিভিউ, যাতে ভুল ছবি জমা না পড়ে।
  *
- * এখানে ডিপোজিটের কথা নেই — অ্যাফিলিয়েট ডিপোজিট করেন না, তাঁদের
- * যাচাই শুধু টাকা তোলার আগে লাগে, আর সেই সুইচটাও অ্যাডমিনের হাতে।
+ * অ্যাফিলিয়েট ডিপোজিট করেন না — যাচাই শুধু টাকা তোলার আগে লাগে, আর
+ * সেই সুইচটাও admin এর হাতে।
  */
 const Verification = () => {
   const { t, tv } = useLanguage();
@@ -47,59 +46,37 @@ const Verification = () => {
   const [otpOpen, setOtpOpen] = useState(false);
   const [maskedPhone, setMaskedPhone] = useState("");
 
-  const [form, setForm] = useState({
-    fullName: "",
-    dateOfBirth: "",
-    documentType: "nid",
-    documentNumber: "",
-  });
-
-  const [files, setFiles] = useState({
-    frontImage: null,
-    backImage: null,
-    selfieImage: null,
-  });
+  const [form, setForm] = useState({ fullName: "", dateOfBirth: "", documentType: "nid", documentNumber: "" });
+  const [files, setFiles] = useState({ frontImage: null, backImage: null, selfieImage: null });
 
   useEffect(() => {
     let alive = true;
-
     fetchVerification()
       .then((next) => alive && setData(next))
       .catch(() => alive && setData(null))
       .finally(() => alive && setLoading(false));
-
     return () => {
       alive = false;
     };
   }, [reload]);
 
-  const update = (key) => (event) =>
-    setForm((prev) => ({ ...prev, [key]: event.target.value }));
+  const update = (key) => (event) => setForm((prev) => ({ ...prev, [key]: event.target.value }));
 
   /**
-   * কাগজপত্র পাঠানো।
-   *
-   * সার্ভার OTP চাইলে তখনই কোড পাঠানো হয়, আগেভাগে নয় — যাঁদের জন্য
-   * OTP বন্ধ তাঁদেরও অকারণে SMS যেত। কোড মিলে গেলে এই ফাংশনটাই
-   * আবার ডাকা হয়, এবার সার্ভার নিয়ে নেয়।
+   * কাগজপত্র পাঠানো। সার্ভার OTP চাইলে তখনই কোড পাঠানো হয়, আগেভাগে নয়;
+   * কোড মিলে গেলে এই ফাংশনটাই আবার ডাকা হয়।
    */
   const send = async () => {
     try {
       setBusy(true);
       setError("");
-
       await submitVerification({ ...form, ...files });
-
       setOtpOpen(false);
       setReload((prev) => prev + 1);
     } catch (err) {
       if (err?.response?.data?.code === "otpNotVerified") {
         try {
-          const sent = await sendOtp({
-            flow: "profileVerify",
-            userId: user?.userId,
-          });
-
+          const sent = await sendOtp({ flow: "profileVerify", userId: user?.userId });
           setMaskedPhone(sent.maskedPhone || "");
           setOtpOpen(true);
           return;
@@ -108,7 +85,6 @@ const Verification = () => {
           return;
         }
       }
-
       setError(authError(err, t("somethingWrong"), t));
     } finally {
       setBusy(false);
@@ -117,9 +93,7 @@ const Verification = () => {
 
   const submit = (event) => {
     event.preventDefault();
-
     if (busy) return;
-
     send();
   };
 
@@ -127,141 +101,144 @@ const Verification = () => {
 
   if (otpOpen) {
     return (
-      <Card title={t("otpTitle")}>
-        <OtpStep
-          flow="profileVerify"
-          userId={user?.userId}
-          maskedPhone={maskedPhone}
-          onVerified={send}
-        />
-      </Card>
+      <Glass tone={TONE} lined className="mx-auto w-full max-w-[560px] p-6">
+        <Title tone={TONE} Icon={ShieldCheck} title={t("otpTitle")} />
+        <OtpStep flow="profileVerify" userId={user?.userId} maskedPhone={maskedPhone} onVerified={send} />
+      </Glass>
     );
   }
 
   const row = data?.verification;
   const status = row?.status;
+  // ০ = জমা বাকি, ১ = যাচাই চলছে, ২ = সম্পন্ন
+  const stage = status === "approved" ? 2 : status === "pending" ? 1 : 0;
+
+  const steps = [
+    { label: t("submitDeposit"), Icon: Upload },
+    { label: t("verifyPendingTitle"), Icon: Clock3 },
+    { label: t("verifyApprovedTitle"), Icon: BadgeCheck },
+  ];
+
+  const stepper = (
+    <div className="flex w-full items-center lg:w-[420px]">
+      {steps.map((step, i) => {
+        const reached = i <= stage;
+        const current = i === stage;
+        return (
+          <React.Fragment key={step.label}>
+            <div className="flex w-[84px] shrink-0 flex-col items-center gap-2 text-center">
+              <span
+                className={`flex h-12 w-12 items-center justify-center rounded-full ${current ? "rgb-edge" : ""}`}
+                style={{
+                  background: reached ? `color-mix(in srgb, ${TONE}, transparent ${current ? 78 : 86}%)` : "rgb(255 255 255 / 0.05)",
+                  color: reached ? TONE : "var(--text-disabled)",
+                  border: current ? "none" : `1px solid ${reached ? `color-mix(in srgb, ${TONE}, transparent 60%)` : "rgb(255 255 255 / 0.08)"}`,
+                }}
+              >
+                {i < stage ? <Check size={20} /> : <step.Icon size={19} />}
+              </span>
+              <span className="text-[11.5px] leading-tight" style={{ color: reached ? "var(--text-primary)" : "var(--text-disabled)" }}>
+                {step.label}
+              </span>
+            </div>
+            {i < steps.length - 1 ? (
+              <span className="mb-6 h-[3px] flex-1 rounded-full" style={{ background: i < stage ? TONE : "rgb(255 255 255 / 0.08)" }} />
+            ) : null}
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
 
   /* ── হয়ে গেছে বা চলছে ── */
   if (status === "approved" || status === "pending") {
     const done = status === "approved";
-
+    const tone = done ? TONE : TONES.pending;
     return (
-      <Card>
-        <div className="flex flex-col items-center gap-4 py-8 text-center">
-          <span
-            className="flex h-[76px] w-[76px] items-center justify-center rounded-full"
-            style={{
-              background: `color-mix(in srgb, ${
-                done ? "var(--status-success)" : "var(--status-pending)"
-              }, transparent 88%)`,
-              color: done ? "var(--status-success)" : "var(--status-pending)",
-            }}
-          >
-            {done ? <BadgeCheck size={36} /> : <Clock3 size={36} />}
-          </span>
-
-          <p className="text-[17px] font-bold text-[var(--text-primary)]">
-            {t(done ? "verifyApprovedTitle" : "verifyPendingTitle")}
-          </p>
-
-          <p className="max-w-[420px] text-[14px] leading-relaxed text-[var(--text-muted)]">
-            {t(done ? "verifyApprovedText" : "verifyPendingText")}
-          </p>
-        </div>
-      </Card>
+      <div className="flex flex-col gap-5">
+        <Hero tone={TONE} Icon={ShieldCheck} eyebrow={t("navDashboard")} title={t("verification")} subtitle={t("verifyIntro")} aside={stepper} />
+        <Glass tone={tone} rgb={done} lined={!done} className="mx-auto w-full max-w-[640px] p-8">
+          <div className="flex flex-col items-center gap-4 text-center">
+            <Ring value={done ? 1 : 0.62} max={1} size={116} stroke={9} tone={tone}>
+              {done ? <BadgeCheck size={42} style={{ color: tone }} /> : <Clock3 size={40} style={{ color: tone }} />}
+            </Ring>
+            <p className="text-[19px] font-black text-[var(--text-primary)]">{t(done ? "verifyApprovedTitle" : "verifyPendingTitle")}</p>
+            <p className="max-w-[420px] text-[14px] leading-relaxed text-[var(--text-muted)]">{t(done ? "verifyApprovedText" : "verifyPendingText")}</p>
+          </div>
+        </Glass>
+      </div>
     );
   }
 
-  const boxClass =
-    "flex w-full items-center overflow-hidden rounded-[12px] bg-[var(--form-box-bg)]";
-  const inputClass =
-    "h-[48px] w-full bg-transparent px-4 text-[15px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-disabled)]";
-
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
+      <Hero tone={TONE} Icon={ShieldCheck} eyebrow={t("navDashboard")} title={t("verification")} subtitle={t("verifyIntro")} aside={stepper} />
+
       {tv(data?.setting?.note) ? (
-        <Card>
-          <p className="text-[13px] text-[var(--text-muted)]">
-            {tv(data.setting.note)}
-          </p>
-        </Card>
+        <p className="flex items-start gap-2 rounded-[16px] border border-white/[0.06] bg-white/[0.03] p-4 text-[13px] text-[var(--text-muted)]">
+          <Info size={15} className="mt-0.5 shrink-0" style={{ color: TONE }} />
+          {tv(data.setting.note)}
+        </p>
       ) : null}
 
       {status === "rejected" ? (
-        <Card>
-          <p className="flex items-start gap-2 text-[14px] text-[var(--status-danger)]">
-            <TriangleAlert size={16} className="mt-0.5 shrink-0" />
-            {row?.reviewNote || t("verifyRejected")}
-          </p>
-        </Card>
+        <div
+          className="flex items-start gap-3 rounded-[16px] px-4 py-3.5 text-[14px]"
+          style={{ color: TONES.danger, background: `color-mix(in srgb, ${TONES.danger}, transparent 90%)`, border: `1px solid color-mix(in srgb, ${TONES.danger}, transparent 70%)` }}
+        >
+          <TriangleAlert size={17} className="mt-0.5 shrink-0" />
+          {row?.reviewNote || t("verifyRejected")}
+        </div>
       ) : null}
 
-      <Card title={t("verification")} subtitle={t("verifyIntro")}>
-        <form noValidate className="flex flex-col gap-5" onSubmit={submit}>
+      <Glass tone={TONE} lined className="p-5 lg:p-6">
+        <form noValidate className="flex flex-col gap-6" onSubmit={submit}>
           <FormAlert>{error}</FormAlert>
 
           <div className="grid gap-5 sm:grid-cols-2">
             <FormField label={t("verifyFullName")}>
-              <div className={boxClass}>
-                <input
-                  value={form.fullName}
-                  onChange={update("fullName")}
-                  placeholder={t("verifyFullNameHint")}
-                  className={inputClass}
-                />
-              </div>
+              <input value={form.fullName} onChange={update("fullName")} placeholder={t("verifyFullNameHint")} className="pro-input" style={{ "--tone": TONE }} />
             </FormField>
-
             <FormField label={t("verifyBirthDate")}>
-              <div className={boxClass}>
-                <input
-                  type="date"
-                  value={form.dateOfBirth}
-                  onChange={update("dateOfBirth")}
-                  max={new Date().toISOString().slice(0, 10)}
-                  className={inputClass}
-                />
-              </div>
+              <input
+                type="date"
+                value={form.dateOfBirth}
+                onChange={update("dateOfBirth")}
+                max={new Date().toISOString().slice(0, 10)}
+                className="pro-input"
+                style={{ "--tone": TONE, colorScheme: "dark" }}
+              />
             </FormField>
           </div>
 
           <FormField label={t("verifyDocType")}>
-            <div className="flex flex-wrap gap-2">
-              {DOC_TYPES.map((type) => (
-                <button
-                  key={type}
-                  type="button"
-                  onClick={() =>
-                    setForm((prev) => ({ ...prev, documentType: type }))
-                  }
-                  className="flex h-11 cursor-pointer items-center rounded-[10px] px-4 text-[13px] transition"
-                  style={{
-                    background:
-                      form.documentType === type
-                        ? "var(--primary500)"
-                        : "var(--neutral800)",
-                    color:
-                      form.documentType === type
-                        ? "var(--neutral1000)"
-                        : "var(--text-secondary)",
-                    fontWeight: form.documentType === type ? 700 : 400,
-                  }}
-                >
-                  {t(DOC_LABEL[type])}
-                </button>
-              ))}
+            <div className="grid grid-cols-3 gap-3">
+              {DOC_TYPES.map((doc) => {
+                const on = form.documentType === doc.key;
+                return (
+                  <button
+                    key={doc.key}
+                    type="button"
+                    onClick={() => setForm((prev) => ({ ...prev, documentType: doc.key }))}
+                    className="flex h-[84px] cursor-pointer flex-col items-center justify-center gap-2 rounded-[16px] border text-[13px] transition"
+                    style={{
+                      borderColor: on ? `color-mix(in srgb, ${TONE}, transparent 40%)` : "rgb(255 255 255 / 0.08)",
+                      background: on ? `color-mix(in srgb, ${TONE}, transparent 88%)` : "rgb(1 9 40 / 0.45)",
+                      color: on ? TONE : "var(--text-secondary)",
+                      fontWeight: on ? 700 : 500,
+                      boxShadow: on ? `0 10px 24px -14px ${TONE}` : "none",
+                    }}
+                  >
+                    <doc.Icon size={22} />
+                    {t(doc.label)}
+                  </button>
+                );
+              })}
             </div>
           </FormField>
 
           <FormField label={t("verifyDocNumber")}>
-            <div className={boxClass}>
-              <input
-                value={form.documentNumber}
-                onChange={update("documentNumber")}
-                placeholder={t("verifyDocNumberHint")}
-                className={inputClass}
-              />
-            </div>
+            <input value={form.documentNumber} onChange={update("documentNumber")} placeholder={t("verifyDocNumberHint")} className="pro-input" style={{ "--tone": TONE }} />
           </FormField>
 
           <div className="grid gap-4 sm:grid-cols-3">
@@ -274,9 +251,7 @@ const Verification = () => {
                 key={key}
                 label={`${t(labelKey)}${required ? "" : ` (${t("optional")})`}`}
                 file={files[key]}
-                onPick={(file) =>
-                  setFiles((prev) => ({ ...prev, [key]: file }))
-                }
+                onPick={(file) => setFiles((prev) => ({ ...prev, [key]: file }))}
                 clearLabel={t("close")}
                 pickLabel={t("verifyUploadHint")}
               />
@@ -286,36 +261,25 @@ const Verification = () => {
           <button
             type="submit"
             disabled={busy || !form.fullName.trim() || !files.frontImage || !files.selfieImage}
-            className="tb-btn tb-btn--primary w-full disabled:cursor-not-allowed disabled:opacity-50"
+            className="pbtn pbtn--solid h-[50px] w-full text-[16px]"
+            style={{ "--tone": TONE }}
           >
+            <ShieldCheck size={18} />
             {busy ? t("loading") : t("submitDeposit")}
           </button>
         </form>
-      </Card>
+      </Glass>
     </div>
   );
 };
 
 /**
- * ছবি বাছার ঘর।
- *
- * বাছার পরে ছোট করে প্রিভিউ দেখানো হয় — নইলে ভুল ছবি দিয়ে ফেলেছেন
- * কিনা জমা দেওয়ার আগে বোঝার উপায় থাকত না।
+ * ছবি বাছার ঘর — বাছার পরে ছোট প্রিভিউ, যাতে ভুল ছবি জমা না পড়ে।
+ * প্রিভিউর URL ফাইল ধরে বানানো; ফাইল বদলালে আগেরটা ছেড়ে দেওয়া হয়।
  */
 const FilePick = ({ label, file, onPick, clearLabel, pickLabel }) => {
   const inputRef = useRef(null);
-
-  /*
-   * প্রিভিউর URL — ফাইল ধরে বানানো, state এ নয়।
-   *
-   * effect এর ভিতরে setState করলে বাড়তি একটা রেন্ডার হতো (আর lint ও
-   * আটকাত); এখানে ফাইল বদলালেই নতুন URL, আর আগেরটা ছেড়ে দেওয়া হয়
-   * — নইলে বেছে বেছে ছবি বদলালে মেমরিতে জমতে থাকত।
-   */
-  const preview = useMemo(
-    () => (file ? URL.createObjectURL(file) : ""),
-    [file],
-  );
+  const preview = useMemo(() => (file ? URL.createObjectURL(file) : ""), [file]);
 
   useEffect(() => {
     if (!preview) return undefined;
@@ -324,23 +288,14 @@ const FilePick = ({ label, file, onPick, clearLabel, pickLabel }) => {
 
   return (
     <FormField label={label}>
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        hidden
-        onChange={(event) => onPick(event.target.files?.[0] || null)}
-      />
+      <input ref={inputRef} type="file" accept="image/*" hidden onChange={(event) => onPick(event.target.files?.[0] || null)} />
 
       {preview ? (
-        <div className="relative overflow-hidden rounded-[12px] border border-white/[0.07]">
-          <img
-            src={preview}
-            alt=""
-            className="h-[120px] w-full object-cover"
-            draggable="false"
-          />
-
+        <div className="relative overflow-hidden rounded-[16px] border" style={{ borderColor: `color-mix(in srgb, ${TONE}, transparent 55%)` }}>
+          <img src={preview} alt="" className="h-[136px] w-full object-cover" draggable="false" />
+          <span className="absolute left-2 top-2 flex h-6 w-6 items-center justify-center rounded-full" style={{ background: TONE, color: "#062b1f" }}>
+            <Check size={14} />
+          </span>
           <button
             type="button"
             onClick={() => onPick(null)}
@@ -354,9 +309,12 @@ const FilePick = ({ label, file, onPick, clearLabel, pickLabel }) => {
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
-          className="flex h-[120px] w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-[12px] border border-dashed border-[var(--neutral600)] text-[13px] text-[var(--text-muted)] transition hover:border-[var(--primary500)] hover:text-[var(--text-secondary)]"
+          className="group flex h-[136px] w-full cursor-pointer flex-col items-center justify-center gap-2.5 rounded-[16px] border-2 border-dashed border-white/[0.1] bg-[rgb(1_9_40_/_0.35)] text-[13px] text-[var(--text-muted)] transition hover:border-[color:var(--tone)] hover:text-[var(--text-secondary)]"
+          style={{ "--tone": TONE }}
         >
-          <Upload size={20} />
+          <span className="pro-badge h-11 w-11 rounded-full transition group-hover:scale-105" style={{ "--tone": TONE }}>
+            <Upload size={18} />
+          </span>
           {pickLabel}
         </button>
       )}

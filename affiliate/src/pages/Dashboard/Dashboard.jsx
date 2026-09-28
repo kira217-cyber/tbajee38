@@ -3,40 +3,52 @@ import { Link } from "react-router";
 import {
   BadgeCheck,
   BanknoteArrowDown,
+  ChartPie,
   Coins,
   Copy,
   Dices,
+  Gamepad2,
+  HandCoins,
+  LayoutDashboard,
   Percent,
   Share2,
+  Sparkles,
+  TrendingDown,
   TrendingUp,
   UserCheck,
+  UserPlus,
   Users,
   Wallet,
 } from "lucide-react";
 
-import { Card, Empty, Loading, Row, Stat } from "../../components/Panel/Panel";
+import { Loading } from "../../components/Panel/Panel";
+import { Avatar, Badge, Blank, Glass, Hero, Metric, StackBar, Title } from "../../components/Panel/Pro";
+import { TONES } from "../../components/Panel/tones";
 import { day, money, referralLink } from "../../components/Panel/panelFormat";
 import { useLanguage } from "../../Context/LanguageProvider";
-import {
-  fetchAffiliate,
-  fetchMyUsers,
-} from "../../features/affiliate/affiliateApi";
+import { fetchAffiliate, fetchMyUsers } from "../../features/affiliate/affiliateApi";
 import { notify } from "../../utils/notify";
 
+const TONE = TONES.dashboard;
+
+/** কমিশনের চার ভাগের রঙ — ভাগ-বার, তালিকা আর হারের টাইলে একই */
+const PART = {
+  refer: "#22d3ee",
+  deposit: "#fbd029",
+  gameLoss: "#34d399",
+  gameWin: "#ff777c",
+};
+
 /**
- * অ্যাফিলিয়েটের প্রথম পাতা।
+ * অ্যাফিলিয়েটের প্রথম পাতা — "কন্ট্রোল রুম"।
  *
- * উপরে একটা চওড়া ব্যানার — নাম, ব্যালেন্স, আর রেফারেল লিংক একসাথে।
- * অ্যাফিলিয়েট লগইন করে সবার আগে এই তিনটাই খোঁজেন, তাই স্ক্রল করার
- * আগেই যাতে চোখে পড়ে। QR টা ব্যানারেই বসানো — ফোন বাড়িয়ে ধরলেই
- * কাজ, লিংক টাইপ করতে হয় না।
- *
- * তারপর চারটে সংখ্যা, কমিশনের ভাগ, খেলার হিসাব আর শেষ কয়েকজন
- * খেলোয়াড়।
+ * উপরে সোনালি ব্যানার: নাম, হাতে কত, আর **RGB বর্ডারের রেফারেল কার্ড**
+ * (QR + লিংক) — লগইন করে সবার আগে এগুলোই খোঁজা হয়। তারপর চার রঙের চারটা
+ * সংখ্যা, কমিশন কোন ভাগ থেকে এল তার ভাগ-বার, হারের টাইল, খেলার হিসাব আর
+ * নতুন খেলোয়াড়েরা।
  *
  * কমিশনের শেষ হিসাব = (রেফার + ডিপোজিট + খেলোয়াড়ের হার) − খেলোয়াড়ের
- * জেতা। জেতার ভাগটা বাদ যায় বলে সংখ্যাটা ঋণাত্মকও হতে পারে — সেটাই
- * স্বাভাবিক, আর অ্যাডমিন হিসাব মেলানোর সময় এটাই ব্যালেন্সে বসে।
+ * জেতা; জেতার ভাগ বাদ যায় বলে ঋণাত্মকও হতে পারে।
  */
 const Dashboard = () => {
   const { t } = useLanguage();
@@ -49,13 +61,9 @@ const Dashboard = () => {
   useEffect(() => {
     let alive = true;
 
-    Promise.all([
-      fetchAffiliate(),
-      fetchMyUsers({ page: 1, limit: 5 }).catch(() => ({ rows: [] })),
-    ])
+    Promise.all([fetchAffiliate(), fetchMyUsers({ page: 1, limit: 5 }).catch(() => ({ rows: [] }))])
       .then(([next, players]) => {
         if (!alive) return;
-
         setData(next);
         setRecent(players.rows || []);
       })
@@ -68,12 +76,12 @@ const Dashboard = () => {
   }, []);
 
   if (loading) return <Loading label={t("loading")} />;
-
-  if (!data) return <Card>{t("somethingWrong")}</Card>;
+  if (!data) return <Glass className="p-5">{t("somethingWrong")}</Glass>;
 
   const { commission, players, games } = data;
-
   const link = referralLink(data.referralCode);
+  const net = Number(commission.net) || 0;
+  const netTone = net >= 0 ? TONES.success : TONES.danger;
 
   const copy = async () => {
     try {
@@ -86,128 +94,61 @@ const Dashboard = () => {
     }
   };
 
-  /**
-   * শেয়ার — ফোনে সিস্টেমের শেয়ার শিট, ডেস্কটপে কপি।
-   *
-   * `navigator.share` সব ব্রাউজারে নেই, তাই না পেলে চুপচাপ কপিতেই
-   * নেমে আসে — বোতামটা কোথাও নিষ্ক্রিয় দেখায় না।
-   */
+  // ফোনে সিস্টেমের শেয়ার শিট, না থাকলে কপি
   const share = async () => {
     if (navigator.share) {
       try {
         await navigator.share({ title: t("brand"), url: link });
-        return;
       } catch {
-        return;
+        // বাতিল করলে কিছু নয়
       }
+      return;
     }
-
     await copy();
   };
 
-  const netTone =
-    Number(commission.net) >= 0
-      ? "var(--status-success)"
-      : "var(--status-danger)";
+  const b = commission.balances;
+  const parts = [
+    { key: "refer", label: t("cmRefer"), value: b.refer, tone: PART.refer, Icon: UserPlus },
+    { key: "deposit", label: t("cmDeposit"), value: b.deposit, tone: PART.deposit, Icon: Wallet },
+    { key: "gameLoss", label: t("cmGameLoss"), value: b.gameLoss, tone: PART.gameLoss, Icon: TrendingUp },
+    { key: "gameWin", label: t("cmGameWin"), value: b.gameWin, tone: PART.gameWin, Icon: TrendingDown, minus: true },
+  ];
+
+  const r = commission.rates;
+  const rates = [
+    { label: t("cmRefer"), value: money(r.refer), hint: t("statPerInvite"), tone: PART.refer, Icon: UserPlus },
+    { label: t("cmDeposit"), value: `${r.deposit}%`, tone: PART.deposit, Icon: Wallet },
+    { label: t("cmGameLoss"), value: `${r.gameLoss}%`, tone: PART.gameLoss, Icon: TrendingUp },
+    { label: t("cmGameWin"), value: `${r.gameWin}%`, tone: PART.gameWin, Icon: TrendingDown },
+  ];
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
       {/* ── ব্যানার ── */}
-      <div className="relative overflow-hidden rounded-[20px] border border-[var(--primary500)]/25 bg-[var(--neutral900)] p-5 lg:p-6">
-        {/* পেছনের আলো — কার্ডটা যেন সমতল না লাগে */}
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute -right-16 -top-20 h-[260px] w-[260px] rounded-full opacity-[0.16] blur-[70px]"
-          style={{ background: "var(--primary500)" }}
-        />
-
-        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-          <div className="min-w-0">
-            <p className="text-[13px] text-[var(--text-muted)]">
-              {t("welcomeBack")}
-            </p>
-
-            <h1 className="mt-1 flex items-center gap-2 truncate text-[24px] font-black text-[var(--text-primary)] lg:text-[30px]">
-              {data.user?.userId}
-
-              {/* যাচাই হয়ে গেলে নামের পাশেই টিক */}
-              {data.user?.verificationStatus === "approved" ? (
-                <span
-                  title={t("verifiedBadge")}
-                  aria-label={t("verifiedBadge")}
-                  className="flex shrink-0 items-center text-[var(--status-success)]"
-                >
-                  <BadgeCheck size={22} />
-                </span>
-              ) : null}
-            </h1>
-
-            <p className="mt-1 text-[13px] text-[var(--text-muted)]">
-              {t("dashSubtitle")}
-            </p>
-
-            <div className="mt-5 flex flex-wrap items-end gap-6">
-              <div>
-                <p className="text-[12px] uppercase tracking-wider text-[var(--text-disabled)]">
-                  {t("availableBalance")}
-                </p>
-                <p className="text-[32px] font-black leading-tight text-[var(--primary500)] lg:text-[38px]">
-                  {money(data.user?.balance)}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-[12px] uppercase tracking-wider text-[var(--text-disabled)]">
-                  {t("cmNet")}
-                </p>
-                <p
-                  className="text-[20px] font-black leading-tight"
-                  style={{ color: netTone }}
-                >
-                  {money(commission.net)}
-                </p>
-              </div>
-            </div>
-
-            <p className="mt-2 text-[12px] text-[var(--text-disabled)]">
-              {t("affBalanceText")}
-            </p>
-
-            <div className="mt-5 flex flex-wrap gap-3">
-              <Link
-                to="/dashboard/withdraw"
-                className="tb-btn tb-btn--primary tb-btn--sm"
-              >
-                <BanknoteArrowDown size={15} />
-                {t("navWithdraw")}
-              </Link>
-
-              <Link
-                to="/dashboard/my-users"
-                className="tb-btn tb-btn--ghost tb-btn--sm"
-              >
-                <Users size={15} />
-                {t("navMyUsers")}
-              </Link>
-
-              <Link
-                to="/dashboard/commission"
-                className="tb-btn tb-btn--ghost tb-btn--sm"
-              >
-                <Percent size={15} />
-                {t("navCommissionStatus")}
-              </Link>
-            </div>
-          </div>
-
-          {/* ── রেফারেল লিংক ও QR ── */}
-          <div className="w-full shrink-0 rounded-[16px] border border-white/[0.07] bg-[var(--neutral1000)] p-4 lg:w-[300px]">
-            <p className="text-center text-[12px] text-[var(--text-muted)]">
+      <Hero
+        tone={TONE}
+        Icon={LayoutDashboard}
+        eyebrow={t("welcomeBack")}
+        title={
+          <>
+            {data.user?.userId}
+            {data.user?.verificationStatus === "approved" ? (
+              <span title={t("verifiedBadge")} aria-label={t("verifiedBadge")} className="flex text-[var(--status-success)]">
+                <BadgeCheck size={22} />
+              </span>
+            ) : null}
+          </>
+        }
+        subtitle={t("dashSubtitle")}
+        aside={
+          <Glass rgb glow className="w-full shrink-0 p-4 lg:w-[310px]" style={{ background: "rgb(6 3 22 / 0.92)" }}>
+            <p className="flex items-center justify-center gap-1.5 text-[12px] text-[var(--text-muted)]">
+              <Sparkles size={13} style={{ color: TONE }} />
               {t("scanToJoin")}
             </p>
-
             <div className="mt-3 flex justify-center">
-              <span className="flex h-[136px] w-[136px] items-center justify-center rounded-[12px] bg-white p-2">
+              <span className="flex h-[132px] w-[132px] items-center justify-center rounded-[14px] bg-white p-2 shadow-[0_10px_30px_-12px_rgb(251_208_41_/_0.6)]">
                 <img
                   src={`https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(link)}`}
                   alt={data.referralCode}
@@ -216,182 +157,200 @@ const Dashboard = () => {
                 />
               </span>
             </div>
-
-            <p className="mt-3 text-center text-[22px] font-black tracking-[0.2em] text-[var(--primary500)]">
+            <p className="mt-3 text-center text-[24px] font-black tracking-[0.22em]" style={{ color: TONE }}>
               {data.referralCode}
             </p>
-
-            <p className="mt-2 break-all rounded-[10px] bg-[var(--neutral800)] p-2.5 text-center text-[11px] text-[var(--text-secondary)]">
+            <p className="mt-2 break-all rounded-[10px] border border-white/[0.06] bg-white/[0.04] p-2.5 text-center text-[11px] text-[var(--text-secondary)]">
               {link}
             </p>
-
-            <div className="mt-3 flex gap-2">
-              <button
-                type="button"
-                onClick={copy}
-                className="tb-btn tb-btn--primary tb-btn--sm flex-1"
-              >
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <button type="button" onClick={copy} className="pbtn pbtn--solid pbtn--sm" style={{ "--tone": TONE }}>
                 <Copy size={14} />
                 {copied ? t("copied") : t("copyLink")}
               </button>
-
-              <button
-                type="button"
-                onClick={share}
-                className="tb-btn tb-btn--ghost tb-btn--sm flex-1"
-              >
+              <button type="button" onClick={share} className="pbtn pbtn--soft pbtn--sm" style={{ "--tone": TONE }}>
                 <Share2 size={14} />
                 {t("shareLink")}
               </button>
             </div>
+          </Glass>
+        }
+      >
+        <div className="mt-6 flex flex-wrap items-end gap-8">
+          <div>
+            <p className="text-[11px] font-semibold text-[var(--text-disabled)]">{t("availableBalance")}</p>
+            <p className="text-[36px] font-black leading-tight lg:text-[44px]" style={{ color: TONE, textShadow: `0 0 28px ${TONE}55` }}>
+              {money(data.user?.balance)}
+            </p>
+          </div>
+          <div className="rounded-[14px] border border-white/[0.07] bg-white/[0.03] px-4 py-2.5">
+            <p className="text-[11px] font-semibold text-[var(--text-disabled)]">{t("cmNet")}</p>
+            <p className="text-[20px] font-black leading-tight" style={{ color: netTone }}>
+              {money(net)}
+            </p>
           </div>
         </div>
-      </div>
+        <p className="mt-2 text-[12px] text-[var(--text-disabled)]">{t("affBalanceText")}</p>
 
-      {/* ── এক নজরের সংখ্যা ── */}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Stat
-          label={t("statTotalPlayers")}
-          value={players.total}
-          sub={`${t("statActive")}: ${players.active}`}
-          Icon={Users}
-        />
-        <Stat
-          label={t("statThisMonth")}
-          value={players.joinedThisMonth}
-          sub={t("statNewPlayers")}
-          Icon={UserCheck}
-        />
-        <Stat
+        <div className="mt-5 flex flex-wrap gap-2.5">
+          <Link to="/dashboard/withdraw" className="pbtn pbtn--solid" style={{ "--tone": TONE }}>
+            <BanknoteArrowDown size={16} />
+            {t("navWithdraw")}
+          </Link>
+          <Link to="/dashboard/my-users" className="pbtn pbtn--soft" style={{ "--tone": TONES.users }}>
+            <Users size={16} />
+            {t("navMyUsers")}
+          </Link>
+          <Link to="/dashboard/commission" className="pbtn pbtn--soft" style={{ "--tone": TONES.commission }}>
+            <Percent size={16} />
+            {t("navCommissionStatus")}
+          </Link>
+        </div>
+      </Hero>
+
+      {/* ── চার রঙের চারটা সংখ্যা ── */}
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+        <Metric tone={TONES.users} Icon={Users} label={t("statTotalPlayers")} value={players.total} sub={`${t("statActive")}: ${players.active}`} />
+        <Metric tone={TONES.verify} Icon={UserCheck} label={t("statThisMonth")} value={players.joinedThisMonth} sub={t("statNewPlayers")} />
+        <Metric
+          tone={TONES.withdraw}
+          Icon={Wallet}
           label={t("statPlayerDeposit")}
           value={money(players.depositTotal)}
+          valueTone={TONES.withdraw}
           sub={`${players.depositCount} ${t("statDeposits")}`}
-          tone="var(--primary500)"
-          Icon={Wallet}
         />
-        <Stat
-          label={t("statNetCommission")}
-          value={money(commission.net)}
-          sub={Number(commission.net) >= 0 ? t("statPayable") : t("statOwed")}
-          tone={netTone}
+        <Metric
+          tone={TONES.commission}
           Icon={Coins}
+          label={t("statNetCommission")}
+          value={money(net)}
+          valueTone={netTone}
+          sub={net >= 0 ? t("statPayable") : t("statOwed")}
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card
-          title={t("commissionBalances")}
-          subtitle={t("commissionBalancesText")}
-        >
-          <Row label={t("cmRefer")} value={money(commission.balances.refer)} />
-          <Row
-            label={t("cmDeposit")}
-            value={money(commission.balances.deposit)}
-          />
-          <Row
-            label={t("cmGameLoss")}
-            value={money(commission.balances.gameLoss)}
-            tone="var(--status-success)"
-          />
-          <Row
-            label={t("cmGameWin")}
-            value={`- ${money(commission.balances.gameWin)}`}
-            tone="var(--status-danger)"
-          />
-          <Row label={t("cmNet")} value={money(commission.net)} tone={netTone} />
-        </Card>
+      <div className="grid gap-5 xl:grid-cols-[1.35fr_1fr]">
+        {/* ── কমিশন কোথা থেকে জমছে — ভাগ-বার ── */}
+        <Glass tone={TONE} className="p-5">
+          <Title tone={TONES.commission} Icon={ChartPie} title={t("commissionBalances")} subtitle={t("commissionBalancesText")} />
+          <StackBar parts={parts.map((p) => ({ value: p.value, tone: p.tone }))} height={12} />
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            {parts.map((p) => (
+              <div key={p.key} className="flex items-center gap-3 rounded-[14px] border border-white/[0.05] bg-[rgb(1_9_40_/_0.45)] p-3">
+                <span className="pro-badge h-9 w-9 rounded-[11px]" style={{ "--tone": p.tone }}>
+                  <p.Icon size={16} />
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate text-[12px] text-[var(--text-muted)]">{p.label}</p>
+                  <p className="text-[16px] font-black" style={{ color: p.tone }}>
+                    {p.minus ? "- " : ""}
+                    {money(p.value)}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div
+            className="mt-4 flex items-center justify-between rounded-[14px] px-4 py-3"
+            style={{ background: `color-mix(in srgb, ${netTone}, transparent 88%)`, border: `1px solid color-mix(in srgb, ${netTone}, transparent 70%)` }}
+          >
+            <span className="text-[13px] font-semibold text-[var(--text-secondary)]">{t("cmNet")}</span>
+            <span className="text-[20px] font-black" style={{ color: netTone }}>
+              {money(net)}
+            </span>
+          </div>
+        </Glass>
 
-        <Card title={t("commissionRates")} subtitle={t("commissionRatesText")}>
-          <Row label={t("cmRefer")} value={`${commission.rates.refer}`} />
-          <Row label={t("cmDeposit")} value={`${commission.rates.deposit}%`} />
-          <Row label={t("cmGameLoss")} value={`${commission.rates.gameLoss}%`} />
-          <Row label={t("cmGameWin")} value={`${commission.rates.gameWin}%`} />
-        </Card>
+        {/* ── হারের টাইল ── */}
+        <Glass tone={TONE} className="p-5">
+          <Title tone={TONE} Icon={Percent} title={t("commissionRates")} subtitle={t("commissionRatesText")} />
+          <div className="grid grid-cols-2 gap-3">
+            {rates.map((rate) => (
+              <div
+                key={rate.label}
+                className="relative overflow-hidden rounded-[16px] border p-4"
+                style={{ borderColor: `color-mix(in srgb, ${rate.tone}, transparent 75%)`, background: `linear-gradient(160deg, color-mix(in srgb, ${rate.tone}, transparent 86%), transparent 70%)` }}
+              >
+                <rate.Icon size={40} className="absolute -right-2 -bottom-2 opacity-[0.12]" style={{ color: rate.tone }} />
+                <p className="text-[12px] text-[var(--text-muted)]">{rate.label}</p>
+                <p className="mt-1 text-[26px] font-black leading-none" style={{ color: rate.tone }}>
+                  {rate.value}
+                </p>
+                {rate.hint ? <p className="mt-1.5 text-[11px] text-[var(--text-disabled)]">{rate.hint}</p> : null}
+              </div>
+            ))}
+          </div>
+        </Glass>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card title={t("gameSummary")} subtitle={t("gameSummaryText")}>
-          <Row label={t("statRounds")} value={games.rounds} />
-          <Row
-            label={t("statTurnover")}
-            value={money(games.turnover)}
-            tone="var(--primary500)"
-          />
-          <Row
-            label={t("statGameCommission")}
-            value={money(games.commission)}
-            tone="var(--status-success)"
-          />
-          <Row
-            label={t("statMonthCommission")}
-            value={money(data.thisMonthCommission)}
-          />
-        </Card>
+      <div className="grid gap-5 lg:grid-cols-2">
+        {/* ── খেলার হিসাব ── */}
+        <Glass tone={TONE} className="p-5">
+          <Title tone={TONES.users} Icon={Gamepad2} title={t("gameSummary")} subtitle={t("gameSummaryText")} />
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { label: t("statRounds"), value: games.rounds, tone: TONES.users, Icon: Dices },
+              { label: t("statTurnover"), value: money(games.turnover), tone: TONES.withdraw, Icon: TrendingUp },
+              { label: t("statGameCommission"), value: money(games.commission), tone: TONES.success, Icon: HandCoins },
+              { label: t("statMonthCommission"), value: money(data.thisMonthCommission), tone: TONES.commission, Icon: Coins },
+            ].map((item) => (
+              <div key={item.label} className="rounded-[14px] border border-white/[0.05] bg-[rgb(1_9_40_/_0.45)] p-3.5">
+                <p className="flex items-center gap-1.5 text-[12px] text-[var(--text-muted)]">
+                  <item.Icon size={13} style={{ color: item.tone }} />
+                  {item.label}
+                </p>
+                <p className="mt-1.5 text-[18px] font-black text-[var(--text-primary)]">{item.value}</p>
+              </div>
+            ))}
+          </div>
+        </Glass>
 
-        {/* ── শেষ কয়েকজন খেলোয়াড় ── */}
-        <Card
-          title={t("recentPlayers")}
-          subtitle={t("myUsersText")}
-          action={
-            <Link
-              to="/dashboard/my-users"
-              className="flex h-9 items-center rounded-[10px] bg-[var(--primary500)]/10 px-3 text-[13px] font-semibold text-[var(--primary500)] transition hover:bg-[var(--primary500)]/20"
-            >
-              {t("viewAll")}
-            </Link>
-          }
-        >
+        {/* ── নতুন খেলোয়াড় ── */}
+        <Glass tone={TONE} className="p-5">
+          <Title
+            tone={TONES.verify}
+            Icon={UserPlus}
+            title={t("recentPlayers")}
+            subtitle={t("myUsersText")}
+            action={
+              <Link to="/dashboard/my-users" className="pbtn pbtn--soft pbtn--sm" style={{ "--tone": TONES.users }}>
+                {t("viewAll")}
+              </Link>
+            }
+          />
           {recent.length === 0 ? (
-            <Empty label={t("noPlayersYet")} Icon={Users} />
+            <Blank tone={TONES.users} Icon={Users} label={t("noPlayersYet")} />
           ) : (
             <div className="flex flex-col gap-2">
-              {recent.map((player) => (
-                <div
-                  key={player._id}
-                  className="flex items-center justify-between gap-3 rounded-[12px] border border-white/[0.05] bg-[var(--neutral1000)] px-3 py-2.5"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-[14px] font-semibold text-[var(--text-primary)]">
-                      {player.userId}
-                    </p>
+              {recent.map((player, i) => (
+                <div key={player._id} className="flex items-center gap-3 rounded-[14px] border border-white/[0.05] bg-[rgb(1_9_40_/_0.45)] px-3 py-2.5">
+                  <Avatar name={player.userId} tone={[TONES.users, TONES.commission, TONES.profile, TONES.verify, TONES.withdraw][i % 5]} />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[14px] font-semibold text-[var(--text-primary)]">{player.userId}</p>
                     <p className="truncate text-[12px] text-[var(--text-muted)]">
                       {t("joinedOn")}: {day(player.createdAt)}
                     </p>
                   </div>
-
-                  <span
-                    className="shrink-0 rounded-full px-2.5 py-[3px] text-[11px] font-bold"
-                    style={{
-                      background: `color-mix(in srgb, ${
-                        player.isActive
-                          ? "var(--status-success)"
-                          : "var(--text-disabled)"
-                      }, transparent 86%)`,
-                      color: player.isActive
-                        ? "var(--status-success)"
-                        : "var(--text-disabled)",
-                    }}
-                  >
-                    {t(player.isActive ? "statusActive" : "statusInactive")}
-                  </span>
+                  <Badge tone={player.isActive ? TONES.success : "var(--text-disabled)"}>{t(player.isActive ? "statusActive" : "statusInactive")}</Badge>
                 </div>
               ))}
             </div>
           )}
-        </Card>
+        </Glass>
       </div>
 
-      <Card>
+      {/* ── মনে রাখার কথা ── */}
+      <Glass tone={TONE} className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:gap-6">
         <p className="flex items-start gap-2 text-[13px] text-[var(--text-muted)]">
-          <Dices size={15} className="mt-0.5 shrink-0 text-[var(--primary500)]" />
+          <Dices size={15} className="mt-0.5 shrink-0" style={{ color: TONE }} />
           {t("dashboardNote")}
         </p>
-
-        <p className="mt-2 flex items-start gap-2 text-[12px] text-[var(--text-disabled)]">
-          <TrendingUp size={13} className="mt-0.5 shrink-0" />
+        <p className="flex items-start gap-2 text-[12px] text-[var(--text-disabled)]">
+          <TrendingUp size={13} className="mt-0.5 shrink-0" style={{ color: TONES.success }} />
           {t("myReferralHint")}
         </p>
-      </Card>
+      </Glass>
     </div>
   );
 };

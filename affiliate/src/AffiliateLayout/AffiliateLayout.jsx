@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, NavLink, Outlet, useNavigate } from "react-router";
+import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import {
   BadgeCheck,
@@ -24,22 +24,26 @@ import { selectSiteIdentify, selectGlobalLoaded } from "../features/global/globa
 import { fetchAffiliateData } from "../features/global/globalSlice";
 import { fetchMe } from "../features/affiliate/affiliateApi";
 import { notify } from "../utils/notify";
+import { TONES } from "../components/Panel/tones";
+import "../components/Panel/pro.css";
 
+// প্রতিটা পাতার নিজের রঙ — সাইডবারের আইকন, হেডার আর পাতার ব্যানার একই রঙে
 const NAV = [
-  { to: "/dashboard", end: true, label: "navDashboard", Icon: LayoutDashboard },
-  { to: "/dashboard/my-users", label: "navMyUsers", Icon: Users },
-  { to: "/dashboard/commission", label: "navCommissionStatus", Icon: Percent },
-  { to: "/dashboard/withdraw", label: "navWithdraw", Icon: BanknoteArrowDown },
-  { to: "/dashboard/withdraw-history", label: "navWithdrawHistory", Icon: Receipt },
-  { to: "/dashboard/verification", label: "verification", Icon: BadgeCheck },
-  { to: "/dashboard/profile", label: "navProfile", Icon: User },
+  { to: "/dashboard", end: true, label: "navDashboard", Icon: LayoutDashboard, tone: TONES.dashboard },
+  { to: "/dashboard/my-users", label: "navMyUsers", Icon: Users, tone: TONES.users },
+  { to: "/dashboard/commission", label: "navCommissionStatus", Icon: Percent, tone: TONES.commission },
+  { to: "/dashboard/withdraw", label: "navWithdraw", Icon: BanknoteArrowDown, tone: TONES.withdraw },
+  { to: "/dashboard/withdraw-history", label: "navWithdrawHistory", Icon: Receipt, tone: TONES.history },
+  { to: "/dashboard/verification", label: "verification", Icon: BadgeCheck, tone: TONES.verify },
+  { to: "/dashboard/profile", label: "navProfile", Icon: User, tone: TONES.profile },
 ];
 
+// সক্রিয় লিংক — ভরাট রঙের বদলে ঘুরতে থাকা RGB বর্ডার
 const linkClass = ({ isActive }) =>
   `flex h-11 shrink-0 items-center gap-3 rounded-[12px] px-4 text-[14px] transition ${
     isActive
-      ? "bg-[var(--primary500)] font-bold text-[var(--neutral1000)]"
-      : "font-medium text-[var(--text-secondary)] hover:bg-white/[0.06] hover:text-[var(--text-primary)]"
+      ? "rgb-edge bg-white/[0.07] font-bold text-[var(--text-primary)]"
+      : "font-medium text-[var(--text-secondary)] hover:bg-white/[0.05] hover:text-[var(--text-primary)]"
   }`;
 
 /**
@@ -56,6 +60,10 @@ const AffiliateLayout = () => {
 
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  // হেডারে এখনকার পাতার নাম আর রঙ — সব পাতায় একই "অ্যাফিলিয়েট প্যানেল" নয়
+  const current =
+    NAV.find((item) => (item.end ? pathname.replace(/\/+$/, "") === item.to : pathname === item.to || pathname.startsWith(`${item.to}/`))) || NAV[0];
   const dispatch = useDispatch();
   const user = useSelector(selectUser);
   const siteIdentify = useSelector(selectSiteIdentify);
@@ -183,7 +191,12 @@ const AffiliateLayout = () => {
               onClick={() => setOpen(false)}
               className={linkClass}
             >
-              <ItemIcon size={17} className="shrink-0" />
+              <span
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[9px]"
+                style={{ background: `color-mix(in srgb, ${item.tone}, transparent 86%)`, color: item.tone }}
+              >
+                <ItemIcon size={15} />
+              </span>
               {t(item.label)}
             </NavLink>
           );
@@ -247,8 +260,18 @@ const AffiliateLayout = () => {
             <Menu size={19} />
           </button>
 
-          <span className="hidden text-[15px] font-bold text-[var(--text-primary)] sm:block">
-            {t("affiliatePanel")}
+          <span className="flex min-w-0 items-center gap-2.5">
+            <span className="pro-badge h-8 w-8 rounded-[10px]" style={{ "--tone": current.tone }}>
+              <current.Icon size={15} />
+            </span>
+            <span className="min-w-0">
+              <span className="block truncate text-[15px] font-bold leading-tight text-[var(--text-primary)]">
+                {t(current.label)}
+              </span>
+              <span className="hidden text-[11px] leading-tight text-[var(--text-disabled)] sm:block">
+                {t("affiliatePanel")}
+              </span>
+            </span>
           </span>
 
           {/* ব্যালেন্সে চাপ দিলেই উইথড্র — সবচেয়ে বেশি দরকার হয় এটাই */}

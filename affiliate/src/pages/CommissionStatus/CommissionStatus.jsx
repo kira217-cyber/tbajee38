@@ -1,21 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { Dices, Percent, Wallet } from "lucide-react";
+import { Dices, Info, Percent, Receipt, TrendingDown, TrendingUp, UserPlus, Wallet } from "lucide-react";
 
-import {
-  Card,
-  Empty,
-  Loading,
-  Pager,
-  Row,
-  Stat,
-  TableWrap,
-} from "../../components/Panel/Panel";
+import { Loading, Pager } from "../../components/Panel/Panel";
+import { Badge, Blank, Donut, Glass, Hero, Segmented, Title } from "../../components/Panel/Pro";
+import { TONES } from "../../components/Panel/tones";
 import { money, when } from "../../components/Panel/panelFormat";
 import { useLanguage } from "../../Context/LanguageProvider";
-import {
-  fetchCommissionHistory,
-  fetchCommissionStatus,
-} from "../../features/affiliate/affiliateApi";
+import { fetchCommissionHistory, fetchCommissionStatus } from "../../features/affiliate/affiliateApi";
+
+const TONE = TONES.commission;
+
+const PART = {
+  refer: "#22d3ee",
+  deposit: "#fbd029",
+  gameLoss: "#34d399",
+  gameWin: "#ff777c",
+};
 
 const TYPES = [
   { key: "all", label: "filterAll" },
@@ -24,10 +24,11 @@ const TYPES = [
 ];
 
 /**
- * কমিশনের হার, জমা আর কোথা থেকে এল।
+ * কমিশনের হিসাব — "আর্থিক বিবরণী", বেগুনি রঙে।
  *
- * শুধু একটা যোগফল দেখালে বিশ্বাস করতে হতো; নিচের তালিকায় কোন খেলোয়াড়ের
- * কোন রাউন্ড থেকে কত এসেছে সেটাও থাকে।
+ * ব্যানারে আয়ের গোল চার্ট: চার ভাগের কোনটা কতটা, মাঝে শেষ হিসাব। তারপর
+ * হারের চারটা রঙিন টাইল, আর কোন খেলোয়াড়ের কোন রাউন্ড থেকে কত এল তার
+ * খাতা — শুধু যোগফল দেখালে বিশ্বাস করতে হতো।
  */
 const CommissionStatus = () => {
   const { t } = useLanguage();
@@ -42,12 +43,10 @@ const CommissionStatus = () => {
 
   useEffect(() => {
     let alive = true;
-
     fetchCommissionStatus()
       .then((next) => alive && setData(next))
       .catch(() => alive && setData(null))
       .finally(() => alive && setLoading(false));
-
     return () => {
       alive = false;
     };
@@ -55,192 +54,163 @@ const CommissionStatus = () => {
 
   useEffect(() => {
     let alive = true;
-
     fetchCommissionHistory({ page, type: type === "all" ? "" : type })
       .then((next) => alive && setHistory(next))
       .catch(() => alive && setHistory({ rows: [], meta: {} }))
       .finally(() => alive && setLoadingHistory(false));
-
     return () => {
       alive = false;
     };
   }, [page, type]);
 
   if (loading) return <Loading label={t("loading")} />;
-  if (!data) return <Card>{t("somethingWrong")}</Card>;
+  if (!data) return <Glass className="p-5">{t("somethingWrong")}</Glass>;
 
   const { commission } = data;
+  const net = Number(commission.net) || 0;
+  const netTone = net >= 0 ? TONES.success : TONES.danger;
+  const b = commission.balances;
+  const r = commission.rates;
+
+  const parts = [
+    { label: t("cmRefer"), value: b.refer, tone: PART.refer },
+    { label: t("cmDeposit"), value: b.deposit, tone: PART.deposit },
+    { label: t("cmGameLoss"), value: b.gameLoss, tone: PART.gameLoss },
+    { label: t("cmGameWin"), value: b.gameWin, tone: PART.gameWin, minus: true },
+  ];
+
+  const rates = [
+    { label: t("cmRefer"), value: money(r.refer), hint: t("statPerInvite"), tone: PART.refer, Icon: UserPlus },
+    { label: t("cmDeposit"), value: `${r.deposit}%`, tone: PART.deposit, Icon: Wallet },
+    { label: t("cmGameLoss"), value: `${r.gameLoss}%`, tone: PART.gameLoss, Icon: TrendingUp },
+    { label: t("cmGameWin"), value: `${r.gameWin}%`, tone: PART.gameWin, Icon: TrendingDown },
+  ];
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Stat
-          label={t("mainBalance")}
-          value={money(data.balance)}
-          sub={t("mainBalanceText")}
-          tone="var(--primary500)"
-          Icon={Wallet}
-        />
-        <Stat
-          label={t("cmGross")}
-          value={money(commission.gross)}
-          sub={t("cmGrossText")}
-          Icon={Percent}
-        />
-        <Stat
-          label={t("cmNet")}
-          value={money(commission.net)}
-          sub={Number(commission.net) >= 0 ? t("statPayable") : t("statOwed")}
-          tone={
-            Number(commission.net) >= 0
-              ? "var(--status-success)"
-              : "var(--status-danger)"
-          }
-          Icon={Dices}
-        />
-      </div>
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card title={t("commissionRates")} subtitle={t("commissionRatesText")}>
-          <Row label={t("cmRefer")} value={`${commission.rates.refer}`} />
-          <Row label={t("cmDeposit")} value={`${commission.rates.deposit}%`} />
-          <Row label={t("cmGameLoss")} value={`${commission.rates.gameLoss}%`} />
-          <Row label={t("cmGameWin")} value={`${commission.rates.gameWin}%`} />
-        </Card>
-
-        <Card title={t("commissionBalances")} subtitle={t("commissionBalancesText")}>
-          <Row label={t("cmRefer")} value={money(commission.balances.refer)} />
-          <Row label={t("cmDeposit")} value={money(commission.balances.deposit)} />
-          <Row
-            label={t("cmGameLoss")}
-            value={money(commission.balances.gameLoss)}
-            tone="var(--status-success)"
-          />
-          <Row
-            label={t("cmGameWin")}
-            value={`- ${money(commission.balances.gameWin)}`}
-            tone="var(--status-danger)"
-          />
-          <Row
-            label={t("cmNet")}
-            value={money(commission.net)}
-            tone={
-              Number(commission.net) >= 0
-                ? "var(--status-success)"
-                : "var(--status-danger)"
-            }
-          />
-        </Card>
-      </div>
-
-      <Card title={t("commissionHistory")} subtitle={t("commissionHistoryText")}>
-        <div className="mb-4 flex flex-wrap gap-2">
-          {TYPES.map((item) => (
-            <button
-              key={item.key}
-              type="button"
-              onClick={() => {
-                setType(item.key);
-                setPage(1);
-              }}
-              className="h-9 cursor-pointer rounded-[10px] px-3 text-[13px] transition"
-              style={{
-                background:
-                  type === item.key ? "var(--primary500)" : "var(--neutral800)",
-                color:
-                  type === item.key
-                    ? "var(--neutral1000)"
-                    : "var(--text-secondary)",
-                fontWeight: type === item.key ? 700 : 400,
-              }}
-            >
-              {t(item.label)}
-            </button>
+    <div className="flex flex-col gap-5">
+      <Hero
+        tone={TONE}
+        Icon={Percent}
+        eyebrow={t("navDashboard")}
+        title={t("navCommissionStatus")}
+        subtitle={t("commissionBalancesText")}
+        aside={
+          <div className="flex w-full flex-col items-center gap-5 sm:flex-row lg:w-auto">
+            <Donut parts={parts} size={168} stroke={18}>
+              <p className="text-[11px] text-[var(--text-muted)]">{t("cmNet")}</p>
+              <p className="text-[20px] font-black leading-tight" style={{ color: netTone }}>
+                {money(net)}
+              </p>
+            </Donut>
+            <div className="grid w-full grid-cols-2 gap-2 sm:w-[230px] sm:grid-cols-1">
+              {parts.map((p) => (
+                <div key={p.label} className="flex items-center justify-between gap-3 rounded-[12px] bg-white/[0.04] px-3 py-2">
+                  <span className="flex min-w-0 items-center gap-2 text-[12px] text-[var(--text-secondary)]">
+                    <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: p.tone, boxShadow: `0 0 8px ${p.tone}` }} />
+                    <span className="truncate">{p.label}</span>
+                  </span>
+                  <span className="shrink-0 text-[13px] font-bold" style={{ color: p.tone }}>
+                    {p.minus ? "-" : ""}
+                    {money(p.value)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        }
+      >
+        <div className="mt-6 grid max-w-[560px] grid-cols-3 gap-3">
+          {[
+            { label: t("mainBalance"), value: money(data.balance), tone: TONES.dashboard },
+            { label: t("cmGross"), value: money(commission.gross), tone: TONE },
+            { label: t("cmNet"), value: money(net), tone: netTone },
+          ].map((item) => (
+            <div key={item.label} className="rounded-[14px] border border-white/[0.07] bg-[rgb(1_9_40_/_0.45)] p-3">
+              <p className="truncate text-[11px] text-[var(--text-muted)]">{item.label}</p>
+              <p className="mt-1 truncate text-[17px] font-black lg:text-[20px]" style={{ color: item.tone }}>
+                {item.value}
+              </p>
+            </div>
           ))}
         </div>
+        <p className="mt-3 text-[12px] text-[var(--text-disabled)]">
+          {t("cmGrossText")} · {net >= 0 ? t("statPayable") : t("statOwed")}
+        </p>
+      </Hero>
+
+      {/* ── হারের টাইল ── */}
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
+        {rates.map((rate) => (
+          <Glass key={rate.label} tone={rate.tone} lined hover className="overflow-hidden p-4">
+            <rate.Icon size={54} className="absolute -right-2 -bottom-3 opacity-[0.1]" style={{ color: rate.tone }} />
+            <p className="text-[12px] text-[var(--text-muted)]">{rate.label}</p>
+            <p className="mt-1.5 text-[30px] font-black leading-none" style={{ color: rate.tone }}>
+              {rate.value}
+            </p>
+            <p className="mt-2 text-[11px] text-[var(--text-disabled)]">{rate.hint || t("commissionRates")}</p>
+          </Glass>
+        ))}
+      </div>
+
+      {/* ── কোথা থেকে এল — রাউন্ডের খাতা ── */}
+      <Glass tone={TONE} lined className="p-4 lg:p-5">
+        <Title
+          tone={TONE}
+          Icon={Receipt}
+          title={t("commissionHistory")}
+          subtitle={t("commissionHistoryText")}
+          action={
+            <Segmented
+              tone={TONE}
+              items={TYPES.map((item) => ({ key: item.key, label: t(item.label) }))}
+              value={type}
+              onChange={(key) => {
+                setType(key);
+                setPage(1);
+              }}
+            />
+          }
+        />
 
         {loadingHistory ? (
           <Loading label={t("loading")} />
         ) : history.rows.length === 0 ? (
-          <Empty label={t("noCommissionYet")} Icon={Percent} />
+          <Blank tone={TONE} Icon={Percent} label={t("noCommissionYet")} />
         ) : (
-          <TableWrap minWidth={820}>
-            <table className="w-full border-collapse text-left">
-              <thead>
-                <tr className="border-b border-white/[0.07]">
-                  {["thWhen", "thPlayer", "thGame", "thBet", "thResult", "thCommission"].map(
-                    (key) => (
-                      <th
-                        key={key}
-                        className="px-3 py-2 text-[12px] font-bold uppercase tracking-wide text-[var(--text-muted)]"
-                      >
-                        {t(key)}
-                      </th>
-                    ),
-                  )}
-                </tr>
-              </thead>
-
-              <tbody>
-                {history.rows.map((row) => (
-                  <tr
-                    key={row._id}
-                    className="border-b border-white/[0.05] last:border-0"
-                  >
-                    <td className="px-3 py-3 text-[12px] text-[var(--text-muted)]">
-                      {when(row.createdAt)}
-                    </td>
-
-                    <td className="px-3 py-3 text-[14px] font-semibold text-[var(--text-primary)]">
-                      {row.userId}
-                    </td>
-
-                    <td className="max-w-[190px] px-3 py-3">
-                      <p className="truncate text-[13px] text-[var(--text-secondary)]">
-                        {row.gameName || "—"}
+          <div className="flex flex-col gap-2">
+            {history.rows.map((row) => {
+              const plus = row.affiliateCommissionType === "game-loss";
+              const tone = plus ? TONES.success : TONES.danger;
+              return (
+                <div key={row._id} className="pro-rail flex flex-wrap items-center gap-x-5 gap-y-2 px-4 py-3" style={{ "--tone": tone }}>
+                  <div className="flex min-w-[180px] flex-1 items-center gap-3">
+                    <span className="pro-badge h-9 w-9 rounded-[11px]" style={{ "--tone": tone }}>
+                      <Dices size={16} />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-[14px] font-semibold text-[var(--text-primary)]">{row.userId}</p>
+                      <p className="truncate text-[12px] text-[var(--text-muted)]">
+                        {row.gameName || "—"} · {row.providerCode || "—"}
                       </p>
-                      <p className="mt-0.5 text-[11px] text-[var(--text-disabled)]">
-                        {row.providerCode || "—"}
-                      </p>
-                    </td>
-
-                    <td className="px-3 py-3 text-[13px] text-[var(--text-primary)]">
-                      {money(row.betAmount)}
-                    </td>
-
-                    <td className="px-3 py-3">
-                      <span
-                        className="text-[12px] font-bold uppercase"
-                        style={{
-                          color:
-                            row.resultType === "win"
-                              ? "var(--status-success)"
-                              : row.resultType === "loss"
-                                ? "var(--status-danger)"
-                                : "var(--text-muted)",
-                        }}
-                      >
-                        {row.resultType}
-                      </span>
-                    </td>
-
-                    <td
-                      className="px-3 py-3 text-[13px] font-bold"
-                      style={{
-                        color:
-                          row.affiliateCommissionType === "game-loss"
-                            ? "var(--status-success)"
-                            : "var(--status-danger)",
-                      }}
-                    >
-                      {row.affiliateCommissionType === "game-loss" ? "+" : "-"}
+                    </div>
+                  </div>
+                  <div className="text-[12px] text-[var(--text-muted)]">
+                    {t("thBet")}: <span className="font-semibold text-[var(--text-primary)]">{money(row.betAmount)}</span>
+                  </div>
+                  <Badge tone={row.resultType === "win" ? TONES.success : row.resultType === "loss" ? TONES.danger : "var(--text-muted)"}>
+                    {String(row.resultType || "—").toUpperCase()}
+                  </Badge>
+                  <div className="ms-auto text-right">
+                    <p className="text-[16px] font-black" style={{ color: tone }}>
+                      {plus ? "+" : "-"}
                       {money(row.affiliateCommissionAmount)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </TableWrap>
+                    </p>
+                    <p className="text-[11px] text-[var(--text-disabled)]">{when(row.createdAt)}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         )}
 
         <Pager
@@ -250,13 +220,12 @@ const CommissionStatus = () => {
           onChange={setPage}
           labels={{ prev: t("labelPrev"), next: t("labelNext") }}
         />
-      </Card>
+      </Glass>
 
-      <Card>
-        <p className="text-[13px] text-[var(--text-muted)]">
-          {t("commissionSettleNote")}
-        </p>
-      </Card>
+      <Glass tone={TONE} className="flex items-start gap-3 p-4">
+        <Info size={16} className="mt-0.5 shrink-0" style={{ color: TONE }} />
+        <p className="text-[13px] text-[var(--text-muted)]">{t("commissionSettleNote")}</p>
+      </Glass>
     </div>
   );
 };
