@@ -17,12 +17,12 @@ import { onVipBet } from "../utils/vip.js";
  *
  * BetChokkor এর callback থেকে নেওয়া, তবে তিনটে ঝুঁকি এখানে বন্ধ:
  *
- *   ১. যাচাই — BetChokkor এ যে কেউ `/api/callback` এ `win_amount` পাঠিয়ে
- *      ব্যালেন্স বাড়াতে পারত (খেলোয়াড় নিজের গেমের নামও জানত)। এখানে
- *      URL এর ভিতরে গোপন টোকেন লাগে: `/api/callback/<token>` — টোকেনটা
- *      admin এর "Game Launch Key" পাতায় দেখা যায়, Oracle/White-label এ
- *      callback URL হিসেবে ওটাই বসাতে হয়। চাইলে `CALLBACK_ALLOWED_IPS`
- *      দিয়ে IP ও বেঁধে দেওয়া যায়।
+ *   ১. ঠিকানা — BetChokkor এর মতোই `/api/callback`। Oracle নিজেই পাঠায়,
+ *      ঠিকানাটা Oracle এর কাছে launch key এর সাথে নিবন্ধিত (গেম চালুর
+ *      অনুরোধে কোনো callback ঠিকানা যায় না), তাই এতে টোকেন জোড়া যায় না।
+ *      যে কেউ এখানে `win_amount` পাঠাতে পারে বলে live এ `.env` এ
+ *      `CALLBACK_ALLOWED_IPS` = Oracle এর IP দিয়ে বেঁধে দেওয়া উচিত (প্রতিটা
+ *      callback এর IP লগে থাকে)। `/api/callback/<token>` ও চলে।
  *
  *   ২. ব্যালেন্স — আগে পড়ে তারপর নতুন মান `$set` করলে একসাথে দুটো বাজির
  *      একটা হারিয়ে যেত। এখানে যাচাই আর বদল এক ধাপে (atomic)।
@@ -83,13 +83,27 @@ export const forgetCallbackToken = () => {
   tokenCache = { value: "", at: 0 };
 };
 
-const verifyCaller = async (req, res, next) => {
+/** `CALLBACK_ALLOWED_IPS` দেওয়া থাকলে শুধু সেই IP গুলো (Oracle) */
+const verifyIp = (req, res, next) => {
   const ips = allowedIps();
-  if (ips.length && !ips.includes(req.ip)) {
+  if (ips.length && !ips.includes(req.ip) && !ips.includes(String(req.ip).replace(/^::ffff:/, ""))) {
     console.warn("Callback rejected — IP not allowed:", req.ip);
     return res.status(200).json({ success: false, balance: 0, message: "FORBIDDEN" });
   }
+  return next();
+};
 
+// IP বাঁধা না থাকলে কোন IP থেকে callback আসে তা একবার লগে — `CALLBACK_ALLOWED_IPS` বসাতে
+const seenIps = new Set();
+const noteIp = (req, res, next) => {
+  if (!allowedIps().length && !seenIps.has(req.ip) && seenIps.size < 20) {
+    seenIps.add(req.ip);
+    console.log("Game callback from IP", req.ip, "— add it to CALLBACK_ALLOWED_IPS to lock the callback");
+  }
+  return next();
+};
+
+const verifyCaller = async (req, res, next) => {
   const expected = await currentToken();
   if (!expected || !sameToken(req.params.token || "", expected)) {
     console.warn("Callback rejected — bad token from", req.ip);
@@ -308,12 +322,8 @@ const handleCallback = async (req, res) => {
   }
 };
 
-router.post("/:token", verifyCaller, handleCallback);
-
-// টোকেন ছাড়া — কখনো টাকা নড়ায় না, শুধু লগে দাগ রাখে (ভুল URL বসানো হয়েছে)
-router.post("/", (req, res) => {
-  console.warn("Callback without token from", req.ip, "— set the callback URL from admin › Game Launch Key");
-  return res.status(200).json({ success: false, balance: 0, message: "FORBIDDEN" });
-});
+// BetChokkor এর মতো — Oracle এর নিবন্ধিত ঠিকানা `/api/callback`
+router.post("/", verifyIp, noteIp, handleCallback);
+router.post("/:token", verifyIp, verifyCaller, handleCallback);
 
 export default router;
