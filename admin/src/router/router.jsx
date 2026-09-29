@@ -69,7 +69,6 @@ const AFF_FOOTER_FIELDS = [
   { key: "ageNotice", label: "Age notice" },
 ];
 import Feedback from "../pages/Feedback/Feedback";
-import Placeholder from "../pages/Placeholder/Placeholder";
 import NotFoundPage from "../pages/NotFoundPage/NotFoundPage";
 import { navItems } from "../data/navigation";
 
@@ -80,9 +79,8 @@ import { navItems } from "../data/navigation";
  * প্রতিটা নেভ আইটেমের জন্য একটা রুট নিজে থেকেই তৈরি হয়, তাই মেনুতে
  * কিছু যোগ করলে রুট লিখতে ভুলে যাওয়ার সুযোগ নেই।
  *
- * যেসব পেজের API তৈরি — সেগুলো `REAL_PAGES` এ। বাকি সব
- * `<Placeholder />` দেখায় ("No API Included")। API হলে শুধু এখানে
- * এন্ট্রি যোগ করলেই হবে।
+ * প্রতিটা পেজ `REAL_PAGES` এ। মেনুতে আছে কিন্তু এখানে নেই এমন আইটেমের
+ * রুট হয় না (খালি "No API" পাতা আর নেই) — নতুন পেজ দুই জায়গাতেই যোগ করো।
  */
 const REAL_PAGES = {
   "/": <Dashboard />,
@@ -164,11 +162,15 @@ const flatten = (items, group = "") =>
 
 const pages = flatten(navItems);
 
+if (import.meta.env.DEV) {
+  pages
+    .filter((p) => p.path && !REAL_PAGES[p.path])
+    .forEach((p) => console.warn(`[router] menu item without a page: ${p.path}`));
+}
+
 /** রুট এলিমেন্ট — দরকার হলে গার্ড দিয়ে মোড়া */
 const elementFor = (item) => {
-  const page = REAL_PAGES[item.path] || (
-    <Placeholder title={item.label} group={item.group} />
-  );
+  const page = REAL_PAGES[item.path];
 
   if (item.motherOnly) {
     return <PrivateRoute motherOnly>{page}</PrivateRoute>;
@@ -219,7 +221,7 @@ export const routes = createBrowserRouter(
         },
 
         ...pages
-          .filter((item) => item.path && item.path !== "/")
+          .filter((item) => item.path && item.path !== "/" && REAL_PAGES[item.path])
           .map((item) => ({
             path: item.path.replace(/^\//, ""),
             element: elementFor(item),

@@ -234,7 +234,6 @@ export const navItems = [
     icon: "LifeBuoy",
     children: [
       { key: "help-content", path: "/help-content", label: "Help Content", icon: "Images", motherOnly: true },
-      { key: "help-theme", path: "/help-theme", label: "Help Theme", icon: "Palette", motherOnly: true },
     ],
   },
 
