@@ -24,6 +24,18 @@ const SITE_URL = {
   affiliate: String(import.meta.env.VITE_AFFILIATE_URL || "http://localhost:5174").replace(/\/+$/, ""),
 };
 
+/**
+ * শুধু scheme + host + port — live এ অ্যাফিলিয়েট `/partner` এর নিচে থাকে, কিন্তু
+ * iframe এর বার্তার `event.origin` এ পথ থাকে না, তাই তুলনা origin দিয়েই
+ */
+const originOf = (url) => {
+  try {
+    return new URL(url).origin;
+  } catch {
+    return url;
+  }
+};
+
 const DEVICES = {
   desktop: { width: 1440, height: 900, Icon: Monitor, label: "Desktop" },
   mobile: { width: 390, height: 844, Icon: Smartphone, label: "Mobile" },
@@ -159,7 +171,7 @@ const ThemeStudio = ({ site }) => {
   }, [saved, tokens, draft]);
 
   const post = useCallback((msg) => {
-    frameRef.current?.contentWindow?.postMessage(msg, SITE_URL[site]);
+    frameRef.current?.contentWindow?.postMessage(msg, originOf(SITE_URL[site]));
   }, [site]);
 
   const pushColors = useCallback(() => post({ type: "tb-theme:colors", colors: previewColors }), [post, previewColors]);
@@ -173,7 +185,7 @@ const ThemeStudio = ({ site }) => {
   // পাতা তৈরি হলে রঙ পাঠানো, দরকারে মডাল খোলা/নিচে নামা
   useEffect(() => {
     const onMessage = (event) => {
-      if (event.origin !== SITE_URL[site] || event.data?.type !== "tb-theme:ready") return;
+      if (event.origin !== originOf(SITE_URL[site]) || event.data?.type !== "tb-theme:ready") return;
       pushColors();
       if (page?.preview?.open && device === "desktop") setTimeout(() => post({ type: "tb-theme:open", target: page.preview.open }), 900);
       if (page?.preview?.scroll) setTimeout(() => post({ type: "tb-theme:scroll", to: page.preview.scroll }), 1500);

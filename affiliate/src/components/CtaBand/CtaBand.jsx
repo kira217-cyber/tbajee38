@@ -19,7 +19,7 @@ const CtaBand = () => {
       <div className="tb-wrap">
         <div className="relative overflow-hidden rounded-[14px]">
           <img
-            src="/assets/tb/cta-banner.webp"
+            src={`${import.meta.env.BASE_URL}assets/tb/cta-banner.webp`}
             alt=""
             className="h-[240px] w-full object-cover sm:h-[220px]"
             loading="lazy"

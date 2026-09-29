@@ -3,6 +3,14 @@ import { ExternalLink, Monitor, RefreshCw, Smartphone } from "lucide-react";
 
 /** ক্লায়েন্ট সাইটের ঠিকানা — `.env` এ না থাকলে লোকালের পোর্ট */
 export const CLIENT_URL = String(import.meta.env.VITE_CLIENT_URL || "http://localhost:5173").replace(/\/+$/, "");
+/** iframe এর বার্তার `event.origin` এ পথ থাকে না — তাই তুলনা শুধু origin দিয়ে */
+const CLIENT_ORIGIN = (() => {
+  try {
+    return new URL(CLIENT_URL).origin;
+  } catch {
+    return CLIENT_URL;
+  }
+})();
 
 const DEVICES = {
   desktop: { width: 1440, height: 900, Icon: Monitor, label: "Desktop" },
@@ -25,7 +33,7 @@ const SitePreview = ({ path = "/", message, scroll }) => {
   const [boxWidth, setBoxWidth] = useState(600);
 
   const post = useCallback((msg) => {
-    frameRef.current?.contentWindow?.postMessage(msg, CLIENT_URL);
+    frameRef.current?.contentWindow?.postMessage(msg, CLIENT_ORIGIN);
   }, []);
 
   // খসড়া বদলালেই প্রিভিউতে
@@ -37,7 +45,7 @@ const SitePreview = ({ path = "/", message, scroll }) => {
 
   useEffect(() => {
     const onMessage = (event) => {
-      if (event.origin !== CLIENT_URL || event.data?.type !== "tb-theme:ready") return;
+      if (event.origin !== CLIENT_ORIGIN || event.data?.type !== "tb-theme:ready") return;
       if (message) post(message);
       if (scroll) setTimeout(() => post({ type: "tb-theme:scroll", to: scroll }), 1500);
     };

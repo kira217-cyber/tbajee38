@@ -70,7 +70,7 @@ const Hero = () => {
         {ticker && (
           <div className="tb-notice mt-8">
             <img
-              src="/assets/tb/speaker.png"
+              src={`${import.meta.env.BASE_URL}assets/tb/speaker.png`}
               alt=""
               className="h-[30px] w-[30px] shrink-0 object-contain"
               draggable="false"
