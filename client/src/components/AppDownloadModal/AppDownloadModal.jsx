@@ -7,6 +7,7 @@ import { useIsDesktop } from "../../hook/useIsDesktop";
 import { m } from "../../hook/useUnits";
 import api, { API_URL } from "../../api/axios";
 import { notify } from "../../utils/notify";
+import { siteImage, useSiteSettings } from "../../site/siteSettings";
 
 /** APK এর ঠিকানা — server আসল নামটা `Content-Disposition` এ দেয় */
 const DOWNLOAD_URL = `${API_URL}/api/app/download`;
@@ -24,6 +25,8 @@ const DOWNLOAD_URL = `${API_URL}/api/app/download`;
  */
 const AppDownloadModal = ({ onClose }) => {
   const { t, lang } = useLanguage();
+  // লোগো admin এর "Site Identity" থেকে
+  const { identify } = useSiteSettings();
   const isDesktop = useIsDesktop();
   // admin এর "App Download" — APK আছে কিনা, নাম, বর্ণনা
   const [app, setApp] = useState(null);
@@ -86,7 +89,7 @@ const AppDownloadModal = ({ onClose }) => {
 
         <div className="flex items-center" style={{ gap: isDesktop ? 18 : m(18) }}>
           <img
-            src="/assets/mobile/logo.png"
+            src={siteImage(identify.mobileLogo)}
             alt={t.brand}
             style={{
               width: isDesktop ? 84 : m(120),

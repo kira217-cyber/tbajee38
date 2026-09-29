@@ -5,6 +5,7 @@ import { useLanguage } from "../../Context/LanguageProvider";
 import { useIsDesktop } from "../../hook/useIsDesktop";
 import { m } from "../../hook/useUnits";
 import { getSupportUrl } from "../../data/contact";
+import { siteImage, useSiteSettings } from "../../site/siteSettings";
 
 /**
  * সাইট রক্ষণাবেক্ষণে থাকলে পুরো পর্দায় শুধু এই বার্তা।
@@ -18,6 +19,8 @@ import { getSupportUrl } from "../../data/contact";
  */
 const MaintenanceScreen = ({ setting }) => {
   const { t, lang } = useLanguage();
+  // লোগো admin এর "Site Identity" থেকে
+  const { identify } = useSiteSettings();
   const isDesktop = useIsDesktop();
 
   // admin এর লেখা আগে; ওই ভাষায় ফাঁকা থাকলে নিজের লেখা
@@ -43,7 +46,7 @@ const MaintenanceScreen = ({ setting }) => {
         }}
       >
         <img
-          src="/assets/site/logo.c2ac3228.png"
+          src={siteImage(identify.logo)}
           alt="TBAJEE"
           draggable="false"
           style={{ height: u(50, 70), width: "auto", objectFit: "contain" }}

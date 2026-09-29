@@ -4,6 +4,7 @@ import { useLanguage } from "../../Context/LanguageProvider";
 import { useIsDesktop } from "../../hook/useIsDesktop";
 import { m } from "../../hook/useUnits";
 import { useHelp } from "../../features/help/useHelp";
+import { pickLang, siteImage, useSiteSettings } from "../../site/siteSettings";
 import HelpModal from "../Help/HelpModal";
 
 /**
@@ -25,119 +26,95 @@ import HelpModal from "../Help/HelpModal";
  *   ভিতরের কনটেন্ট সেই ১০৮৫ কলামে।
  */
 
-/* সবগুলোই `public/assets/vendors/` এ আসলেই আছে এমন ফাইল —
-   EVO/CQ9-COLOR/T1 নামে কিছু নামানো হয়নি, তাই ওগুলোর বদলে
-   Evolution = EG4, আর CQ9 এর ধূসর সংস্করণটাই। */
-const DESKTOP_PROVIDERS = [
-  { code: "PG", src: "/assets/vendors/rng_list_vendor/PG-COLOR.png" },
-  { code: "EVO", src: "/assets/vendors/live_list_vendor/EG4-COLOR.png" },
-  { code: "PT", src: "/assets/vendors/live_list_vendor/PT-COLOR.png" },
-  { code: "JDB", src: "/assets/vendors/rng_list_vendor/JDB-COLOR.png" },
-  { code: "CQ9", src: "/assets/vendors/rng_list_vendor/CQ9-GRAY.png" },
-  { code: "FC", src: "/assets/vendors/rng_list_vendor/FC-COLOR.png" },
-  { code: "JILI", src: "/assets/vendors/rng_list_vendor/JL-COLOR.png" },
-  { code: "BTG", src: "/assets/vendors/rng_list_vendor/BTG-COLOR.png" },
-];
+/** ছবি — মোবাইলে মাপ ৭৫০-ডিজাইনের px (০ = নিজের অনুপাতে), লিংক থাকলে নতুন ট্যাবে */
+const FooterImage = ({ item, style }) => {
+  const el = (
+    <img
+      src={siteImage(item.image)}
+      alt=""
+      style={{ width: item.w ? m(item.w) : undefined, height: item.h ? m(item.h) : undefined, objectFit: "contain", display: "block", ...style }}
+    />
+  );
+  return item.link ? (
+    <a href={item.link} target="_blank" rel="noreferrer noopener">
+      {el}
+    </a>
+  ) : (
+    el
+  );
+};
+
+/** ছবির সারি — `br` দেওয়া ছবি থেকে নতুন লাইন, লাইনের মাঝে `rowGap` */
+const ImageRow = ({ items, gap, rowGap = 0, style }) => {
+  const lines = [];
+  items.forEach((item, i) => {
+    if (i === 0 || item.br) lines.push([]);
+    lines[lines.length - 1].push(item);
+  });
+  return (
+    <div style={style}>
+      {lines.map((line, li) => (
+        <div key={li} className="flex flex-wrap items-end" style={{ gap, marginTop: li ? rowGap : 0 }}>
+          {line.map((item, i) => (
+            <FooterImage key={`${item.image}-${i}`} item={item} />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+};
 
 const MobileFooter = () => {
-  const { t } = useLanguage();
+  const { lang } = useLanguage();
+  const { footer: f } = useSiteSettings();
+  const tx = (v) => pickLang(v, lang);
   const title = { fontSize: m(20), color: "var(--footer-heading, #fff)" };
 
   return (
     <footer style={{ paddingBottom: m(130) }}>
       <div style={{ width: m(700), marginInline: "auto", paddingTop: m(31) }}>
         {/* লাইসেন্স ও দায়িত্বশীল গেমিং */}
-        <div className="flex" style={{ height: m(138) }}>
+        <div className="flex" style={{ minHeight: m(138) }}>
           <div style={{ width: m(335) }}>
             <div className="flex items-center" style={{ height: m(28), gap: m(10) }}>
-              <span style={title}>{t.footer.license}</span>
+              <span style={title}>{tx(f.titles.license)}</span>
               <img
                 src="/assets/mobile/title-icon.png"
                 alt=""
                 style={{ width: m(28), height: m(28) }}
               />
             </div>
-            <img
-              src="/assets/mobile/curacao.png"
-              alt=""
-              style={{ width: m(90), height: m(30), marginTop: m(10), objectFit: "contain" }}
-            />
+            <ImageRow items={f.license} gap={m(10)} rowGap={m(10)} style={{ marginTop: m(10) }} />
             <div style={{ fontSize: m(18), color: "var(--footer-text, #d9d9d9)", marginTop: m(10) }}>
-              local_license_1
+              {tx(f.licenseText)}
             </div>
           </div>
 
           <div style={{ width: m(335), marginInlineStart: m(30) }}>
-            <div style={{ ...title, height: m(23) }}>{t.footer.responsible}</div>
-            <div className="flex items-end" style={{ marginTop: m(10), gap: m(24) }}>
-              <img
-                src="/assets/mobile/responsible-1.png"
-                alt=""
-                style={{ width: m(40), height: m(40), objectFit: "contain" }}
-              />
-              <img
-                src="/assets/mobile/responsible-2.png"
-                alt=""
-                style={{ width: m(70), height: m(50), objectFit: "contain" }}
-              />
-            </div>
+            <div style={{ ...title, height: m(23) }}>{tx(f.titles.responsible)}</div>
+            <ImageRow items={f.responsible} gap={m(24)} rowGap={m(10)} style={{ marginTop: m(10) }} />
           </div>
         </div>
 
         {/* গেম প্রোভাইডার */}
-        <img
-          src="/assets/mobile/vendor-icon.png"
-          alt=""
-          style={{ width: m(700), marginTop: m(23), display: "block" }}
-        />
+        <ImageRow items={f.providers} gap={m(10)} rowGap={m(10)} style={{ marginTop: m(23) }} />
 
         {/* পেমেন্ট মেথড */}
         <div style={{ marginTop: m(32) }}>
-          <div style={title}>{t.footer.payment}</div>
-          <img
-            src="/assets/mobile/payment-channel.png"
-            alt=""
-            style={{ width: m(374), height: m(60), marginTop: m(15), objectFit: "contain" }}
-          />
+          <div style={title}>{tx(f.titles.payment)}</div>
+          <ImageRow items={f.payment} gap={m(15)} rowGap={m(10)} style={{ marginTop: m(15) }} />
         </div>
 
         {/* সার্টিফিকেশন ও সুরক্ষা */}
         <div className="flex" style={{ marginTop: m(36) }}>
           <div style={{ width: m(350) }}>
-            <div style={title}>{t.footer.certification}</div>
-            <div className="flex items-end" style={{ marginTop: m(8), gap: m(25) }}>
-              <img
-                src="/assets/mobile/certificate-1.png"
-                alt=""
-                style={{ width: m(44), height: m(52), objectFit: "contain" }}
-              />
-              <img
-                src="/assets/mobile/certificate-2.png"
-                alt=""
-                style={{ width: m(52), height: m(52), objectFit: "contain" }}
-              />
-            </div>
-            <img
-              src="/assets/mobile/certificate-3.png"
-              alt=""
-              style={{ width: m(121), height: m(31), marginTop: m(17), objectFit: "contain" }}
-            />
+            <div style={title}>{tx(f.titles.certification)}</div>
+            <ImageRow items={f.certification} gap={m(25)} rowGap={m(17)} style={{ marginTop: m(8) }} />
           </div>
 
           <div style={{ width: m(350) }}>
-            <div style={title}>{t.footer.security}</div>
-            <div className="flex items-end" style={{ marginTop: m(9), gap: m(16) }}>
-              <img
-                src="/assets/mobile/security-1.png"
-                alt=""
-                style={{ width: m(41), height: m(42), objectFit: "contain" }}
-              />
-              <img
-                src="/assets/mobile/security-2.png"
-                alt=""
-                style={{ width: m(37), height: m(51), objectFit: "contain" }}
-              />
-            </div>
+            <div style={title}>{tx(f.titles.security)}</div>
+            <ImageRow items={f.security} gap={m(16)} rowGap={m(10)} style={{ marginTop: m(9) }} />
           </div>
         </div>
 
@@ -145,7 +122,7 @@ const MobileFooter = () => {
           className="text-center"
           style={{ fontSize: m(20), color: "var(--footer-text, #d9d9d9)", marginTop: m(31) }}
         >
-          {t.footer.copyright}
+          {tx(f.copyright)}
         </div>
       </div>
     </footer>
@@ -154,15 +131,17 @@ const MobileFooter = () => {
 
 const DesktopFooter = () => {
   const { t, lang } = useLanguage();
+  const { footer: f } = useSiteSettings();
+  const tx = (v) => pickLang(v, lang);
   // admin "ডেস্কটপে দেখাও" দিলে সাহায্য কেন্দ্রের লেখা এখানে (মূল সাইটে কলামটা খালি)
   const { articles } = useHelp("desktop");
   const [helpAt, setHelpAt] = useState(null);
   const tv = (v) => (lang === "en" ? v?.en || v?.bn : v?.bn || v?.en) || "";
 
   const columns = [
-    { title: t.footer.help, items: articles.map((a, i) => ({ key: a.id, label: tv(a.title), onClick: () => setHelpAt(i) })) },
+    { title: tx(f.titles.help), items: articles.map((a, i) => ({ key: a.id, label: tv(a.title), onClick: () => setHelpAt(i) })) },
     {
-      title: t.footer.products,
+      title: tx(f.titles.products),
       items: [
         t.gameCenter.RNG,
         t.gameCenter.FISH,
@@ -171,7 +150,10 @@ const DesktopFooter = () => {
         t.gameCenter.SPORTS,
       ],
     },
-    { title: t.footer.social, items: [] },
+    {
+      title: tx(f.titles.social),
+      items: f.socials.map((s, i) => ({ key: `s${i}`, label: s.name, icon: s.icon, href: s.url })),
+    },
   ];
 
   return (
@@ -186,6 +168,19 @@ const DesktopFooter = () => {
                   typeof item === "string" ? (
                     <li key={item} style={{ color: "var(--text-dim)", fontSize: 16 }}>
                       {item}
+                    </li>
+                  ) : item.href !== undefined ? (
+                    <li key={item.key}>
+                      <a
+                        href={item.href || undefined}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        className="inline-flex items-center hover:underline"
+                        style={{ color: "var(--text-dim)", fontSize: 16, gap: 8 }}
+                      >
+                        {item.icon ? <img src={siteImage(item.icon)} alt="" style={{ width: 22, height: 22, objectFit: "contain" }} /> : null}
+                        {item.label}
+                      </a>
                     </li>
                   ) : (
                     <li key={item.key}>
@@ -212,25 +207,34 @@ const DesktopFooter = () => {
             gap: 46,
           }}
         >
-          {DESKTOP_PROVIDERS.map((provider) => (
-            <img
-              key={provider.code}
-              src={provider.src}
-              alt={provider.code}
-              style={{
-                height: 34,
-                objectFit: "contain",
-                filter: "grayscale(1) brightness(1.6)",
-                opacity: 0.75,
-              }}
-            />
-          ))}
+          {f.desktopProviders.map((provider, i) => {
+            const logo = (
+              <img
+                key={`${provider.image}-${i}`}
+                src={siteImage(provider.image)}
+                alt={provider.name}
+                style={{
+                  height: 34,
+                  objectFit: "contain",
+                  filter: "grayscale(1) brightness(1.6)",
+                  opacity: 0.75,
+                }}
+              />
+            );
+            return provider.link ? (
+              <a key={`${provider.image}-${i}`} href={provider.link} target="_blank" rel="noreferrer noopener">
+                {logo}
+              </a>
+            ) : (
+              logo
+            );
+          })}
         </div>
 
         <div
           style={{ marginTop: 30, textAlign: "center", color: "var(--text-dim)", fontSize: 15 }}
         >
-          {t.footer.copyright}
+          {tx(f.copyright)}
         </div>
       </div>
       {helpAt !== null && <HelpModal articles={articles} start={helpAt} onClose={() => setHelpAt(null)} />}

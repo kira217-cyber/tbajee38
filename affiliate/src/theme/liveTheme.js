@@ -71,7 +71,15 @@ export const startTheme = () => {
     }
     // মডাল খোলা (ডেস্কটপের লগইন/সদস্য কেন্দ্র) — RootLayout শোনে
     if (msg.type === "tb-theme:open") window.dispatchEvent(new CustomEvent("tb:preview-open", { detail: String(msg.target || "") }));
-    if (msg.type === "tb-theme:scroll") window.scrollTo({ top: msg.to === "bottom" ? document.body.scrollHeight : 0 });
+    // নিচে = ফুটার পর্যন্ত; গেমগুলো পরে লোড হয়ে পাতা লম্বা হয়, তাই কয়েকবার
+    if (msg.type === "tb-theme:scroll") {
+      const go = () => {
+        const footer = msg.to === "bottom" && document.querySelector("footer");
+        if (footer) footer.scrollIntoView({ block: "end" });
+        else window.scrollTo({ top: msg.to === "bottom" ? document.body.scrollHeight : 0 });
+      };
+      [0, 1200, 3000].forEach((ms) => setTimeout(go, ms));
+    }
   });
 
   // admin কে জানানো যে পাতা তৈরি — তখন সে রঙ পাঠায়

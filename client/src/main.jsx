@@ -5,6 +5,7 @@ import { RouterProvider } from "react-router";
 
 import "./index.css";
 import { startTheme } from "./theme/liveTheme";
+import { startSiteSettings } from "./site/siteSettings";
 
 import { store } from "./app/store";
 import { routes } from "./router/router";
@@ -16,6 +17,8 @@ captureReferral();
 
 // admin এর রঙ — React এর আগেই, যাতে পুরোনো রঙ এক ঝলক না দেখায়
 startTheme();
+// সাইটের নাম, লোগো, favicon, ফুটার — admin থেকে
+startSiteSettings();
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

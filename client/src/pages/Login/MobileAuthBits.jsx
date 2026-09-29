@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import Icon from "../../components/Icon/Icon";
 import { useLanguage } from "../../Context/LanguageProvider";
 import { m } from "../../hook/useUnits";
+import { siteImage, useSiteSettings } from "../../site/siteSettings";
 
 /**
  * মোবাইলের অথ পেজগুলোর (লগইন, নিবন্ধন, পাসওয়ার্ড ফেরত) ভাগের টুকরো।
@@ -151,6 +152,8 @@ export const MobileSubmit = ({ busy, children, width = "100%", type = "submit", 
 /** ফিরে যাওয়ার তীর + লোগো — তিন পেজেই একই */
 export const MobileAuthShell = ({ onBack, children }) => {
   const { t } = useLanguage();
+  // লোগো admin এর "Site Identity" থেকে
+  const { identify } = useSiteSettings();
   const navigate = useNavigate();
   return (
     <div style={{ minHeight: "100vh", background: "var(--auth-field, #010e22)", position: "relative", paddingBottom: m(80) }}>
@@ -165,7 +168,7 @@ export const MobileAuthShell = ({ onBack, children }) => {
       </button>
 
       <div className="flex items-start justify-center" style={{ paddingTop: m(120), height: m(308) }}>
-        <img src="/assets/mobile/logo.png" alt={t.brand} style={{ width: m(446), height: m(150), objectFit: "contain" }} />
+        <img src={siteImage(identify.mobileLogo)} alt={t.brand} style={{ width: m(446), height: m(150), objectFit: "contain" }} />
       </div>
 
       <div style={{ width: m(680), marginInline: "auto" }}>{children}</div>

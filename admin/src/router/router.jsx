@@ -51,9 +51,17 @@ import ThemeStudio from "../pages/ThemeStudio/ThemeStudio";
 import AffWithdrawMethods from "../pages/AffWithdrawMethods/AffWithdrawMethods";
 import IdentityPage from "../pages/SiteSettings/SiteIdentity";
 import FooterPage from "../pages/SiteSettings/FooterSetting";
+import ClientFooter from "../pages/SiteSettings/ClientFooter";
 import AffiliateHomeContent from "../pages/Affiliate/AffiliateHomeContent";
 import AffiliateAuthPage from "../pages/Affiliate/AffiliateAuthPage";
-import { Handshake, UserRoundCheck } from "lucide-react";
+import { Handshake, Image as ImageIcon, UserRoundCheck } from "lucide-react";
+
+/** ক্লায়েন্টের পরিচয়ের ছবি — ডেস্কটপ ও মোবাইলের লোগো আলাদা (মূল সাইটের মতো) */
+const CLIENT_IMAGES = [
+  { key: "logo", label: "Desktop logo (header, maintenance page)", size: "≈ 149 × 50 px" },
+  { key: "mobileLogo", label: "Mobile logo (header, login, app download)", size: "≈ 446 × 150 px" },
+  { key: "favicon", label: "Favicon (browser tab icon)", size: "≈ 64 × 64 px (png)", box: "h-14 w-14" },
+];
 
 const AFF_FOOTER_FIELDS = [
   { key: "description", label: "Description / CTA", textarea: true, rows: 3 },
@@ -123,6 +131,19 @@ const REAL_PAGES = {
   "/site-theme/client": <ThemeStudio key="client" site="client" />,
   "/site-theme/affiliate": <ThemeStudio key="affiliate" site="affiliate" />,
   "/aff-withdraw-methods": <AffWithdrawMethods />,
+  "/site-identity": (
+    <IdentityPage
+      title="Site Identity"
+      subtitle="Client site title, logos and favicon — the preview shows them before you save."
+      endpoint="identify"
+      Icon={ImageIcon}
+      images={CLIENT_IMAGES}
+      placeholder="TBAJEE"
+      preview
+      resettable
+    />
+  ),
+  "/footer-setting": <ClientFooter />,
   "/aff-identity": <IdentityPage title="Affiliate Identity" subtitle="Affiliate site name, logo and favicon." endpoint="aff-identify" Icon={UserRoundCheck} />,
   "/aff-footer": <FooterPage title="Affiliate Footer" subtitle="Affiliate footer logo, description and copyright." endpoint="aff-footer" logoKey="logo" fields={AFF_FOOTER_FIELDS} Icon={Handshake} />,
   "/affiliate-home-content": <AffiliateHomeContent />,

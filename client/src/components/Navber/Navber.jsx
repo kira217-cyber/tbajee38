@@ -8,6 +8,7 @@ import { useLanguage } from "../../Context/LanguageProvider";
 import { selectUser } from "../../features/auth/authSelectors";
 import { useIsDesktop } from "../../hook/useIsDesktop";
 import { m } from "../../hook/useUnits";
+import { siteImage, useSiteSettings } from "../../site/siteSettings";
 
 /**
  * ফিক্সড হেডার।
@@ -30,6 +31,8 @@ import { m } from "../../hook/useUnits";
  */
 const Navber = ({ topOffset = 0, onToggleSidebar, onAuth, onMember, onSupport, onLogout }) => {
   const { t } = useLanguage();
+  // লোগো admin এর "Site Identity" থেকে
+  const { identify } = useSiteSettings();
   const user = useSelector(selectUser);
   const isDesktop = useIsDesktop();
 
@@ -70,7 +73,7 @@ const Navber = ({ topOffset = 0, onToggleSidebar, onAuth, onMember, onSupport, o
           style={{ left: m(93), top: m(14), width: m(238), height: m(80) }}
         >
           <img
-            src="/assets/mobile/logo.png"
+            src={siteImage(identify.mobileLogo)}
             alt={t.brand}
             style={{ width: "100%", height: "100%", objectFit: "contain" }}
           />
@@ -169,7 +172,7 @@ const Navber = ({ topOffset = 0, onToggleSidebar, onAuth, onMember, onSupport, o
 
       <Link to="/" className="flex shrink-0 items-center" style={{ marginInlineStart: 30 }}>
         <img
-          src="/assets/site/logo.c2ac3228.png"
+          src={siteImage(identify.logo)}
           alt={t.brand}
           // `.side-top img.logo` — ১৪৮.৭ × ৫০
           style={{ width: 148.7, height: 50, objectFit: "contain" }}
