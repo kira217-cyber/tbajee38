@@ -36,8 +36,10 @@ api.interceptors.response.use(
       localStorage.removeItem("admin_token");
       localStorage.removeItem("admin_data");
 
-      if (window.location.pathname !== "/login") {
-        window.location.href = "/login";
+      // live এ admin থাকে /admin/ এর নিচে — তাই BASE_URL সহ
+      const loginPath = `${import.meta.env.BASE_URL}login`;
+      if (window.location.pathname !== loginPath) {
+        window.location.href = loginPath;
       }
     }
 

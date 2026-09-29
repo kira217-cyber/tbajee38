@@ -45,7 +45,7 @@ const Profile = () => {
 
       // ইমেইল/পাসওয়ার্ড বদলালে পুরোনো টোকেন আর বিশ্বাসযোগ্য নয়
       dispatch(logout());
-      window.location.href = "/login";
+      window.location.href = `${import.meta.env.BASE_URL}login`;
     } catch (error) {
       toast.error(error?.response?.data?.message || "Update failed");
     } finally {

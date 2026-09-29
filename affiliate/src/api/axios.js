@@ -44,8 +44,10 @@ api.interceptors.response.use(
       localStorage.removeItem("user_token");
 
       // client site এ invalid token হলে login/register পেজে নয়, হোম পেজে পাঠানো হয়
-      if (window.location.pathname !== "/") {
-        window.location.href = "/";
+      // live এ অ্যাফিলিয়েটের হোম /partner/ (BASE_URL), সাইটের / নয়
+      const home = import.meta.env.BASE_URL;
+      if (window.location.pathname !== home) {
+        window.location.href = home;
       }
     }
 
