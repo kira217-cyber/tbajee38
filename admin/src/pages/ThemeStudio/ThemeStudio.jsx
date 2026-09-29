@@ -331,7 +331,7 @@ const ThemeStudio = ({ site }) => {
 
         {/* ── লাইভ প্রিভিউ ── */}
         <div className="min-w-0 xl:sticky xl:top-4 xl:self-start">
-          <div className="ad-card p-3">
+          <div className="ad-card ad-card--preview p-3">
             <div className="mb-3 flex flex-wrap items-center gap-2">
               <p className="me-auto text-[14px] font-extrabold text-[var(--neutral100)]">
                 Live preview <span className="font-mono text-[12px] font-normal text-[var(--text-muted)]">{previewPath}</span>
@@ -364,7 +364,7 @@ const ThemeStudio = ({ site }) => {
 
             <div ref={boxRef} className="w-full">
               <div
-                className="mx-auto overflow-hidden rounded-[14px] border border-white/10 bg-black"
+                className="ad-preview-frame mx-auto overflow-hidden rounded-[14px] border border-white/10 bg-black"
                 style={{ width: dev.width * scale, height: dev.height * scale }}
               >
                 {frameSrc ? (

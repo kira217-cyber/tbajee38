@@ -272,8 +272,11 @@ const RootLayout = () => {
   return (
     <div className="relative min-h-screen bg-[var(--neutral1000)]">
       <div className="ad-glow" aria-hidden="true" />
-      {/* ── ডেস্কটপ সাইডবার ── */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[var(--sidebar-width)] flex-col border-r border-[var(--primary500)]/15 bg-white/[0.04] backdrop-blur-xl lg:flex">
+      {/* ── ডেস্কটপ সাইডবার ──
+          পিছনে শুধু স্থির আলো (.ad-glow), তাই blur এ চেহারা বদলায় না — কিন্তু
+          blur থাকলে লাইভ প্রিভিউর (iframe) প্রতিটা ফ্রেমে GPU সাইডবারটা নতুন করে
+          আঁকে আর রঙ ঝিকমিক করে। তাই blur নেই, নিজের স্থির স্তর (isolate) */}
+      <aside className="isolate fixed inset-y-0 left-0 z-40 hidden w-[var(--sidebar-width)] flex-col border-r border-[var(--primary500)]/15 bg-white/[0.04] lg:flex">
         {sidebar}
       </aside>
 

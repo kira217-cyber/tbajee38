@@ -397,3 +397,19 @@ body {
     transition: none;
   }
 }
+
+/* ── লাইভ প্রিভিউ (থিম স্টুডিও, Site Identity, Footer) ──
+   iframe এ আসল সাইট প্রতি ফ্রেমে নড়ে (ব্যানার, gif)। কার্ডের blur আর
+   পাতার বাকি অংশ যেন তার সাথে বারবার নতুন করে না আঁকে — কার্ড নিরেট,
+   iframe নিজের আলাদা GPU স্তরে, আঁকা বাক্সের ভিতরেই আটকানো। */
+.ad-card--preview {
+  background: color-mix(in srgb, var(--neutral1000), white 6%);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.ad-preview-frame {
+  contain: strict;
+  isolation: isolate;
+  transform: translateZ(0);
+}
