@@ -26,18 +26,18 @@ const PromoBody = ({ promo, desktop = false }) => {
   const { t, lang } = useLanguage();
   const text = (lang === "en" && promo.content?.en) || promo.content?.bn || "";
   return (
-    <div style={desktop ? {} : { background: "#1b1a3d", borderRadius: m(12), padding: m(24), marginTop: m(-8) }}>
+    <div style={desktop ? {} : { background: "var(--promo-card-bg, #1b1a3d)", borderRadius: m(12), padding: m(24), marginTop: m(-8) }}>
       {(promo.body || []).map((src) => (
         <img key={src} src={src} alt="" loading="lazy" style={{ width: desktop ? 440 : "100%", maxWidth: "100%", display: "block" }} />
       ))}
-      {text && <div style={{ whiteSpace: "pre-line", color: "#dcdcea", fontSize: desktop ? 15 : m(26), lineHeight: 1.6, marginTop: desktop ? 16 : m(20) }}>{text}</div>}
+      {text && <div style={{ whiteSpace: "pre-line", color: "var(--promo-text, #dcdcea)", fontSize: desktop ? 15 : m(26), lineHeight: 1.6, marginTop: desktop ? 16 : m(20) }}>{text}</div>}
       {promo.link && (
         <a
           href={promo.link}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center justify-center"
-          style={{ marginTop: desktop ? 18 : m(24), height: desktop ? 40 : m(80), padding: desktop ? "0 30px" : `0 ${m(50)}`, borderRadius: desktop ? 20 : m(40), background: "#c0392f", color: "#fff", fontSize: desktop ? 16 : m(28), fontWeight: 600 }}
+          style={{ marginTop: desktop ? 18 : m(24), height: desktop ? 40 : m(80), padding: desktop ? "0 30px" : `0 ${m(50)}`, borderRadius: desktop ? 20 : m(40), background: "var(--promo-btn-bg, #c0392f)", color: "#fff", fontSize: desktop ? 16 : m(28), fontWeight: 600 }}
         >
           {t.promo.join}
         </a>
@@ -63,7 +63,7 @@ const PromoModal = ({ promo, title, onClose }) => {
       <div
         className="relative flex flex-col"
         onClick={(e) => e.stopPropagation()}
-        style={{ width: 920, height: 600, borderRadius: 20, background: "#12112b", padding: "70px 20px 20px" }}
+        style={{ width: 920, height: 600, borderRadius: 20, background: "var(--promo-modal-bg, #12112b)", padding: "70px 20px 20px" }}
       >
         <button type="button" aria-label={t.promo.close} onClick={onClose} className="absolute cursor-pointer" style={{ top: 22, right: 24, color: "#fff", fontSize: 34, lineHeight: 1 }}>
           ×
@@ -127,8 +127,8 @@ const Promotions = () => {
                 minWidth: isDesktop ? 126 : m(160),
                 padding: isDesktop ? "0 15px" : `0 ${m(24)}`,
                 borderRadius: isDesktop ? 14 : m(20),
-                background: active ? "#f3e6cd" : "rgb(255 255 255 / 0.06)",
-                color: active ? "#1d212d" : "#fff",
+                background: active ? "var(--promo-tab-active, #f3e6cd)" : "rgb(255 255 255 / 0.06)",
+                color: active ? "var(--promo-tab-active-text, #1d212d)" : "#fff",
                 fontSize: isDesktop ? 16 : m(24),
               }}
             >
@@ -149,7 +149,7 @@ const Promotions = () => {
         }}
       >
         {promotions.length === 0 && (
-          <div style={{ color: "#8c8fa3", fontSize: isDesktop ? 15 : m(28), padding: isDesktop ? "40px 0" : `${m(80)} 0` }}>{t.promo.empty}</div>
+          <div style={{ color: "var(--promo-muted, #8c8fa3)", fontSize: isDesktop ? 15 : m(28), padding: isDesktop ? "40px 0" : `${m(80)} 0` }}>{t.promo.empty}</div>
         )}
         {promotions.map((promo) => (
           <React.Fragment key={promo.id}>
@@ -195,7 +195,7 @@ const Promotions = () => {
                   width: isDesktop ? 78.4 : m(110),
                   height: isDesktop ? 31.2 : m(44),
                   borderRadius: isDesktop ? 20 : m(30),
-                  background: "#c0392f",
+                  background: "var(--promo-btn-bg, #c0392f)",
                   color: "#fff",
                   fontSize: isDesktop ? 16 : m(22),
                   fontWeight: 600,

@@ -34,7 +34,7 @@ export const EmptyState = () => {
         alt=""
         style={{ width: m(404), height: m(404) }}
       />
-      <span style={{ fontSize: m(50), color: "#1e9bf0" }}>{t.noData}</span>
+      <span style={{ fontSize: m(50), color: "var(--member-link, #1e9bf0)" }}>{t.noData}</span>
     </div>
   );
 };
@@ -43,7 +43,7 @@ export const EmptyState = () => {
 export const FilterChips = ({ options, value, onChange }) => (
   <div
     className="hide-scrollbar flex overflow-x-auto"
-    style={{ padding: `${m(20)} ${m(24)}`, gap: m(16), background: "#f5f5f9" }}
+    style={{ padding: `${m(20)} ${m(24)}`, gap: m(16), background: "var(--member-page-bg, #f5f5f9)" }}
   >
     {options.map((option) => {
       const active = option.key === value;
@@ -57,8 +57,8 @@ export const FilterChips = ({ options, value, onChange }) => (
             height: m(62),
             padding: `0 ${m(20)}`,
             borderRadius: m(14),
-            background: active ? "#1e9bf0" : "#e9e9ef",
-            color: active ? "#fff" : "#555",
+            background: active ? "var(--member-link, #1e9bf0)" : "#e9e9ef",
+            color: active ? "#fff" : "var(--member-text, #555)",
             fontSize: m(26),
             gap: m(10),
           }}
@@ -78,11 +78,11 @@ const MemberShell = ({ title, action, headerIcon, right, tabs, onTab, children }
   useHideBootLoader();
 
   return (
-    <div style={{ minHeight: "100vh", background: "#fff" }}>
+    <div style={{ minHeight: "100vh", background: "var(--member-surface, #fff)" }}>
       {/* হেডার */}
       <div
         className="relative flex items-center justify-center"
-        style={{ height: m(100), background: "#180836" }}
+        style={{ height: m(100), background: "var(--member-header-bg, #180836)" }}
       >
         <button
           type="button"
@@ -147,7 +147,7 @@ const MemberShell = ({ title, action, headerIcon, right, tabs, onTab, children }
               height: m(70),
               padding: `0 ${m(12)}`,
               borderRadius: m(35),
-              background: "#1e9bf0",
+              background: "var(--member-link, #1e9bf0)",
               color: "#fff",
               fontSize: m(23),
               lineHeight: 1.1,
@@ -162,7 +162,7 @@ const MemberShell = ({ title, action, headerIcon, right, tabs, onTab, children }
       {tabs && (
         <div
           className="hide-scrollbar flex overflow-x-auto"
-          style={{ background: "#fff", height: m(96) }}
+          style={{ background: "var(--member-surface, #fff)", height: m(96) }}
         >
           {tabs.map((item) => {
             const active = item.key === tab;
@@ -177,7 +177,7 @@ const MemberShell = ({ title, action, headerIcon, right, tabs, onTab, children }
                 className="relative shrink-0 cursor-pointer"
                 style={{
                   padding: `0 ${m(34)}`,
-                  color: active ? "#1e9bf0" : "#333",
+                  color: active ? "var(--member-link, #1e9bf0)" : "var(--member-title, #333)",
                   fontSize: m(30),
                 }}
               >
@@ -189,7 +189,7 @@ const MemberShell = ({ title, action, headerIcon, right, tabs, onTab, children }
                       width: "70%",
                       height: m(6),
                       borderRadius: m(3),
-                      background: "#1e9bf0",
+                      background: "var(--member-link, #1e9bf0)",
                     }}
                   />
                 )}
@@ -200,7 +200,7 @@ const MemberShell = ({ title, action, headerIcon, right, tabs, onTab, children }
       )}
 
       {/* মূল সাইটের মতো সাদা অংশ স্ক্রিনের নিচ পর্যন্ত (হেডার ১০০) */}
-      <div style={{ background: "#fff", minHeight: "calc(100vh - 1rem)" }}>{children}</div>
+      <div style={{ background: "var(--member-surface, #fff)", minHeight: "calc(100vh - 1rem)" }}>{children}</div>
     </div>
   );
 };

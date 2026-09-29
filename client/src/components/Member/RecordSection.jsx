@@ -61,7 +61,7 @@ const ProviderIcons = ({ list, size, withName = false, anyText }) => {
 };
 
 /** লাভ/ক্ষতির রঙ — লাভ সবুজ, ক্ষতি লাল */
-const plColor = (n) => (n > 0 ? "#16a34a" : n < 0 ? "#e8474c" : undefined);
+const plColor = (n) => (n > 0 ? "var(--member-success, #16a34a)" : n < 0 ? "var(--member-accent, #e8474c)" : undefined);
 
 /**
  * রেকর্ড দেখানোর ফিচার — বেটিং রেকর্ড, অ্যাকাউন্ট রেকর্ড,
@@ -99,7 +99,7 @@ const FilterSelect = ({ label, value, onChange, options }) => (
         height: 34,
         minWidth: 111,
         padding: "0 34px 0 5px",
-        border: "1px solid #e5e5e5",
+        border: "1px solid var(--member-line, #e5e5e5)",
         borderRadius: 5,
         color: "#646464",
         fontSize: 14,
@@ -199,7 +199,7 @@ const Desktop = ({ tab }) => {
   );
   const methodOptions = [...new Set(requests.rows.map((r) => r.methodId?.toLowerCase()).filter(Boolean))];
   const statusText = (st) => (
-    <span style={{ color: st === "approved" ? "#16a34a" : st === "rejected" ? "#e8474c" : "#f5a623" }}>{dr.status[st] || st}</span>
+    <span style={{ color: st === "approved" ? "var(--member-success, #16a34a)" : st === "rejected" ? "var(--member-accent, #e8474c)" : "#f5a623" }}>{dr.status[st] || st}</span>
   );
   const shortId = (r) => String(r._id || "").slice(-10).toUpperCase();
   const pl = useProfitLoss({ range, tab: PL_TABS[gameTab], enabled: isPL });
@@ -208,7 +208,7 @@ const Desktop = ({ tab }) => {
   const tv = dr.turnover;
   const turnRows = turn.rows.filter((r) => status === "all" || r.status === status);
   const turnStatus = (st) => (
-    <span style={{ color: st === "completed" ? "#16a34a" : st === "cancelled" ? "#999" : "#f5a623" }}>{tv.status[st] || st}</span>
+    <span style={{ color: st === "completed" ? "var(--member-success, #16a34a)" : st === "cancelled" ? "var(--member-muted, #999)" : "#f5a623" }}>{tv.status[st] || st}</span>
   );
   const typeLabel = (type) => t.records.types[type] || type;
 
@@ -370,9 +370,9 @@ const Desktop = ({ tab }) => {
   const dateText = isPL ? `${from}~${to}` : `${from} 00:00:00~${to} 23:59:59`;
 
   return (
-    <div className="flex flex-col" style={{ width: 1110, height: 620, background: "#fff" }}>
+    <div className="flex flex-col" style={{ width: 1110, height: 620, background: "var(--member-surface, #fff)" }}>
       {/* গেমের ট্যাব — মূল সাইটের `.tab-nav` (৪৭ উঁচু, বাঁয়ে ৩০) */}
-      <div className="flex items-center" style={{ height: 47, borderBottom: "1px solid #eee", padding: "0 60px 0 30px", gap: 20 }}>
+      <div className="flex items-center" style={{ height: 47, borderBottom: "1px solid var(--member-line, #eee)", padding: "0 60px 0 30px", gap: 20 }}>
         {tabs.map((label, index) => (
           <button
             key={label}
@@ -383,10 +383,10 @@ const Desktop = ({ tab }) => {
               setMethod("all");
             }}
             className="relative h-full cursor-pointer"
-            style={{ padding: "0 10px", fontSize: 14, color: index === gameTab ? "#fd2f2f" : "#666" }}
+            style={{ padding: "0 10px", fontSize: 14, color: index === gameTab ? "var(--member-accent, #fd2f2f)" : "var(--member-text, #666)" }}
           >
             {label}
-            {index === gameTab && <span className="absolute bottom-0 left-0 right-0" style={{ height: 3, background: "#fd2f2f" }} />}
+            {index === gameTab && <span className="absolute bottom-0 left-0 right-0" style={{ height: 3, background: "var(--member-accent, #fd2f2f)" }} />}
           </button>
         ))}
 
@@ -400,11 +400,11 @@ const Desktop = ({ tab }) => {
       </div>
 
       {/* ফিল্টার সারি — ৩৪ উঁচু ঘর, রেডিও ২০ */}
-      <div className="flex items-center" style={{ height: 55, padding: "0 15px", fontSize: 14, color: "#666" }}>
+      <div className="flex items-center" style={{ height: 55, padding: "0 15px", fontSize: 14, color: "var(--member-text, #666)" }}>
         {RANGES.map((key) => (
           <label key={key} className="flex cursor-pointer items-center" style={{ gap: 5, marginRight: 15 }}>
             <input type="radio" className="hidden" checked={range === key} onChange={() => setRange(key)} />
-            <span className="grid place-items-center" style={{ width: 20, height: 20, borderRadius: "50%", border: `2px solid ${range === key ? "#fb3232" : "#eaeaea"}`, background: "#fff" }}>
+            <span className="grid place-items-center" style={{ width: 20, height: 20, borderRadius: "50%", border: `2px solid ${range === key ? "#fb3232" : "#eaeaea"}`, background: "var(--member-surface, #fff)" }}>
               {range === key && <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#fb3232" }} />}
             </span>
             {key !== "custom" && <span>{bnNum(key === "days7" ? t.member.pages.days7 : t.member.ranges[key])}</span>}
@@ -413,7 +413,7 @@ const Desktop = ({ tab }) => {
 
         <span
           className="flex items-center"
-          style={{ height: 34, width: isPL ? 136 : 235, marginLeft: -10, padding: "0 5px 0 30px", position: "relative", borderRadius: 5, border: "1px solid #e5e5e5", background: "#f5f5f5", color: "#646464", whiteSpace: "nowrap", overflow: "hidden" }}
+          style={{ height: 34, width: isPL ? 136 : 235, marginLeft: -10, padding: "0 5px 0 30px", position: "relative", borderRadius: 5, border: "1px solid var(--member-line, #e5e5e5)", background: "#f5f5f5", color: "#646464", whiteSpace: "nowrap", overflow: "hidden" }}
         >
           <CalendarIcon />
           {bnNum(dateText)}
@@ -460,9 +460,9 @@ const Desktop = ({ tab }) => {
 
       {/* সারিগুলো, নয়তো খালি অবস্থা */}
       {table && table.rows.length > 0 ? (
-        <div className="flex-1 overflow-y-auto" style={{ background: "#fff", padding: "0 25px" }}>
+        <div className="flex-1 overflow-y-auto" style={{ background: "var(--member-surface, #fff)", padding: "0 25px" }}>
           {table.rows.map((row) => (
-            <div key={row.key} className="flex items-center" style={{ height: 40, borderBottom: "1px solid #f0f0f0", fontSize: 12, color: "#333" }}>
+            <div key={row.key} className="flex items-center" style={{ height: 40, borderBottom: "1px solid #f0f0f0", fontSize: 12, color: "var(--member-title, #333)" }}>
               {row.cells.map((cell, index) => (
                 <span key={index} className="truncate" style={cellStyle(index)}>
                   {cell}
@@ -472,13 +472,13 @@ const Desktop = ({ tab }) => {
           ))}
         </div>
       ) : (
-        <div className="flex-1 text-center" style={{ color: "#666", fontSize: 12, background: "#efefef", paddingTop: 190 }}>
+        <div className="flex-1 text-center" style={{ color: "var(--member-text, #666)", fontSize: 12, background: "#efefef", paddingTop: 190 }}>
           {table?.loading ? t.auth.wait : t.member.desk.noMatch}
         </div>
       )}
 
       {/* মোট সারি — ৩০ উঁচু, #e3e2e2 */}
-      <div className="flex items-center" style={{ height: 30, background: "#e3e2e2", padding: "0 25px", fontSize: 12, color: "#666" }}>
+      <div className="flex items-center" style={{ height: 30, background: "#e3e2e2", padding: "0 25px", fontSize: 12, color: "var(--member-text, #666)" }}>
         {(table ? table.totals : columns.map((_, index) => (index === 0 ? t.member.desk.total : (config.zero ?? "0.00")))).map((cell, index) => (
           <span key={`total-${index}`} className="truncate" style={cellStyle(index)}>
             {cell}
@@ -487,16 +487,16 @@ const Desktop = ({ tab }) => {
       </div>
 
       {/* নিচের বার — ৪৬ উঁচু */}
-      <div className="flex items-center justify-end" style={{ height: 46, padding: "0 20px", gap: 10, fontSize: 12, color: "#666" }}>
+      <div className="flex items-center justify-end" style={{ height: 46, padding: "0 20px", gap: 10, fontSize: 12, color: "var(--member-text, #666)" }}>
         {config.note && <span style={{ color: "#fc5449" }}>{config.note}</span>}
         <span>{t.member.desk.decimal}</span>
         <button
           type="button"
           onClick={() => setDecimal((v) => !v)}
           className="relative cursor-pointer"
-          style={{ width: 40, height: 24, borderRadius: 12, background: decimal ? "#fd2f2f" : "#dcdce0", transition: "background .2s" }}
+          style={{ width: 40, height: 24, borderRadius: 12, background: decimal ? "var(--member-accent, #fd2f2f)" : "#dcdce0", transition: "background .2s" }}
         >
-          <span className="absolute" style={{ top: 2, left: decimal ? 18 : 2, width: 20, height: 20, borderRadius: "50%", background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,.25)", transition: "left .2s" }} />
+          <span className="absolute" style={{ top: 2, left: decimal ? 18 : 2, width: 20, height: 20, borderRadius: "50%", background: "var(--member-surface, #fff)", boxShadow: "0 1px 3px rgba(0,0,0,.25)", transition: "left .2s" }} />
         </button>
       </div>
     </div>
@@ -520,7 +520,7 @@ const Desktop = ({ tab }) => {
  */
 const GAME_TABS = ["RNG", "FISH", "LIVE", "PVP", "SPORTS"];
 
-const BLUE = "#1e9bf0";
+const BLUE = "var(--member-link, #1e9bf0)";
 
 /**
  * নীল রেখার বোতামের চেহারায় আসল `<select>` — মূল সাইটের "সব" / "প্রকার"
@@ -535,7 +535,7 @@ const SelectChip = ({ value, onChange, options, children, filled = false, gray =
       borderRadius: m(8),
       border: gray ? "none" : `1px solid ${BLUE}`,
       background: filled ? BLUE : gray ? "#e2e2e6" : "#fff",
-      color: filled ? "#fff" : gray ? "#555" : BLUE,
+      color: filled ? "#fff" : gray ? "var(--member-text, #555)" : BLUE,
       fontSize: m(28),
       gap: m(10),
       ...style,
@@ -624,7 +624,7 @@ const Mobile = ({ tab, titleKey, withGameTabs = false, withDays7 = false, pageTi
       {requestKind ? (
         <>
           {/* আজ / গতকাল / 7 দিন — নীল দাগের ট্যাব */}
-          <div className="flex" style={{ background: "#fff", height: m(96), borderBottom: "1px solid #eee" }}>
+          <div className="flex" style={{ background: "var(--member-surface, #fff)", height: m(96), borderBottom: "1px solid var(--member-line, #eee)" }}>
             {["today", "yesterday", "days7"].map((key) => (
               <button
                 key={key}
@@ -653,7 +653,7 @@ const Mobile = ({ tab, titleKey, withGameTabs = false, withDays7 = false, pageTi
                 {method === "all" ? t.memberPage.pages.recordType : method.toUpperCase()}
               </SelectChip>
             )}
-            <span className="flex shrink-0 items-center" style={{ height: m(62), padding: `0 ${m(26)}`, borderRadius: m(8), border: `1px solid ${BLUE}`, background: "#fff", color: BLUE, fontSize: m(28), gap: m(12), marginLeft: requestKind === "deposit" ? "auto" : 0 }}>
+            <span className="flex shrink-0 items-center" style={{ height: m(62), padding: `0 ${m(26)}`, borderRadius: m(8), border: `1px solid ${BLUE}`, background: "var(--member-surface, #fff)", color: BLUE, fontSize: m(28), gap: m(12), marginLeft: requestKind === "deposit" ? "auto" : 0 }}>
               <Icon name="discount-calender" size={m(34)} />
               {shortDate(span.from)}- {shortDate(span.to)}
             </span>
@@ -669,13 +669,13 @@ const Mobile = ({ tab, titleKey, withGameTabs = false, withDays7 = false, pageTi
             <Icon name="achievement-done" size={m(32)} />
             {ranges.find((r) => r.key === range)?.label}
           </SelectChip>
-          <span className="flex shrink-0 items-center" style={{ height: m(62), padding: `0 ${m(20)}`, borderRadius: m(8), background: "#e2e2e6", color: "#555", fontSize: m(28), gap: m(12) }}>
+          <span className="flex shrink-0 items-center" style={{ height: m(62), padding: `0 ${m(20)}`, borderRadius: m(8), background: "#e2e2e6", color: "var(--member-text, #555)", fontSize: m(28), gap: m(12) }}>
             <Icon name="discount-calender" size={m(34)} />
             {shortDate(span.from)}- {shortDate(span.to)}
           </span>
         </div>
       ) : isBet ? (
-        <div className="flex items-center" style={{ background: "#fff", padding: `${m(16)} ${m(20)}`, gap: m(16), borderBottom: "1px solid #eee" }}>
+        <div className="flex items-center" style={{ background: "var(--member-surface, #fff)", padding: `${m(16)} ${m(20)}`, gap: m(16), borderBottom: "1px solid var(--member-line, #eee)" }}>
           <SelectChip value={range} onChange={setRange} options={keys.map((k) => [k, k === "days7" ? t.memberPage.pages.days7 : t.member.ranges[k]])} style={{ padding: `0 ${m(18)}` }}>
             <Icon name="discount-calender" size={m(34)} />
             {shortDate(span.from)} 00:00:00- {shortDate(span.to)} 23:59:59
@@ -688,7 +688,7 @@ const Mobile = ({ tab, titleKey, withGameTabs = false, withDays7 = false, pageTi
       ) : (
       <div
         className="hide-scrollbar flex overflow-x-auto items-center"
-        style={{ background: "#fff", padding: `${m(20)} ${m(24)}`, gap: m(16) }}
+        style={{ background: "var(--member-surface, #fff)", padding: `${m(20)} ${m(24)}`, gap: m(16) }}
       >
         {ranges.map((option) => {
           const active = option.key === range;
@@ -702,9 +702,9 @@ const Mobile = ({ tab, titleKey, withGameTabs = false, withDays7 = false, pageTi
                 height: m(62),
                 padding: `0 ${m(16)}`,
                 borderRadius: m(12),
-                background: active ? "#1e9bf0" : "#fff",
-                border: `1px solid ${active ? "#1e9bf0" : "#1e9bf0"}`,
-                color: active ? "#fff" : "#1e9bf0",
+                background: active ? "var(--member-link, #1e9bf0)" : "var(--member-surface, #fff)",
+                border: `1px solid ${active ? "var(--member-link, #1e9bf0)" : "var(--member-link, #1e9bf0)"}`,
+                color: active ? "#fff" : "var(--member-link, #1e9bf0)",
                 fontSize: m(26),
                 gap: m(10),
               }}
@@ -721,8 +721,8 @@ const Mobile = ({ tab, titleKey, withGameTabs = false, withDays7 = false, pageTi
             height: m(62),
             padding: `0 ${m(16)}`,
             borderRadius: m(12),
-            border: "1px solid #1e9bf0",
-            color: "#1e9bf0",
+            border: "1px solid var(--member-link, #1e9bf0)",
+            color: "var(--member-link, #1e9bf0)",
             fontSize: m(26),
             gap: m(12),
           }}
@@ -736,17 +736,17 @@ const Mobile = ({ tab, titleKey, withGameTabs = false, withDays7 = false, pageTi
       {!isBet ? (
         <MobileRows kind={requestKind || (isPL ? "pl" : isAcc ? "acc" : "")} acc={acc} requests={requests} pl={pl} turn={turn} />
       ) : betRows.length > 0 ? (
-        <div style={{ padding: `${m(20)} ${m(24)} ${m(200)}`, background: "#f5f5f9" }}>
+        <div style={{ padding: `${m(20)} ${m(24)} ${m(200)}`, background: "var(--member-page-bg, #f5f5f9)" }}>
           {betRows.map((row) => (
             <div
               key={row.gameUId}
-              style={{ background: "#fff", borderRadius: m(16), padding: m(24), marginBottom: m(16), fontSize: m(26), color: "#333" }}
+              style={{ background: "var(--member-surface, #fff)", borderRadius: m(16), padding: m(24), marginBottom: m(16), fontSize: m(26), color: "var(--member-title, #333)" }}
             >
               <div className="flex items-center" style={{ gap: m(12), marginBottom: m(14) }}>
                 <span className="min-w-0 flex-1 truncate" style={{ fontSize: m(30), fontWeight: 700 }}>
                   {(lang === "bn" && row.gameNameBn) || row.gameName || "—"}
                 </span>
-                <span style={{ color: "#1e9bf0", fontSize: m(24) }}>{row.providerCode}</span>
+                <span style={{ color: "var(--member-link, #1e9bf0)", fontSize: m(24) }}>{row.providerCode}</span>
               </div>
               {[
                 [t.member.desk.betRecord.columns[1], fmt(row.bet)],
@@ -755,9 +755,9 @@ const Mobile = ({ tab, titleKey, withGameTabs = false, withDays7 = false, pageTi
                 [t.member.desk.betRecord.columns[4], <span key="pl" style={{ color: plColor(row.net) }}>{fmt(row.net)}</span>],
                 [t.member.desk.betRecord.columns[6], row.count],
               ].map(([label, value]) => (
-                <div key={label} className="flex justify-between" style={{ padding: `${m(6)} 0`, color: "#666" }}>
+                <div key={label} className="flex justify-between" style={{ padding: `${m(6)} 0`, color: "var(--member-text, #666)" }}>
                   <span>{label}</span>
-                  <span style={{ color: "#333", fontWeight: 600 }}>{value}</span>
+                  <span style={{ color: "var(--member-title, #333)", fontWeight: 600 }}>{value}</span>
                 </div>
               ))}
             </div>
@@ -776,7 +776,7 @@ const Mobile = ({ tab, titleKey, withGameTabs = false, withDays7 = false, pageTi
             [t.memberPage.pages.win, betRows.reduce((sum, r) => sum + Number(r.win || 0), 0)],
             [t.memberPage.pages.plLabel, betRows.reduce((sum, r) => sum + Number(r.net || 0), 0)],
           ].map(([label, value]) => (
-            <div key={label} style={{ fontSize: m(26), color: "#333", lineHeight: 1.25 }}>
+            <div key={label} style={{ fontSize: m(26), color: "var(--member-title, #333)", lineHeight: 1.25 }}>
               {label}
               <div style={{ color: "#6cc31b" }}>{fmt(value)}</div>
             </div>
@@ -792,7 +792,7 @@ const Mobile = ({ tab, titleKey, withGameTabs = false, withDays7 = false, pageTi
             zIndex: 5,
             background: "#fff5f5",
             borderTop: "1px solid #ffdcdc",
-            color: "#e60012",
+            color: "var(--member-accent, #e60012)",
             fontSize: m(26),
             padding: m(20),
             gap: m(12),
@@ -824,15 +824,15 @@ const MobileRows = ({ kind, acc, requests, pl, turn }) => {
   const r = t.records;
 
   const card = (key, head, lines, right, footer = null) => (
-    <div key={key} style={{ background: "#fff", borderRadius: m(16), padding: m(24), marginBottom: m(16), fontSize: m(26), color: "#333" }}>
+    <div key={key} style={{ background: "var(--member-surface, #fff)", borderRadius: m(16), padding: m(24), marginBottom: m(16), fontSize: m(26), color: "var(--member-title, #333)" }}>
       <div className="flex items-center" style={{ gap: m(12), marginBottom: m(10) }}>
         <span className="min-w-0 flex-1 truncate" style={{ fontSize: m(30), fontWeight: 700 }}>{head}</span>
         {right}
       </div>
       {lines.map(([label, value]) => (
-        <div key={label} className="flex justify-between" style={{ padding: `${m(6)} 0`, color: "#666" }}>
+        <div key={label} className="flex justify-between" style={{ padding: `${m(6)} 0`, color: "var(--member-text, #666)" }}>
           <span>{label}</span>
-          <span style={{ color: "#333", fontWeight: 600, textAlign: "right" }}>{value}</span>
+          <span style={{ color: "var(--member-title, #333)", fontWeight: 600, textAlign: "right" }}>{value}</span>
         </div>
       ))}
       {footer}
@@ -840,7 +840,7 @@ const MobileRows = ({ kind, acc, requests, pl, turn }) => {
   );
 
   const badge = (status) => {
-    const color = status === "approved" ? "#16a34a" : status === "rejected" ? "#e8474c" : "#f59e0b";
+    const color = status === "approved" ? "var(--member-success, #16a34a)" : status === "rejected" ? "var(--member-accent, #e8474c)" : "#f59e0b";
     return (
       <span style={{ fontSize: m(22), color, border: `1px solid ${color}`, borderRadius: m(20), padding: `${m(4)} ${m(14)}` }}>
         {r.status[status] || status}
@@ -890,7 +890,7 @@ const MobileRows = ({ kind, acc, requests, pl, turn }) => {
     loading = turn.loading;
     const tv = t.deskRec.turnover;
     const cols = t.deskRec.columns[3];
-    const color = (st) => (st === "completed" ? "#16a34a" : st === "cancelled" ? "#999" : "#f59e0b");
+    const color = (st) => (st === "completed" ? "var(--member-success, #16a34a)" : st === "cancelled" ? "#999" : "#f59e0b");
     list = turn.rows.map((row) =>
       card(
         row._id,
@@ -910,9 +910,9 @@ const MobileRows = ({ kind, acc, requests, pl, turn }) => {
         // অগ্রগতির দাগ — কতটা খেলা হয়েছে
         <div style={{ marginTop: m(12) }}>
           <div style={{ height: m(12), borderRadius: m(6), background: "#eee", overflow: "hidden" }}>
-            <div style={{ width: `${row.percent ?? 0}%`, height: "100%", background: "#1e9bf0" }} />
+            <div style={{ width: `${row.percent ?? 0}%`, height: "100%", background: "var(--member-link, #1e9bf0)" }} />
           </div>
-          <div style={{ textAlign: "right", fontSize: m(22), color: "#1e9bf0", marginTop: m(4) }}>{row.percent ?? 0}%</div>
+          <div style={{ textAlign: "right", fontSize: m(22), color: "var(--member-link, #1e9bf0)", marginTop: m(4) }}>{row.percent ?? 0}%</div>
         </div>,
       ),
     );
@@ -938,9 +938,9 @@ const MobileRows = ({ kind, acc, requests, pl, turn }) => {
   }
 
   if (!list.length) {
-    return loading ? <div style={{ padding: m(60), textAlign: "center", color: "#999", fontSize: m(26) }}>{t.auth.wait}</div> : <EmptyState />;
+    return loading ? <div style={{ padding: m(60), textAlign: "center", color: "var(--member-muted, #999)", fontSize: m(26) }}>{t.auth.wait}</div> : <EmptyState />;
   }
-  return <div style={{ padding: `${m(20)} ${m(24)} ${m(30)}`, background: "#f5f5f9" }}>{list}</div>;
+  return <div style={{ padding: `${m(20)} ${m(24)} ${m(30)}`, background: "var(--member-page-bg, #f5f5f9)" }}>{list}</div>;
 };
 
 const RecordSection = (props) => {

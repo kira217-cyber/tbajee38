@@ -23,8 +23,8 @@ import PaymentModeGate, { ChangeModeButton } from "./PaymentModeGate";
  * হিসাব, আর TrxID লিখে জমা।
  */
 
-const RED = "#ec2529";
-const DRED = "#ff2f34";
+const RED = "var(--member-accent, #ec2529)";
+const DRED = "var(--member-accent, #ff2f34)";
 
 /** চ্যানেলের বোনাস ট্যাগ — শূন্য হলে ("+0%") কিছু না */
 const bonusTag = (channel) => {
@@ -49,7 +49,7 @@ const MethodLogo = ({ method, size, radius }) =>
         placeItems: "center",
         fontSize: 11,
         fontWeight: 700,
-        color: "#888",
+        color: "var(--member-muted, #888)",
       }}
     >
       {String(method.methodName?.en || method.methodId).slice(0, 2).toUpperCase()}
@@ -72,7 +72,7 @@ const DeskChip = ({ active, onClick, children, width }) => (
       border: `1px solid ${active ? DRED : "#eee"}`,
       color: active ? "#646464" : "#8f8f8f",
       fontSize: 14,
-      background: "#fff",
+      background: "var(--member-surface, #fff)",
     }}
   >
     {children}
@@ -81,7 +81,7 @@ const DeskChip = ({ active, onClick, children, width }) => (
 
 const DeskRow = ({ label, children, wide }) => (
   <div className="flex items-start" style={{ marginBottom: 18 }}>
-    <span style={{ width: wide ? 190 : 100, flexShrink: 0, fontSize: 14, color: "#222", lineHeight: wide ? "20px" : "38px", paddingTop: wide ? 10 : 0 }}>{label}</span>
+    <span style={{ width: wide ? 190 : 100, flexShrink: 0, fontSize: 14, color: "var(--member-title, #222)", lineHeight: wide ? "20px" : "38px", paddingTop: wide ? 10 : 0 }}>{label}</span>
     <div className="min-w-0 flex-1">{children}</div>
   </div>
 );
@@ -112,12 +112,12 @@ const Desktop = ({ onChangeMode }) => {
               width: 205,
               height: 68,
               borderRadius: 6,
-              background: "#fff",
+              background: "var(--member-surface, #fff)",
               border: `1px solid ${item.methodId === f.methodId ? DRED : "transparent"}`,
               marginBottom: 15,
               padding: "0 14px",
               gap: 12,
-              color: "#666",
+              color: "var(--member-text, #666)",
               fontSize: 14,
               opacity: payStep && item.methodId !== f.methodId ? 0.5 : 1,
             }}
@@ -137,8 +137,8 @@ const Desktop = ({ onChangeMode }) => {
       </div>
 
       {/* ডানের ফর্ম */}
-      <div className="flex flex-col" style={{ width: 855, height: 620, background: "#fff" }}>
-        <div className="flex items-center" style={{ height: 47, padding: "0 61px 0 20px", gap: 8, flexShrink: 0, borderBottom: "1px solid #eee" }}>
+      <div className="flex flex-col" style={{ width: 855, height: 620, background: "var(--member-surface, #fff)" }}>
+        <div className="flex items-center" style={{ height: 47, padding: "0 61px 0 20px", gap: 8, flexShrink: 0, borderBottom: "1px solid var(--member-line, #eee)" }}>
           <span style={{ width: 4, height: 16, background: "#23e63a" }} />
           <span style={{ fontSize: 16, color: "#000" }}>{payStep ? d.payTitle : t.member.depositInfo}</span>
           <span className="flex-1" />
@@ -168,8 +168,8 @@ const Desktop = ({ onChangeMode }) => {
         </div>
 
         <div className="hide-scrollbar min-h-0 flex-1" style={{ padding: "18px 20px 0", overflowY: "auto" }}>
-          {f.loading && <div style={{ color: "#999", fontSize: 13, padding: 20 }}>{d.loading}</div>}
-          {!f.loading && !f.methods.length && <div style={{ color: "#999", fontSize: 13, padding: 20 }}>{d.noMethods}</div>}
+          {f.loading && <div style={{ color: "var(--member-muted, #999)", fontSize: 13, padding: 20 }}>{d.loading}</div>}
+          {!f.loading && !f.methods.length && <div style={{ color: "var(--member-muted, #999)", fontSize: 13, padding: 20 }}>{d.noMethods}</div>}
 
           {f.method && !payStep && (
             <>
@@ -195,7 +195,7 @@ const Desktop = ({ onChangeMode }) => {
                   {f.method.channels.map((item) => (
                     <DeskChip key={item.id} active={item.id === f.channelId} onClick={() => f.setChannelId(item.id)}>
                       {f.tv(item.name)}
-                      {bonusTag(item) && <span style={{ marginInlineStart: 6, color: "#3fbf6e", fontSize: 12 }}>{bonusTag(item)}</span>}
+                      {bonusTag(item) && <span style={{ marginInlineStart: 6, color: "var(--member-success, #3fbf6e)", fontSize: 12 }}>{bonusTag(item)}</span>}
                     </DeskChip>
                   ))}
                 </div>
@@ -231,7 +231,7 @@ const Desktop = ({ onChangeMode }) => {
                         border: `1px solid ${String(value) === f.amount ? DRED : "rgba(236,37,55,.25)"}`,
                         color: String(value) === f.amount ? DRED : "#646464",
                         fontSize: 14,
-                        background: "#fff",
+                        background: "var(--member-surface, #fff)",
                       }}
                     >
                       {value.toLocaleString("en-US")}
@@ -247,7 +247,7 @@ const Desktop = ({ onChangeMode }) => {
                     width: 223,
                     height: 34,
                     marginTop: 10,
-                    border: "1px solid #e5e5e5",
+                    border: "1px solid var(--member-line, #e5e5e5)",
                     borderRadius: 5,
                     background: "#f5f5f5",
                     padding: "0 12px",
@@ -261,7 +261,7 @@ const Desktop = ({ onChangeMode }) => {
                   {t.member.limit} ৳ {fmt(f.min)} - ৳ {fmt(f.max)}
                 </div>
                 {f.preview.totalBonus > 0 && (
-                  <div style={{ marginTop: 6, fontSize: 13, color: "#3fbf6e" }}>
+                  <div style={{ marginTop: 6, fontSize: 13, color: "var(--member-success, #3fbf6e)" }}>
                     {d.bonus}: +৳ {fmt(f.preview.totalBonus)} · {d.credited}: ৳ {fmt(f.preview.credited)}
                   </div>
                 )}
@@ -272,7 +272,7 @@ const Desktop = ({ onChangeMode }) => {
           {f.method && payStep && <DeskPay f={f} />}
         </div>
 
-        <div className="flex items-center" style={{ height: 48, padding: "0 30px", gap: 12, flexShrink: 0, borderTop: "1px solid #eee" }}>
+        <div className="flex items-center" style={{ height: 48, padding: "0 30px", gap: 12, flexShrink: 0, borderTop: "1px solid var(--member-line, #eee)" }}>
           {payStep && (
             <button
               type="button"
@@ -330,8 +330,8 @@ const DeskPay = ({ f }) => {
         >
           <MethodLogo method={f.method} size={44} radius={6} />
           <div className="min-w-0 flex-1">
-            <div style={{ fontSize: 13, color: "#666" }}>{d.sendTo}{f.contact.label ? ` · ${f.tv(f.contact.label)}` : ""}</div>
-            <div style={{ fontSize: 24, fontWeight: 700, color: "#222", letterSpacing: 1 }}>{f.contact.number}</div>
+            <div style={{ fontSize: 13, color: "var(--member-text, #666)" }}>{d.sendTo}{f.contact.label ? ` · ${f.tv(f.contact.label)}` : ""}</div>
+            <div style={{ fontSize: 24, fontWeight: 700, color: "var(--member-title, #222)", letterSpacing: 1 }}>{f.contact.number}</div>
           </div>
           <button
             type="button"
@@ -348,8 +348,8 @@ const DeskPay = ({ f }) => {
       <div className="grid" style={{ gridTemplateColumns: "1fr 1fr", gap: "6px 24px", marginBottom: 16, fontSize: 13 }}>
         {lines.map(([label, value]) => (
           <div key={label} className="flex justify-between" style={{ borderBottom: "1px solid #f2f2f2", padding: "6px 0" }}>
-            <span style={{ color: "#888" }}>{label}</span>
-            <span style={{ color: "#333", fontWeight: 600 }}>{value}</span>
+            <span style={{ color: "var(--member-muted, #888)" }}>{label}</span>
+            <span style={{ color: "var(--member-title, #333)", fontWeight: 600 }}>{value}</span>
           </div>
         ))}
       </div>
@@ -372,7 +372,7 @@ const DeskPay = ({ f }) => {
               borderRadius: 4,
               padding: "0 12px",
               fontSize: 14,
-              color: "#333",
+              color: "var(--member-title, #333)",
               outline: "none",
             }}
           />
@@ -388,7 +388,7 @@ const DeskPay = ({ f }) => {
 const SectionTitle = ({ dot, children }) => (
   <div className="flex items-center" style={{ height: m(70), gap: m(14) }}>
     <span style={{ width: m(12), height: m(12), borderRadius: "50%", background: dot }} />
-    <span style={{ fontSize: m(26), fontWeight: 700, color: "#333" }}>{children}</span>
+    <span style={{ fontSize: m(26), fontWeight: 700, color: "var(--member-title, #333)" }}>{children}</span>
   </div>
 );
 
@@ -405,7 +405,7 @@ const MobChip = ({ active, onClick, children, height = m(114), fontSize = m(24) 
       color: active ? RED : "#000",
       fontSize,
       fontWeight: 700,
-      background: "#fff",
+      background: "var(--member-surface, #fff)",
       lineHeight: 1.2,
     }}
   >
@@ -422,9 +422,9 @@ const Mobile = () => {
 
   return (
     <MemberShell title={payStep ? d.payTitle : money.depositTitle} headerIcon="deprecm3">
-      <div style={{ padding: `0 ${m(20)} ${m(140)}`, background: "#fff" }}>
-        {f.loading && <div style={{ padding: m(40), color: "#999", fontSize: m(26) }}>{d.loading}</div>}
-        {!f.loading && !f.methods.length && <div style={{ padding: m(40), color: "#999", fontSize: m(26) }}>{d.noMethods}</div>}
+      <div style={{ padding: `0 ${m(20)} ${m(140)}`, background: "var(--member-surface, #fff)" }}>
+        {f.loading && <div style={{ padding: m(40), color: "var(--member-muted, #999)", fontSize: m(26) }}>{d.loading}</div>}
+        {!f.loading && !f.methods.length && <div style={{ padding: m(40), color: "var(--member-muted, #999)", fontSize: m(26) }}>{d.noMethods}</div>}
 
         {f.method && !payStep && (
           <>
@@ -444,7 +444,7 @@ const Mobile = () => {
                       padding: m(15),
                       borderRadius: m(10),
                       border: `${m(2)} solid ${active ? RED : "#e4e4e4"}`,
-                      background: "#fff",
+                      background: "var(--member-surface, #fff)",
                     }}
                   >
                     <span className="grid w-full place-items-center" style={{ height: m(70) }}>
@@ -476,7 +476,7 @@ const Mobile = () => {
               {f.method.channels.map((item) => (
                 <MobChip key={item.id} active={item.id === f.channelId} onClick={() => f.setChannelId(item.id)}>
                   {f.tv(item.name)}
-                  {bonusTag(item) && <div style={{ color: "#3fbf6e", fontSize: m(20) }}>{bonusTag(item)}</div>}
+                  {bonusTag(item) && <div style={{ color: "var(--member-success, #3fbf6e)", fontSize: m(20) }}>{bonusTag(item)}</div>}
                 </MobChip>
               ))}
             </div>
@@ -513,7 +513,7 @@ const Mobile = () => {
                       height: m(71),
                       borderRadius: m(12),
                       border: `${m(2)} solid ${active ? RED : "rgb(236 37 41 / 0.2)"}`,
-                      background: "#fff",
+                      background: "var(--member-surface, #fff)",
                       color: active ? RED : "#565656",
                       fontSize: m(24),
                       fontWeight: 700,
@@ -525,19 +525,19 @@ const Mobile = () => {
               })}
             </div>
 
-            <div className="flex items-center" style={{ marginTop: m(20), height: m(70), borderRadius: m(12), border: `${m(2)} solid #e4e4e4` }}>
+            <div className="flex items-center" style={{ marginTop: m(20), height: m(70), borderRadius: m(12), border: `${m(2)} solid var(--member-line, #e4e4e4)` }}>
               <span style={{ padding: `0 ${m(20)}`, fontSize: m(26), fontWeight: 700, color: "#1c1c1c" }}>৳</span>
               <input
                 value={f.amount}
                 onChange={(e) => f.setAmount(e.target.value)}
                 inputMode="decimal"
                 placeholder={`${fmt(f.min)} - ${fmt(f.max)}`}
-                style={{ flex: 1, height: "100%", border: "none", outline: "none", background: "transparent", fontSize: m(28), color: "#333" }}
+                style={{ flex: 1, height: "100%", border: "none", outline: "none", background: "transparent", fontSize: m(28), color: "var(--member-title, #333)" }}
               />
             </div>
 
             {f.preview.totalBonus > 0 && (
-              <div style={{ marginTop: m(14), fontSize: m(24), color: "#3fbf6e" }}>
+              <div style={{ marginTop: m(14), fontSize: m(24), color: "var(--member-success, #3fbf6e)" }}>
                 {d.bonus}: +৳ {fmt(f.preview.totalBonus)} · {d.credited}: ৳ {fmt(f.preview.credited)}
               </div>
             )}
@@ -550,7 +550,7 @@ const Mobile = () => {
       {/* নিচের ফিক্সড বোতাম বার */}
       <div className="fixed right-0 bottom-0 left-0 flex" style={{ height: m(110), zIndex: 5 }}>
         {payStep && (
-          <button type="button" onClick={f.back} className="cursor-pointer" style={{ width: m(250), background: "#fff", color: RED, fontSize: m(30), borderTop: `1px solid ${RED}` }}>
+          <button type="button" onClick={f.back} className="cursor-pointer" style={{ width: m(250), background: "var(--member-surface, #fff)", color: RED, fontSize: m(30), borderTop: `1px solid ${RED}` }}>
             {d.back}
           </button>
         )}
@@ -592,8 +592,8 @@ const MobilePay = ({ f }) => {
           <div className="flex items-center" style={{ gap: m(16) }}>
             <MethodLogo method={f.method} size={m(70)} radius={m(10)} />
             <div className="min-w-0 flex-1">
-              <div style={{ fontSize: m(24), color: "#666" }}>{d.sendTo}</div>
-              <div style={{ fontSize: m(44), fontWeight: 700, color: "#222", letterSpacing: m(2) }}>{f.contact.number}</div>
+              <div style={{ fontSize: m(24), color: "var(--member-text, #666)" }}>{d.sendTo}</div>
+              <div style={{ fontSize: m(44), fontWeight: 700, color: "var(--member-title, #222)", letterSpacing: m(2) }}>{f.contact.number}</div>
             </div>
           </div>
           <button
@@ -611,8 +611,8 @@ const MobilePay = ({ f }) => {
       <div style={{ marginTop: m(24), fontSize: m(26) }}>
         {lines.map(([label, value]) => (
           <div key={label} className="flex justify-between" style={{ padding: `${m(14)} 0`, borderBottom: "1px solid #f2f2f2" }}>
-            <span style={{ color: "#888" }}>{label}</span>
-            <span style={{ color: "#333", fontWeight: 700 }}>{value}</span>
+            <span style={{ color: "var(--member-muted, #888)" }}>{label}</span>
+            <span style={{ color: "var(--member-title, #333)", fontWeight: 700 }}>{value}</span>
           </div>
         ))}
       </div>
@@ -623,7 +623,7 @@ const MobilePay = ({ f }) => {
 
       {(f.method.inputs || []).map((input) => (
         <div key={input.key} style={{ marginTop: m(24) }}>
-          <div style={{ fontSize: m(26), fontWeight: 700, color: "#333", marginBottom: m(10) }}>
+          <div style={{ fontSize: m(26), fontWeight: 700, color: "var(--member-title, #333)", marginBottom: m(10) }}>
             {f.tv(input.label) || input.key}
             {input.required && <span style={{ color: RED }}> *</span>}
           </div>
@@ -636,11 +636,11 @@ const MobilePay = ({ f }) => {
               display: "block",
               width: "100%",
               height: m(90),
-              border: `${m(2)} solid #e4e4e4`,
+              border: `${m(2)} solid var(--member-line, #e4e4e4)`,
               borderRadius: m(12),
               padding: `0 ${m(24)}`,
               fontSize: m(28),
-              color: "#333",
+              color: "var(--member-title, #333)",
               outline: "none",
             }}
           />
@@ -686,12 +686,12 @@ const AutoDesktop = ({ onChangeMode }) => {
     <div className="flex" style={{ width: 1110, height: 620 }}>
       {/* সমর্থিত মাধ্যম — গেটওয়ের পাতায় এর যেকোনোটা বাছা যায় */}
       <div className="hide-scrollbar" style={{ width: 255, height: 620, background: "#f7f7f7", padding: "22px 25px", overflowY: "auto" }}>
-        <div style={{ fontSize: 13, color: "#999", marginBottom: 12 }}>{p.methodsTitle}</div>
+        <div style={{ fontSize: 13, color: "var(--member-muted, #999)", marginBottom: 12 }}>{p.methodsTitle}</div>
         {methods.map((item) => (
           <div
             key={item.code}
             className="flex items-center"
-            style={{ width: 205, height: 68, borderRadius: 6, background: "#fff", marginBottom: 15, padding: "0 14px", gap: 12, color: "#666", fontSize: 14 }}
+            style={{ width: 205, height: 68, borderRadius: 6, background: "var(--member-surface, #fff)", marginBottom: 15, padding: "0 14px", gap: 12, color: "var(--member-text, #666)", fontSize: 14 }}
           >
             <MethodLogo method={autoLogo(item)} size={38} radius={6} />
             <span className="truncate">{a.tv(item.name) || item.code}</span>
@@ -700,8 +700,8 @@ const AutoDesktop = ({ onChangeMode }) => {
         {methods.length > 0 && <div style={{ fontSize: 12, color: "#aaa", lineHeight: 1.5 }}>{p.methodsHint}</div>}
       </div>
 
-      <div className="flex flex-col" style={{ width: 855, height: 620, background: "#fff" }}>
-        <div className="flex items-center" style={{ height: 47, padding: "0 61px 0 20px", gap: 8, flexShrink: 0, borderBottom: "1px solid #eee" }}>
+      <div className="flex flex-col" style={{ width: 855, height: 620, background: "var(--member-surface, #fff)" }}>
+        <div className="flex items-center" style={{ height: 47, padding: "0 61px 0 20px", gap: 8, flexShrink: 0, borderBottom: "1px solid var(--member-line, #eee)" }}>
           <span style={{ width: 4, height: 16, background: "#23e63a" }} />
           <span style={{ fontSize: 16, color: "#000" }}>{p.autoDeposit}</span>
           <span className="flex-1" />
@@ -718,7 +718,7 @@ const AutoDesktop = ({ onChangeMode }) => {
 
         <div className="hide-scrollbar min-h-0 flex-1" style={{ padding: "18px 20px 0", overflowY: "auto" }}>
           {a.loading ? (
-            <div style={{ color: "#999", fontSize: 13, padding: 20 }}>{p.loading}</div>
+            <div style={{ color: "var(--member-muted, #999)", fontSize: 13, padding: 20 }}>{p.loading}</div>
           ) : (
             <>
               <div
@@ -736,7 +736,7 @@ const AutoDesktop = ({ onChangeMode }) => {
                     {a.bonuses.map((b) => (
                       <DeskChip key={b._id} active={a.bonusId === b._id} onClick={() => a.setBonusId(b._id)}>
                         {a.tv(b.title)}
-                        <span style={{ marginInlineStart: 6, color: "#3fbf6e", fontSize: 12 }}>{bonusValue(b)}</span>
+                        <span style={{ marginInlineStart: 6, color: "var(--member-success, #3fbf6e)", fontSize: 12 }}>{bonusValue(b)}</span>
                         {b.bonusScope === "first-deposit" && <span style={{ marginInlineStart: 6, color: "#f5a623", fontSize: 11 }}>{p.firstOnlyTag}</span>}
                       </DeskChip>
                     ))}
@@ -759,7 +759,7 @@ const AutoDesktop = ({ onChangeMode }) => {
                         border: `1px solid ${String(value) === a.amount ? DRED : "rgba(236,37,55,.25)"}`,
                         color: String(value) === a.amount ? DRED : "#646464",
                         fontSize: 14,
-                        background: "#fff",
+                        background: "var(--member-surface, #fff)",
                       }}
                     >
                       {value.toLocaleString("en-US")}
@@ -771,13 +771,13 @@ const AutoDesktop = ({ onChangeMode }) => {
                   onChange={(e) => a.setAmount(e.target.value)}
                   inputMode="decimal"
                   placeholder={t.member.amountPlaceholder}
-                  style={{ width: 223, height: 34, marginTop: 10, border: "1px solid #e5e5e5", borderRadius: 5, background: "#f5f5f5", padding: "0 12px", fontSize: 13, color: "#646464", outline: "none", display: "block" }}
+                  style={{ width: 223, height: 34, marginTop: 10, border: "1px solid var(--member-line, #e5e5e5)", borderRadius: 5, background: "#f5f5f5", padding: "0 12px", fontSize: 13, color: "#646464", outline: "none", display: "block" }}
                 />
                 <div style={{ marginTop: 14, fontSize: 14, color: "#f00", wordSpacing: 3 }}>
                   {t.member.limit} ৳ {fmt(a.min)} - ৳ {fmt(a.max)}
                 </div>
                 {a.preview.bonus > 0 && (
-                  <div style={{ marginTop: 6, fontSize: 13, color: "#3fbf6e" }}>
+                  <div style={{ marginTop: 6, fontSize: 13, color: "var(--member-success, #3fbf6e)" }}>
                     {p.bonus}: +৳ {fmt(a.preview.bonus)} · {p.credited}: ৳ {fmt(a.preview.credited)}
                     {a.preview.target > 0 && ` · ${p.turnover}: ৳ ${fmt(a.preview.target)} (×${a.preview.multiplier})`}
                   </div>
@@ -787,7 +787,7 @@ const AutoDesktop = ({ onChangeMode }) => {
           )}
         </div>
 
-        <div className="flex items-center" style={{ height: 48, padding: "0 30px", gap: 12, flexShrink: 0, borderTop: "1px solid #eee" }}>
+        <div className="flex items-center" style={{ height: 48, padding: "0 30px", gap: 12, flexShrink: 0, borderTop: "1px solid var(--member-line, #eee)" }}>
           <button
             type="button"
             disabled={a.busy || a.loading}
@@ -812,9 +812,9 @@ const AutoMobile = () => {
 
   return (
     <MemberShell title={p.autoDeposit} headerIcon="deprecm3">
-      <div style={{ padding: `0 ${m(20)} ${m(140)}`, background: "#fff" }}>
+      <div style={{ padding: `0 ${m(20)} ${m(140)}`, background: "var(--member-surface, #fff)" }}>
         {a.loading ? (
-          <div style={{ padding: m(40), color: "#999", fontSize: m(26) }}>{p.loading}</div>
+          <div style={{ padding: m(40), color: "var(--member-muted, #999)", fontSize: m(26) }}>{p.loading}</div>
         ) : (
           <>
             {methods.length > 0 && (
@@ -825,18 +825,18 @@ const AutoMobile = () => {
                     <div
                       key={item.code}
                       className="flex flex-col items-center"
-                      style={{ height: m(160), padding: m(15), borderRadius: m(10), border: `${m(2)} solid #e4e4e4`, background: "#fff" }}
+                      style={{ height: m(160), padding: m(15), borderRadius: m(10), border: `${m(2)} solid var(--member-line, #e4e4e4)`, background: "var(--member-surface, #fff)" }}
                     >
                       <span className="grid w-full place-items-center" style={{ height: m(70) }}>
                         <MethodLogo method={autoLogo(item)} size={m(64)} radius={m(8)} />
                       </span>
-                      <span className="text-center" style={{ marginTop: m(16), fontSize: m(20), fontWeight: 700, color: "#333", lineHeight: 1.15 }}>
+                      <span className="text-center" style={{ marginTop: m(16), fontSize: m(20), fontWeight: 700, color: "var(--member-title, #333)", lineHeight: 1.15 }}>
                         {a.tv(item.name) || item.code}
                       </span>
                     </div>
                   ))}
                 </div>
-                <div style={{ marginTop: m(12), fontSize: m(22), color: "#999" }}>{p.methodsHint}</div>
+                <div style={{ marginTop: m(12), fontSize: m(22), color: "var(--member-muted, #999)" }}>{p.methodsHint}</div>
               </>
             )}
 
@@ -852,7 +852,7 @@ const AutoMobile = () => {
                   {a.bonuses.map((b) => (
                     <MobChip key={b._id} height={m(110)} active={a.bonusId === b._id} onClick={() => a.setBonusId(b._id)}>
                       {a.tv(b.title)}
-                      <div style={{ color: "#3fbf6e", fontSize: m(20) }}>
+                      <div style={{ color: "var(--member-success, #3fbf6e)", fontSize: m(20) }}>
                         {bonusValue(b)}
                         {b.bonusScope === "first-deposit" && <span style={{ color: "#f5a623" }}> · {p.firstOnlyTag}</span>}
                       </div>
@@ -876,7 +876,7 @@ const AutoMobile = () => {
                       height: m(71),
                       borderRadius: m(12),
                       border: `${m(2)} solid ${active ? RED : "rgb(236 37 41 / 0.2)"}`,
-                      background: "#fff",
+                      background: "var(--member-surface, #fff)",
                       color: active ? RED : "#565656",
                       fontSize: m(24),
                       fontWeight: 700,
@@ -888,19 +888,19 @@ const AutoMobile = () => {
               })}
             </div>
 
-            <div className="flex items-center" style={{ marginTop: m(20), height: m(70), borderRadius: m(12), border: `${m(2)} solid #e4e4e4` }}>
+            <div className="flex items-center" style={{ marginTop: m(20), height: m(70), borderRadius: m(12), border: `${m(2)} solid var(--member-line, #e4e4e4)` }}>
               <span style={{ padding: `0 ${m(20)}`, fontSize: m(26), fontWeight: 700, color: "#1c1c1c" }}>৳</span>
               <input
                 value={a.amount}
                 onChange={(e) => a.setAmount(e.target.value)}
                 inputMode="decimal"
                 placeholder={`${fmt(a.min)} - ${fmt(a.max)}`}
-                style={{ flex: 1, height: "100%", border: "none", outline: "none", background: "transparent", fontSize: m(28), color: "#333" }}
+                style={{ flex: 1, height: "100%", border: "none", outline: "none", background: "transparent", fontSize: m(28), color: "var(--member-title, #333)" }}
               />
             </div>
 
             {a.preview.bonus > 0 && (
-              <div style={{ marginTop: m(14), fontSize: m(24), color: "#3fbf6e", lineHeight: 1.5 }}>
+              <div style={{ marginTop: m(14), fontSize: m(24), color: "var(--member-success, #3fbf6e)", lineHeight: 1.5 }}>
                 {p.bonus}: +৳ {fmt(a.preview.bonus)} · {p.credited}: ৳ {fmt(a.preview.credited)}
                 {a.preview.target > 0 && ` · ${p.turnover}: ৳ ${fmt(a.preview.target)}`}
               </div>

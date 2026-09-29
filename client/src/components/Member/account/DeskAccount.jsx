@@ -117,7 +117,7 @@ const DeskAccount = () => {
   const [whole, cents] = balance.split(".");
 
   return (
-    <div className="relative overflow-hidden" style={{ width: 1110, height: 620, background: "#fff", lineHeight: 1 }}>
+    <div className="relative overflow-hidden" style={{ width: 1110, height: 620, background: "var(--member-surface, #fff)", lineHeight: 1 }}>
       {/* ── প্রোফাইল কার্ড ── */}
       <div className="absolute overflow-hidden" style={{ left: 30, top: 40, width: 330, height: 539, borderRadius: 10, boxShadow: "0 7px 62px 0 rgba(170,106,226,.19)" }}>
         <div className="relative flex items-center" style={{ height: 100, padding: "0 16px", background: "linear-gradient(0deg,#f1f9ff00 0,#b3bcc880 100%)" }}>
@@ -139,7 +139,7 @@ const DeskAccount = () => {
                 </span>
                 <img src={`${IMG}/signin.png`} alt="" style={{ width: 26, height: 26 }} />
               </div>
-              <div className="flex items-center" style={{ color: "#666", fontSize: 16, fontWeight: 900 }}>
+              <div className="flex items-center" style={{ color: "var(--member-text, #666)", fontSize: 16, fontWeight: 900 }}>
                 <span className="truncate">{user.username}</span>
                 <img
                   src={`${IMG}/edit-icon.svg`}
@@ -186,7 +186,7 @@ const DeskAccount = () => {
           <img src={`${IMG}/${hidden ? "eyes-icon-close" : "eyes-icon-open"}.svg`} alt="" role="presentation" onClick={() => setHidden((v) => !v)} style={{ width: 18, height: 18, cursor: "pointer" }} />
         </div>
 
-        <div style={{ paddingLeft: 30, color: "#666", fontSize: 14 }}>
+        <div style={{ paddingLeft: 30, color: "var(--member-text, #666)", fontSize: 14 }}>
           {[
             ["security-deposit.png", ov?.pendingDeposits ?? 0, p.pendingDeposit],
             ["security-withdrawal.png", ov?.pendingWithdraws ?? 0, p.pendingWithdraw],
@@ -237,7 +237,7 @@ const DeskAccount = () => {
               {suggest.map((r) => (
                 <div key={r.key} className="text-center" style={{ width: "33.33%", fontSize: 16 }}>
                   <IconInfo name={r.icon} onClick={() => open(r.key)} />
-                  <div style={{ marginTop: 12, color: "#666", lineHeight: 1 }}>{short[r.key]}</div>
+                  <div style={{ marginTop: 12, color: "var(--member-text, #666)", lineHeight: 1 }}>{short[r.key]}</div>
                 </div>
               ))}
             </div>
@@ -252,7 +252,7 @@ const DeskAccount = () => {
             <span className="absolute" style={{ left: 0, top: 2 }}>
               <IconInfo name={r.icon} />
             </span>
-            <div className="flex items-center" style={{ gap: 5, color: "#666", fontSize: 16, lineHeight: "18px", marginBottom: 8 }}>
+            <div className="flex items-center" style={{ gap: 5, color: "var(--member-text, #666)", fontSize: 16, lineHeight: "18px", marginBottom: 8 }}>
               {r.title}
               {r.done !== undefined && <img src={`${IMG}/${r.done ? "icon-checked" : "icon-danger"}.png`} alt="" style={{ width: 18, height: 18 }} />}
             </div>

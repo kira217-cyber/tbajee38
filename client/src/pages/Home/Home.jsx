@@ -53,7 +53,7 @@ const SportsPanel = ({ title, onOpen }) => (
       }}
     >
       <div className="flex items-center" style={{ height: m(50), marginTop: m(15) }}>
-        <span style={{ paddingInlineStart: m(24), fontSize: m(30), fontWeight: 700, color: "#fff" }}>{title}</span>
+        <span style={{ paddingInlineStart: m(24), fontSize: m(30), fontWeight: 700, color: "var(--home-title, #fff)" }}>{title}</span>
       </div>
       <img
         src="/assets/site/sports-entrance.webp"

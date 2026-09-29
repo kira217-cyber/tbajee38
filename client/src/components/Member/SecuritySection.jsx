@@ -68,12 +68,12 @@ const SecuritySection = () => {
 
   return (
     <MemberShell title={page.title}>
-      <div style={{ background: "#f5f5f9", padding: `${m(24)} ${m(24)} ${m(40)}` }}>
+      <div style={{ background: "var(--member-page-bg, #f5f5f9)", padding: `${m(24)} ${m(24)} ${m(40)}` }}>
         {/* স্কোর কার্ড */}
         <div
           className="flex items-center"
           style={{
-            background: "#fff",
+            background: "var(--member-surface, #fff)",
             borderRadius: m(16),
             padding: m(30),
             gap: m(30),
@@ -95,7 +95,7 @@ const SecuritySection = () => {
           </span>
 
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: m(32), color: "#222", fontWeight: 700 }}>
+            <div style={{ fontSize: m(32), color: "var(--member-title, #222)", fontWeight: 700 }}>
               {page.scoreLabel} {p.levels[level]}
             </div>
             <div className="flex" style={{ marginTop: m(16), gap: m(1) }}>
@@ -108,11 +108,11 @@ const SecuritySection = () => {
                 />
               ))}
             </div>
-            <div style={{ fontSize: m(24), color: "#666", marginTop: m(14) }}>
-              {page.lastIp} <span style={{ color: "#333" }}>{ov?.user?.lastLoginIp || "—"}</span>
+            <div style={{ fontSize: m(24), color: "var(--member-text, #666)", marginTop: m(14) }}>
+              {page.lastIp} <span style={{ color: "var(--member-title, #333)" }}>{ov?.user?.lastLoginIp || "—"}</span>
             </div>
-            <div style={{ fontSize: m(24), color: "#666", marginTop: m(6) }}>
-              {page.lastTime} <span style={{ color: "#333" }}>{fmtDateTime(ov?.user?.lastLoginAt)}</span>
+            <div style={{ fontSize: m(24), color: "var(--member-text, #666)", marginTop: m(6) }}>
+              {page.lastTime} <span style={{ color: "var(--member-title, #333)" }}>{fmtDateTime(ov?.user?.lastLoginAt)}</span>
             </div>
           </div>
         </div>
@@ -120,7 +120,7 @@ const SecuritySection = () => {
         <div
           className="text-center"
           style={{
-            color: "#e60012",
+            color: "var(--member-accent, #e60012)",
             fontSize: m(30),
             lineHeight: 1.5,
             padding: `${m(30)} ${m(10)}`,
@@ -130,7 +130,7 @@ const SecuritySection = () => {
         </div>
 
         {/* করণীয়ের সারি */}
-        <div style={{ background: "#fff", borderRadius: m(16), overflow: "hidden" }}>
+        <div style={{ background: "var(--member-surface, #fff)", borderRadius: m(16), overflow: "hidden" }}>
           {ROWS.map((row, index) => (
             <button
               key={row.key}
@@ -149,7 +149,7 @@ const SecuritySection = () => {
 
               <span style={{ flex: 1 }}>
                 {/* ব্যাজ ও পেন্সিল লেখার সাথেই — লম্বা শিরোনাম ভাঙলে শেষ লাইনের পরে বসে */}
-                <span className="block" style={{ fontSize: m(32), color: "#222", fontWeight: 600, lineHeight: 1.5 }}>
+                <span className="block" style={{ fontSize: m(32), color: "var(--member-title, #222)", fontWeight: 600, lineHeight: 1.5 }}>
                   {rowTitle(row.key)}
                   {statusOf(row) && (
                     <img src={`${IMG}/${statusOf(row)}.svg`} alt="" className="inline-block" style={{ width: m(37), height: m(37), marginLeft: m(12), verticalAlign: "-0.15em" }} />
@@ -158,7 +158,7 @@ const SecuritySection = () => {
                 </span>
                 <span
                   className="block"
-                  style={{ fontSize: m(24), color: "#999", marginTop: m(8), lineHeight: 1.4 }}
+                  style={{ fontSize: m(24), color: "var(--member-muted, #999)", marginTop: m(8), lineHeight: 1.4 }}
                 >
                   {rowDesc(row.key)}
                 </span>

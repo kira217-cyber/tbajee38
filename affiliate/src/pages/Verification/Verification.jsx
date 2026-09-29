@@ -3,7 +3,7 @@ import { BadgeCheck, Car, Check, Clock3, IdCard, Info, Plane, ShieldCheck, Trian
 
 import { Loading } from "../../components/Panel/Panel";
 import { Glass, Hero, Ring, Title } from "../../components/Panel/Pro";
-import { TONES } from "../../components/Panel/tones";
+import { HEROES, TONES } from "../../components/Panel/tones";
 import FormAlert from "../../components/FormAlert/FormAlert";
 import FormField from "../../components/FormField/FormField";
 import { useLanguage } from "../../Context/LanguageProvider";
@@ -156,7 +156,7 @@ const Verification = () => {
     const tone = done ? TONE : TONES.pending;
     return (
       <div className="flex flex-col gap-5">
-        <Hero tone={TONE} Icon={ShieldCheck} eyebrow={t("navDashboard")} title={t("verification")} subtitle={t("verifyIntro")} aside={stepper} />
+        <Hero tone={TONE} heroBg={HEROES.verify} Icon={ShieldCheck} eyebrow={t("navDashboard")} title={t("verification")} subtitle={t("verifyIntro")} aside={stepper} />
         <Glass tone={tone} rgb={done} lined={!done} className="mx-auto w-full max-w-[640px] p-8">
           <div className="flex flex-col items-center gap-4 text-center">
             <Ring value={done ? 1 : 0.62} max={1} size={116} stroke={9} tone={tone}>
@@ -172,7 +172,7 @@ const Verification = () => {
 
   return (
     <div className="flex flex-col gap-5">
-      <Hero tone={TONE} Icon={ShieldCheck} eyebrow={t("navDashboard")} title={t("verification")} subtitle={t("verifyIntro")} aside={stepper} />
+      <Hero tone={TONE} heroBg={HEROES.verify} Icon={ShieldCheck} eyebrow={t("navDashboard")} title={t("verification")} subtitle={t("verifyIntro")} aside={stepper} />
 
       {tv(data?.setting?.note) ? (
         <p className="flex items-start gap-2 rounded-[16px] border border-white/[0.06] bg-white/[0.03] p-4 text-[13px] text-[var(--text-muted)]">

@@ -165,7 +165,7 @@ const GameCard = ({ game, showHot = false }) => {
               minWidth: m(73),
               height: m(33),
               padding: `${m(5)} ${m(22)}`,
-              background: "var(--accent-bright)",
+              background: "var(--home-badge, var(--accent-bright))",
               // `.game-item-display-name` — TR ও BL কোণা ৫
               borderRadius: `0 ${m(5)} 0 ${m(5)}`,
               color: "#fff",
@@ -188,7 +188,7 @@ const GameCard = ({ game, showHot = false }) => {
             // "গরম" চিহ্ন থাকলে নামটা তার আগেই কাটে
             paddingInlineEnd: showHot && game.isHot ? m(60) : m(32.5),
             fontSize: m(26),
-            color: "#fff",
+            color: "var(--home-card-name, #fff)",
           }}
         >
           {title}
@@ -203,8 +203,8 @@ const GameCard = ({ game, showHot = false }) => {
               bottom: m(6),
               padding: `0 ${m(4)}`,
               borderRadius: m(4),
-              background: "#FBD029",
-              color: "#7c2d12",
+              background: "var(--home-hot, #FBD029)",
+              color: "var(--home-hot-text, #7c2d12)",
               fontSize: m(16),
               fontWeight: 700,
               lineHeight: m(24),
@@ -252,7 +252,7 @@ const GameCard = ({ game, showHot = false }) => {
               minWidth: "var(--badge-w)",
               height: "var(--badge-h)",
               padding: "0 9px",
-              background: "var(--accent-bright)",
+              background: "var(--home-badge, var(--accent-bright))",
               borderRadius: "var(--badge-radius)",
               color: "#fff",
               fontSize: 14,
@@ -299,7 +299,7 @@ const GameCard = ({ game, showHot = false }) => {
               width: 130,
               height: 40,
               borderRadius: 7,
-              background: "#da394f",
+              background: "var(--home-play, #da394f)",
               color: "#fff",
               fontSize: 16,
               fontWeight: 700,
@@ -314,7 +314,7 @@ const GameCard = ({ game, showHot = false }) => {
               width: 130,
               height: 40,
               borderRadius: 7,
-              background: "#1678ff",
+              background: "var(--home-trial, #1678ff)",
               color: "#fff",
               fontSize: 16,
               fontWeight: 600,

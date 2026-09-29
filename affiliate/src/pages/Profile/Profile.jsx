@@ -94,7 +94,7 @@ const Profile = () => {
         <div
           className="relative h-[120px] lg:h-[150px]"
           style={{
-            background: `radial-gradient(80% 140% at 85% 0%, color-mix(in srgb, ${TONE}, transparent 45%), transparent 60%), radial-gradient(70% 120% at 10% 100%, color-mix(in srgb, var(--accent), transparent 40%), transparent 60%), linear-gradient(120deg, #1b0d3f, #2a0f45)`,
+            background: `radial-gradient(80% 140% at 85% 0%, color-mix(in srgb, ${TONE}, transparent 45%), transparent 60%), radial-gradient(70% 120% at 10% 100%, color-mix(in srgb, var(--accent), transparent 40%), transparent 60%), linear-gradient(120deg, var(--aff-profile-hero, #1b0d3f), #2a0f45)`,
           }}
         >
           <span

@@ -47,7 +47,7 @@ export const MobileField = ({ kind, required, error, trailing, trailingWidth = 0
     <div style={{ position: "relative", height: m(90) }}>
       <span
         className="pointer-events-none absolute flex items-center justify-center"
-        style={{ left: m(35), top: m(23), width: m(44), height: m(44), color: "#d6e2f4" }}
+        style={{ left: m(35), top: m(23), width: m(44), height: m(44), color: "var(--auth-line, #d6e2f4)" }}
       >
         <Icon name={ICONS[kind]} size={m(44)} />
       </span>
@@ -57,10 +57,10 @@ export const MobileField = ({ kind, required, error, trailing, trailingWidth = 0
           display: "block",
           width: "100%",
           height: m(90),
-          background: "#010e22",
-          border: `1px solid ${error ? ERR : "#d6e2f4"}`,
+          background: "var(--auth-field, #010e22)",
+          border: `1px solid ${error ? ERR : "var(--auth-line, #d6e2f4)"}`,
           borderRadius: m(24),
-          color: "#d6e2f4",
+          color: "var(--auth-line, #d6e2f4)",
           fontSize: m(33),
           padding: `0 calc(${m(30)} + ${m(trailingWidth)}) 0 ${m(100)}`,
           outline: "none",
@@ -89,7 +89,7 @@ export const MobilePasswordField = (props) => {
           onClick={() => setShow((v) => !v)}
           aria-label="show password"
           className="absolute flex cursor-pointer items-center"
-          style={{ right: m(30), top: m(23), color: "#d6e2f4" }}
+          style={{ right: m(30), top: m(23), color: "var(--auth-line, #d6e2f4)" }}
         >
           <Icon name={show ? "show-eyes-default" : "hide-eyes-default"} size={m(44)} />
         </button>
@@ -113,7 +113,7 @@ export const MobileSideButton = ({ onClick, disabled, children }) => (
       minWidth: m(170),
       padding: `0 ${m(18)}`,
       borderRadius: m(30),
-      background: disabled ? "#27416a" : "var(--accent-bright)",
+      background: disabled ? "#27416a" : "var(--auth-submit, var(--accent-bright))",
       color: disabled ? "#a8b4c8" : "#fff",
       fontSize: m(26),
       fontWeight: 600,
@@ -136,7 +136,7 @@ export const MobileSubmit = ({ busy, children, width = "100%", type = "submit", 
         width,
         height: m(100),
         borderRadius: m(50),
-        background: "var(--accent-bright)",
+        background: "var(--auth-submit, var(--accent-bright))",
         color: "#fff",
         fontSize: m(42),
         fontWeight: 600,
@@ -153,7 +153,7 @@ export const MobileAuthShell = ({ onBack, children }) => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   return (
-    <div style={{ minHeight: "100vh", background: "#010e22", position: "relative", paddingBottom: m(80) }}>
+    <div style={{ minHeight: "100vh", background: "var(--auth-field, #010e22)", position: "relative", paddingBottom: m(80) }}>
       <button
         type="button"
         onClick={onBack || (() => navigate(-1))}

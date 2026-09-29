@@ -58,7 +58,7 @@ const Mobile = () => {
   const progress = vip ? `${Number(vip.xp || 0).toLocaleString("en-US")} / ${Number(vip.next?.xpRequired ?? vip.xp ?? 0).toLocaleString("en-US")}` : "0 / 0";
 
   return (
-    <div style={{ minHeight: "100vh", background: `url(${RIMG}/mall-bg.png) center ${m(-34)} / 100% no-repeat #f5f5f9`, paddingBottom: m(60) }}>
+    <div style={{ minHeight: "100vh", background: `url(${RIMG}/mall-bg.png) center ${m(-34)} / 100% no-repeat var(--member-page-bg, #f5f5f9)`, paddingBottom: m(60) }}>
       {/* স্বচ্ছ হেডার */}
       <div className="relative flex items-center justify-center" style={{ height: m(100) }}>
         <button type="button" onClick={() => navigate(-1)} aria-label="back" className="absolute flex cursor-pointer items-center" style={{ left: m(50), width: m(68), height: m(68) }}>
@@ -99,7 +99,7 @@ const Mobile = () => {
         </button>
 
         <div className="flex items-center" style={{ padding: `0 ${m(42)}`, gap: m(15) }}>
-          <img src={user?.avatar || "/assets/mobile/avatar.png"} alt="" style={{ width: m(116), height: m(116), borderRadius: "50%", border: `${m(6)} solid #caa86d`, objectFit: "cover", background: "#fff" }} />
+          <img src={user?.avatar || "/assets/mobile/avatar.png"} alt="" style={{ width: m(116), height: m(116), borderRadius: "50%", border: `${m(6)} solid #caa86d`, objectFit: "cover", background: "var(--member-surface, #fff)" }} />
           <div className="flex flex-col items-start" style={{ color: "rgba(37,37,37,.6)", fontWeight: 700 }}>
             <button type="button" onClick={copy} className="flex cursor-pointer items-center" style={{ color: "#000", fontSize: m(30), fontWeight: 700, gap: m(10) }}>
               {user?.username ?? "-"}
@@ -125,7 +125,7 @@ const Mobile = () => {
             {vip?.level?.name || `VIP${user?.vipLevel ?? 0}`}
           </span>
           <span className="flex-1" />
-          <span className="flex items-center" style={{ fontSize: m(28), color: "#555", gap: m(8) }}>
+          <span className="flex items-center" style={{ fontSize: m(28), color: "var(--member-text, #555)", gap: m(8) }}>
             {page.benefit}
             <span style={{ width: m(26), height: m(26), background: `url(${RIMG}/right.png) center / contain no-repeat` }} />
           </span>
@@ -134,7 +134,7 @@ const Mobile = () => {
           <span style={{ flex: 1, height: m(14), borderRadius: m(7), background: "#c9ced8", overflow: "hidden" }}>
             <span className="block h-full" style={{ width: `${vip?.progress ?? 0}%`, background: "linear-gradient(90deg,#caa86d,#f2d48b)" }} />
           </span>
-          <span style={{ fontSize: m(26), color: "#555" }}>{progress}</span>
+          <span style={{ fontSize: m(26), color: "var(--member-text, #555)" }}>{progress}</span>
         </div>
       </div>
 
@@ -148,7 +148,7 @@ const Mobile = () => {
             className="relative flex cursor-pointer flex-col items-center justify-center"
             style={{ aspectRatio: "316 / 260", background: `url(${RIMG}/${tile.bg}.png) center / 100% 100% no-repeat`, borderRadius: m(14), color: "#fff", gap: m(20) }}
           >
-            <span className="relative grid place-items-center" style={{ width: m(94), height: m(94), borderRadius: "50%", background: "#fff" }}>
+            <span className="relative grid place-items-center" style={{ width: m(94), height: m(94), borderRadius: "50%", background: "var(--member-surface, #fff)" }}>
               <img src={`${RIMG}/${tile.icon}.png`} alt="" style={{ width: m(46) }} />
               {tile.key === "claim" && available > 0 && (
                 <span className="absolute grid place-items-center" style={{ top: m(-14), right: m(-22), minWidth: m(46), height: m(46), padding: `0 ${m(8)}`, borderRadius: m(23), background: "#f5222d", fontSize: m(26), color: "#fff" }}>

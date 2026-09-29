@@ -41,7 +41,7 @@ const DESKTOP_PROVIDERS = [
 
 const MobileFooter = () => {
   const { t } = useLanguage();
-  const title = { fontSize: m(20), color: "#fff" };
+  const title = { fontSize: m(20), color: "var(--footer-heading, #fff)" };
 
   return (
     <footer style={{ paddingBottom: m(130) }}>
@@ -62,7 +62,7 @@ const MobileFooter = () => {
               alt=""
               style={{ width: m(90), height: m(30), marginTop: m(10), objectFit: "contain" }}
             />
-            <div style={{ fontSize: m(18), color: "#d9d9d9", marginTop: m(10) }}>
+            <div style={{ fontSize: m(18), color: "var(--footer-text, #d9d9d9)", marginTop: m(10) }}>
               local_license_1
             </div>
           </div>
@@ -143,7 +143,7 @@ const MobileFooter = () => {
 
         <div
           className="text-center"
-          style={{ fontSize: m(20), color: "#d9d9d9", marginTop: m(31) }}
+          style={{ fontSize: m(20), color: "var(--footer-text, #d9d9d9)", marginTop: m(31) }}
         >
           {t.footer.copyright}
         </div>
@@ -175,12 +175,12 @@ const DesktopFooter = () => {
   ];
 
   return (
-    <footer style={{ background: "var(--surface)", paddingTop: 35, paddingBottom: 40 }}>
+    <footer style={{ background: "var(--footer-bg, var(--surface))", paddingTop: 35, paddingBottom: 40 }}>
       <div style={{ width: "var(--content-w)", marginInline: "auto" }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 40 }}>
           {columns.map((column) => (
             <div key={column.title}>
-              <div style={{ color: "#fff", fontSize: 17, marginBottom: 18 }}>{column.title}</div>
+              <div style={{ color: "var(--footer-heading, #fff)", fontSize: 17, marginBottom: 18 }}>{column.title}</div>
               <ul style={{ display: "grid", gap: 12 }}>
                 {column.items.map((item) =>
                   typeof item === "string" ? (

@@ -3,19 +3,14 @@ import { Dices, Info, Percent, Receipt, TrendingDown, TrendingUp, UserPlus, Wall
 
 import { Loading, Pager } from "../../components/Panel/Panel";
 import { Badge, Blank, Donut, Glass, Hero, Segmented, Title } from "../../components/Panel/Pro";
-import { TONES } from "../../components/Panel/tones";
+import { HEROES, PARTS, TONES } from "../../components/Panel/tones";
 import { money, when } from "../../components/Panel/panelFormat";
 import { useLanguage } from "../../Context/LanguageProvider";
 import { fetchCommissionHistory, fetchCommissionStatus } from "../../features/affiliate/affiliateApi";
 
 const TONE = TONES.commission;
 
-const PART = {
-  refer: "#22d3ee",
-  deposit: "#fbd029",
-  gameLoss: "#34d399",
-  gameWin: "#ff777c",
-};
+const PART = PARTS;
 
 const TYPES = [
   { key: "all", label: "filterAll" },
@@ -90,6 +85,7 @@ const CommissionStatus = () => {
     <div className="flex flex-col gap-5">
       <Hero
         tone={TONE}
+        heroBg={HEROES.commission}
         Icon={Percent}
         eyebrow={t("navDashboard")}
         title={t("navCommissionStatus")}

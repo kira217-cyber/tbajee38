@@ -171,7 +171,7 @@ const Categories = ({ active = "HOME", onChange }) => {
 
                 <span
                   className="w-full truncate text-center"
-                  style={{ marginTop: m(15), fontSize: m(20), color: "#fff" }}
+                  style={{ marginTop: m(15), fontSize: m(20), color: "var(--home-cat-text, #fff)" }}
                 >
                   {tab.label ?? t.tabsMobile[tab.key]}
                 </span>
@@ -207,7 +207,7 @@ const Categories = ({ active = "HOME", onChange }) => {
               height: DESK_ITEM_H,
               padding: "0 8px",
               borderRadius: 7,
-              color: "#fff",
+              color: "var(--home-cat-text, #fff)",
               fontSize: 17,
               fontWeight: 500,
               transition: ".2s",
@@ -261,7 +261,7 @@ const Categories = ({ active = "HOME", onChange }) => {
             {isActive && (
               <span
                 className="absolute bottom-0 left-0"
-                style={{ width: "100%", height: 2, background: "#bc43f4" }}
+                style={{ width: "100%", height: 2, background: "var(--home-cat-active, #bc43f4)" }}
               />
             )}
           </button>

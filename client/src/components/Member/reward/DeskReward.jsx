@@ -51,13 +51,13 @@ const Coupon = ({ ticket, onClaim, page, rf, tv }) => {
         {/* ছিদ্রের দাগ */}
         <span className="absolute" style={{ right: -4, top: 6, bottom: 6, width: 8, background: "radial-gradient(circle,#f2c6ff 3px,transparent 3.5px) 0 0 / 8px 12px repeat-y" }} />
       </div>
-      <div className="flex flex-1 flex-col items-center" style={{ background: "#fff", padding: "6px 4px 8px" }}>
-        <span style={{ fontSize: 12, color: "#888" }}>{page.remaining}</span>
-        <span style={{ color: "#555", fontWeight: 700, lineHeight: 1 }}>
+      <div className="flex flex-1 flex-col items-center" style={{ background: "var(--member-surface, #fff)", padding: "6px 4px 8px" }}>
+        <span style={{ fontSize: 12, color: "var(--member-muted, #888)" }}>{page.remaining}</span>
+        <span style={{ color: "var(--member-text, #555)", fontWeight: 700, lineHeight: 1 }}>
           <b style={{ fontSize: 36 }}>{c.days}</b>
           <span style={{ fontSize: 14 }}>{page.days}</span>
         </span>
-        <span style={{ fontSize: 13, fontWeight: 700, color: "#555", margin: "2px 0 4px" }}>
+        <span style={{ fontSize: 13, fontWeight: 700, color: "var(--member-text, #555)", margin: "2px 0 4px" }}>
           {pad(c.h)}:{pad(c.m)}:{pad(c.s)}
         </span>
         <button type="button" onClick={() => onClaim(ticket)} className="cursor-pointer" style={{ padding: "3px 10px", borderRadius: 12, background: "#28c914", color: "#fff", fontSize: 12, fontWeight: 700 }}>
@@ -88,12 +88,12 @@ const RecordsDrawer = ({ onClose, rf, tv, t }) => {
   return (
     <Drawer width={1000} onClose={onClose}>
       <div style={{ padding: "12px 20px 0" }}>
-        <div style={{ borderLeft: "4px solid #ff1f2d", paddingLeft: 8, fontSize: 14, color: "#333", lineHeight: "15px" }}>{rf.records}</div>
-        <div className="flex items-center" style={{ gap: 18, margin: "14px 0", fontSize: 14, color: "#333" }}>
+        <div style={{ borderLeft: "4px solid var(--member-accent, #ff1f2d)", paddingLeft: 8, fontSize: 14, color: "var(--member-title, #333)", lineHeight: "15px" }}>{rf.records}</div>
+        <div className="flex items-center" style={{ gap: 18, margin: "14px 0", fontSize: 14, color: "var(--member-title, #333)" }}>
           {Object.keys(RANGES).map((key) => (
             <label key={key} className="flex cursor-pointer items-center" style={{ gap: 6 }}>
-              <span className="grid place-items-center" style={{ width: 18, height: 18, borderRadius: "50%", border: `2px solid ${range === key ? "#ff1f2d" : "#ccc"}` }}>
-                {range === key && <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#ff1f2d" }} />}
+              <span className="grid place-items-center" style={{ width: 18, height: 18, borderRadius: "50%", border: `2px solid ${range === key ? "var(--member-accent, #ff1f2d)" : "#ccc"}` }}>
+                {range === key && <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--member-accent, #ff1f2d)" }} />}
               </span>
               <input type="radio" className="hidden" checked={range === key} onChange={() => setRange(key)} />
               {labels[key]}
@@ -101,7 +101,7 @@ const RecordsDrawer = ({ onClose, rf, tv, t }) => {
           ))}
           <span style={{ width: 1, height: 26, background: "#ddd" }} />
           {rf.typeLabel}:
-          <select value={kind} onChange={(e) => setKind(e.target.value)} style={{ height: 34, minWidth: 130, border: "1px solid #ddd", borderRadius: 4, padding: "0 8px", background: "#fff" }}>
+          <select value={kind} onChange={(e) => setKind(e.target.value)} style={{ height: 34, minWidth: 130, border: "1px solid #ddd", borderRadius: 4, padding: "0 8px", background: "var(--member-surface, #fff)" }}>
             <option value="all">{t.promo.all}</option>
             {Object.keys(rf.kinds).map((k) => (
               <option key={k} value={k}>
@@ -111,20 +111,20 @@ const RecordsDrawer = ({ onClose, rf, tv, t }) => {
           </select>
         </div>
       </div>
-      <div className="grid" style={{ gridTemplateColumns: "2fr 1.2fr 1.6fr 1fr 1fr", background: "#f0f0f0", padding: "8px 20px", fontSize: 13, color: "#555" }}>
+      <div className="grid" style={{ gridTemplateColumns: "2fr 1.2fr 1.6fr 1fr 1fr", background: "#f0f0f0", padding: "8px 20px", fontSize: 13, color: "var(--member-text, #555)" }}>
         {rf.recordCols.map((h) => (
           <span key={h}>{h}</span>
         ))}
       </div>
-      <div className="flex-1 overflow-y-auto" style={{ background: rows.length ? "#fff" : "#eee" }}>
-        {!loading && rows.length === 0 && <div className="grid h-full place-items-center" style={{ fontSize: 13, color: "#555" }}>{t.member.desk.noMatch}</div>}
+      <div className="flex-1 overflow-y-auto" style={{ background: rows.length ? "var(--member-surface, #fff)" : "#eee" }}>
+        {!loading && rows.length === 0 && <div className="grid h-full place-items-center" style={{ fontSize: 13, color: "var(--member-text, #555)" }}>{t.member.desk.noMatch}</div>}
         {rows.map((row) => (
-          <div key={row.id} className="grid" style={{ gridTemplateColumns: "2fr 1.2fr 1.6fr 1fr 1fr", padding: "12px 20px", fontSize: 13, color: "#333", borderBottom: "1px solid #f0f0f0" }}>
+          <div key={row.id} className="grid" style={{ gridTemplateColumns: "2fr 1.2fr 1.6fr 1fr 1fr", padding: "12px 20px", fontSize: 13, color: "var(--member-title, #333)", borderBottom: "1px solid #f0f0f0" }}>
             <span>{tv(row.name)}</span>
             <span>{tv(row.label) || rf.kinds[row.kind]}</span>
             <span>{slashDateTime(row.claimedAt || row.endAt)}</span>
-            <span style={{ color: row.status === "claimed" ? "#28a70a" : "#999" }}>{row.status === "claimed" ? rf.claimedLabel : rf.expired}</span>
-            <span style={{ color: "#f32246", fontWeight: 700 }}>{row.status === "claimed" ? `৳ ${money(row.amount)}` : "—"}</span>
+            <span style={{ color: row.status === "claimed" ? "#28a70a" : "var(--member-muted, #999)" }}>{row.status === "claimed" ? rf.claimedLabel : rf.expired}</span>
+            <span style={{ color: "var(--member-accent, #f32246)", fontWeight: 700 }}>{row.status === "claimed" ? `৳ ${money(row.amount)}` : "—"}</span>
           </div>
         ))}
       </div>
@@ -155,10 +155,10 @@ const DeskReward = () => {
   ];
 
   return (
-    <div className="relative flex" style={{ width: 1110, height: 620, background: "#fff" }}>
+    <div className="relative flex" style={{ width: 1110, height: 620, background: "var(--member-surface, #fff)" }}>
       {/* বাঁ স্তম্ভ */}
       <div style={{ width: 337, background: "#f5f5f5", padding: "39px 23px 42px 24px" }}>
-        <div className="h-full overflow-hidden" style={{ width: 290, borderRadius: 10, background: "#fff" }}>
+        <div className="h-full overflow-hidden" style={{ width: 290, borderRadius: 10, background: "var(--member-surface, #fff)" }}>
           <div className="relative overflow-hidden" style={{ height: 212, background: "linear-gradient(160deg,#2b0bff 0%,#5a13f5 55%,#8a1de8 100%)", color: "#fff", padding: "14px 14px 0" }}>
             {/* মূল সাইটের মতো স্বচ্ছ রম্বস */}
             <span className="absolute" style={{ left: 30, bottom: 6, width: 40, height: 40, border: "8px solid rgba(255,255,255,.12)", transform: "rotate(45deg)" }} />
@@ -199,10 +199,10 @@ const DeskReward = () => {
                   <img src={`${IMG}/${task.icon}.png`} alt="" style={{ width: 28, filter: "brightness(0) invert(1)" }} />
                 </span>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 14, color: "#333", lineHeight: 1.15 }}>{page.tasks[i].title}</div>
-                  <div style={{ fontSize: 12, color: "#888", marginTop: 2, lineHeight: 1.1 }}>{page.tasks[i].desc}</div>
+                  <div style={{ fontSize: 14, color: "var(--member-title, #333)", lineHeight: 1.15 }}>{page.tasks[i].title}</div>
+                  <div style={{ fontSize: 12, color: "var(--member-muted, #888)", marginTop: 2, lineHeight: 1.1 }}>{page.tasks[i].desc}</div>
                 </div>
-                <button type="button" onClick={() => setDrawer(task.key)} className="shrink-0 cursor-pointer" style={{ width: 90, height: 32, borderRadius: 16, background: "#fff", boxShadow: "0 2px 8px rgba(0,0,0,.15)", fontSize: 14, color: "#555" }}>
+                <button type="button" onClick={() => setDrawer(task.key)} className="shrink-0 cursor-pointer" style={{ width: 90, height: 32, borderRadius: 16, background: "var(--member-surface, #fff)", boxShadow: "0 2px 8px rgba(0,0,0,.15)", fontSize: 14, color: "var(--member-text, #555)" }}>
                   {page.view}
                 </button>
               </div>
@@ -214,7 +214,7 @@ const DeskReward = () => {
       {/* ডান পাশ */}
       <div className="flex flex-1 flex-col" style={{ minWidth: 0 }}>
         <div className="flex items-center" style={{ height: 39, padding: "0 12px", gap: 12, fontSize: 14 }}>
-          <span className="flex items-center" style={{ gap: 6, borderLeft: "4px solid #5b2bd8", paddingLeft: 7, color: "#555" }}>
+          <span className="flex items-center" style={{ gap: 6, borderLeft: "4px solid #5b2bd8", paddingLeft: 7, color: "var(--member-text, #555)" }}>
             {page.tabs[0]}
             {available > 0 && <span className="grid place-items-center" style={{ minWidth: 16, height: 16, borderRadius: 8, background: "#f00", color: "#fff", fontSize: 11 }}>{available}</span>}
           </span>
@@ -228,17 +228,17 @@ const DeskReward = () => {
 
         <div className="hide-scrollbar flex-1 overflow-y-auto">
           {tickets.length === 0 ? (
-            <div className="grid h-full place-items-center" style={{ color: "#999", fontSize: 13 }}>
+            <div className="grid h-full place-items-center" style={{ color: "var(--member-muted, #999)", fontSize: 13 }}>
               {t.member.desk.noMatch}
             </div>
           ) : (
             tickets.map((ticket, index) => (
               <div key={ticket.id} className="flex items-center" style={{ height: 200, background: (LOOK[ticket.kind] || LOOK.temu).row, padding: "0 88px 0 38px" }}>
-                <span style={{ width: 88, fontSize: 36, fontWeight: 800, fontStyle: "italic", color: "#555", alignSelf: "flex-start", marginTop: 26 }}>{index + 1}</span>
+                <span style={{ width: 88, fontSize: 36, fontWeight: 800, fontStyle: "italic", color: "var(--member-text, #555)", alignSelf: "flex-start", marginTop: 26 }}>{index + 1}</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 22, fontWeight: 700, color: "#444" }}>{tv(ticket.name)}</div>
                   {tv(ticket.description) && (
-                    <button type="button" onClick={() => popups.info(ticket)} className="inline-flex cursor-pointer items-center" style={{ marginTop: 10, gap: 5, padding: "2px 10px", borderRadius: 10, background: "rgba(0,0,0,.06)", color: "#888", fontSize: 12 }}>
+                    <button type="button" onClick={() => popups.info(ticket)} className="inline-flex cursor-pointer items-center" style={{ marginTop: 10, gap: 5, padding: "2px 10px", borderRadius: 10, background: "rgba(0,0,0,.06)", color: "var(--member-muted, #888)", fontSize: 12 }}>
                       {rf.desc}
                       <span className="grid place-items-center" style={{ width: 13, height: 13, borderRadius: "50%", background: "#999", color: "#fff", fontSize: 9, fontWeight: 700 }}>
                         i

@@ -40,13 +40,13 @@ const History = ({ u }) => {
             type="button"
             onClick={() => setRange(key)}
             className="cursor-pointer"
-            style={{ height: u(30, 60), padding: `0 ${u(14, 26)}`, borderRadius: u(15, 30), fontSize: u(13, 26), border: `1px solid ${range === key ? "#e8474c" : "#ddd"}`, color: range === key ? "#e8474c" : "#666", background: "#fff" }}
+            style={{ height: u(30, 60), padding: `0 ${u(14, 26)}`, borderRadius: u(15, 30), fontSize: u(13, 26), border: `1px solid ${range === key ? "var(--member-accent, #e8474c)" : "#ddd"}`, color: range === key ? "var(--member-accent, #e8474c)" : "var(--member-text, #666)", background: "var(--member-surface, #fff)" }}
           >
             {rb.days[key]}
           </button>
         ))}
       </div>
-      <div className="grid" style={{ gridTemplateColumns: "1.3fr 1.4fr 1fr 1fr", background: "#f4f5f7", color: "#666", fontSize: u(13, 25), textAlign: "center" }}>
+      <div className="grid" style={{ gridTemplateColumns: "1.3fr 1.4fr 1fr 1fr", background: "#f4f5f7", color: "var(--member-text, #666)", fontSize: u(13, 25), textAlign: "center" }}>
         {rb.historyCols.map((h) => (
           <div key={h} style={{ padding: `${u(10, 20)} ${u(4, 6)}` }}>{h}</div>
         ))}
@@ -58,13 +58,13 @@ const History = ({ u }) => {
           <div key={row._id} className="grid" style={{ gridTemplateColumns: "1.3fr 1.4fr 1fr 1fr", borderBottom: "1px solid #f0f0f0", fontSize: u(12, 24), color: "#444", textAlign: "center" }}>
             <div style={{ padding: `${u(9, 18)} ${u(4, 6)}` }}>{when(row.createdAt)}</div>
             <div className="break-all" style={{ padding: `${u(9, 18)} ${u(4, 6)}` }}>{row.orderNo}</div>
-            <div style={{ padding: `${u(9, 18)} ${u(4, 6)}`, color: "#16a34a" }}>+{Number(row.amount).toFixed(2)}</div>
+            <div style={{ padding: `${u(9, 18)} ${u(4, 6)}`, color: "var(--member-success, #16a34a)" }}>+{Number(row.amount).toFixed(2)}</div>
             <div style={{ padding: `${u(9, 18)} ${u(4, 6)}` }}>{Number(row.balanceAfter).toFixed(2)}</div>
           </div>
         ))
       )}
       {rows.length > 0 ? (
-        <div className="flex justify-between" style={{ padding: `${u(12, 24)} ${u(20, 40)}`, fontSize: u(13, 27), color: "#555" }}>
+        <div className="flex justify-between" style={{ padding: `${u(12, 24)} ${u(20, 40)}`, fontSize: u(13, 27), color: "var(--member-text, #555)" }}>
           <span>{rb.total}</span>
           <span>{Number(totals.amount || 0).toFixed(2)}</span>
         </div>
@@ -94,13 +94,13 @@ const Desktop = () => {
   ];
 
   return (
-    <div className="flex flex-col" style={{ width: 1110, height: 620, background: "#fff" }}>
+    <div className="flex flex-col" style={{ width: 1110, height: 620, background: "var(--member-surface, #fff)" }}>
       {/* মূল সাইটের `.tab-nav` — ৪৭ উঁচু, বাঁয়ে ৩০ */}
-      <div className="flex items-center" style={{ height: 47, borderBottom: "1px solid #eee", padding: "0 60px 0 30px", gap: 20 }}>
+      <div className="flex items-center" style={{ height: 47, borderBottom: "1px solid var(--member-line, #eee)", padding: "0 60px 0 30px", gap: 20 }}>
         {page.tabs.map((item, index) => (
-          <button key={item} type="button" onClick={() => setTab(index)} className="relative h-full cursor-pointer" style={{ padding: "0 10px", fontSize: 14, color: index === tab ? "#fd2f2f" : "#666" }}>
+          <button key={item} type="button" onClick={() => setTab(index)} className="relative h-full cursor-pointer" style={{ padding: "0 10px", fontSize: 14, color: index === tab ? "var(--member-accent, #fd2f2f)" : "var(--member-text, #666)" }}>
             {item}
-            {index === tab && <span className="absolute bottom-0 left-0 right-0" style={{ height: 3, background: "#fd2f2f" }} />}
+            {index === tab && <span className="absolute bottom-0 left-0 right-0" style={{ height: 3, background: "var(--member-accent, #fd2f2f)" }} />}
           </button>
         ))}
       </div>
@@ -113,22 +113,22 @@ const Desktop = () => {
         <div style={{ flex: 1, padding: "16px 34px", overflowY: "auto" }}>
           {rows.map((row) => (
             <div key={row.key} className="flex items-center" style={{ marginBottom: 4 }}>
-              <span style={{ width: 90, fontSize: 14, color: "#666" }}>{row.label}</span>
+              <span style={{ width: 90, fontSize: 14, color: "var(--member-text, #666)" }}>{row.label}</span>
               <span
                 className="flex items-center"
-                style={{ width: 190, height: 34, background: "#f7f7f7", border: "1px solid #eee", borderRadius: 5, padding: "0 5px", fontSize: 12, color: row.key === "total" && Number(row.value) > 0 ? "#fd2f2f" : "#b5b5b5" }}
+                style={{ width: 190, height: 34, background: "#f7f7f7", border: "1px solid var(--member-line, #eee)", borderRadius: 5, padding: "0 5px", fontSize: 12, color: row.key === "total" && Number(row.value) > 0 ? "var(--member-accent, #fd2f2f)" : "#b5b5b5" }}
               >
                 {row.value}
               </span>
             </div>
           ))}
-          {data && !data.enabled ? <div style={{ marginTop: 12, fontSize: 12, color: "#fd2f2f" }}>{rb.err.rebateOff}</div> : null}
+          {data && !data.enabled ? <div style={{ marginTop: 12, fontSize: 12, color: "var(--member-accent, #fd2f2f)" }}>{rb.err.rebateOff}</div> : null}
         </div>
       )}
 
       {tab === 0 ? (
-        <div className="flex items-center" style={{ height: 48, borderTop: "1px solid #eee", margin: "0 0 0 34px", padding: "0 30px", gap: 10 }}>
-          <button type="button" onClick={load} disabled={loading} className="cursor-pointer" style={{ width: 98, height: 34, borderRadius: 17, background: "#fff", boxShadow: "0 2px 8px rgba(0,0,0,.15)", color: "#555", fontSize: 14 }}>
+        <div className="flex items-center" style={{ height: 48, borderTop: "1px solid var(--member-line, #eee)", margin: "0 0 0 34px", padding: "0 30px", gap: 10 }}>
+          <button type="button" onClick={load} disabled={loading} className="cursor-pointer" style={{ width: 98, height: 34, borderRadius: 17, background: "var(--member-surface, #fff)", boxShadow: "0 2px 8px rgba(0,0,0,.15)", color: "var(--member-text, #555)", fontSize: 14 }}>
             {loading ? "…" : rb.refresh}
           </button>
           <button
@@ -136,11 +136,11 @@ const Desktop = () => {
             onClick={claim}
             disabled={!canClaim || busy}
             className={canClaim ? "cursor-pointer" : ""}
-            style={{ width: 98, height: 34, borderRadius: 17, background: canClaim ? "#fd2f2f" : "#d9d9d9", color: "#fff", fontSize: 14, fontWeight: 700 }}
+            style={{ width: 98, height: 34, borderRadius: 17, background: canClaim ? "var(--member-accent, #fd2f2f)" : "#d9d9d9", color: "#fff", fontSize: 14, fontWeight: 700 }}
           >
             {rb.claim}
           </button>
-          {data && !canClaim && data.totals?.total > 0 ? <span style={{ fontSize: 12, color: "#999" }}>{rb.err.rebateTooLow.replace("{n}", data.minClaim)}</span> : null}
+          {data && !canClaim && data.totals?.total > 0 ? <span style={{ fontSize: 12, color: "var(--member-muted, #999)" }}>{rb.err.rebateTooLow.replace("{n}", data.minClaim)}</span> : null}
         </div>
       ) : null}
     </div>
@@ -180,34 +180,34 @@ const Mobile = () => {
 
   return (
     <MemberShell title={page.title}>
-      <div className="flex" style={{ background: "#fff", height: m(85) }}>
+      <div className="flex" style={{ background: "var(--member-surface, #fff)", height: m(85) }}>
         {page.tabs.map((item, index) => (
-          <button key={item} type="button" onClick={() => setTab(index)} className="relative flex-1 cursor-pointer" style={{ color: index === tab ? "#1e9bf0" : "#333", fontSize: m(30) }}>
+          <button key={item} type="button" onClick={() => setTab(index)} className="relative flex-1 cursor-pointer" style={{ color: index === tab ? "var(--member-link, #1e9bf0)" : "var(--member-title, #333)", fontSize: m(30) }}>
             {item}
-            {index === tab && <span className="absolute bottom-0 left-0" style={{ width: "100%", height: m(5), background: "#1e9bf0" }} />}
+            {index === tab && <span className="absolute bottom-0 left-0" style={{ width: "100%", height: m(5), background: "var(--member-link, #1e9bf0)" }} />}
           </button>
         ))}
       </div>
 
       {tab === 1 ? (
-        <div style={{ background: "#fff", minHeight: "60vh" }}>
+        <div style={{ background: "var(--member-surface, #fff)", minHeight: "60vh" }}>
           <History u={u} />
         </div>
       ) : (
-        <div style={{ background: "#f5f5f9", minHeight: `calc(100vh - ${m(185)})`, padding: `${m(16)} ${m(30)} ${m(260)}` }}>
+        <div style={{ background: "var(--member-page-bg, #f5f5f9)", minHeight: `calc(100vh - ${m(185)})`, padding: `${m(16)} ${m(30)} ${m(260)}` }}>
           {ROWS.map((row) => (
             <div key={row.key} className="flex items-stretch" style={{ marginBottom: m(29), height: m(81) }}>
               <span className="grid place-items-center" style={{ width: m(165), borderRadius: `${m(8)} 0 0 ${m(8)}`, background: row.color, color: "#fff", fontSize: m(34) }}>
                 {label(row.key)}
               </span>
-              <span className="flex flex-1 items-center justify-end" style={{ background: "#fff", color: "#f97a4a", fontSize: m(40), padding: `0 ${m(16)}` }}>
+              <span className="flex flex-1 items-center justify-end" style={{ background: "var(--member-surface, #fff)", color: "#f97a4a", fontSize: m(40), padding: `0 ${m(16)}` }}>
                 {value(row.key)}
               </span>
               <span style={{ width: m(12), borderRadius: `0 ${m(8)} ${m(8)} 0`, background: row.edge }} />
             </div>
           ))}
-          {data && !data.enabled ? <div style={{ fontSize: m(24), color: "#e60012" }}>{rb.err.rebateOff}</div> : null}
-          {data && data.totals?.total > 0 && !canClaim && data.enabled ? <div style={{ fontSize: m(24), color: "#888" }}>{rb.err.rebateTooLow.replace("{n}", data.minClaim)}</div> : null}
+          {data && !data.enabled ? <div style={{ fontSize: m(24), color: "var(--member-accent, #e60012)" }}>{rb.err.rebateOff}</div> : null}
+          {data && data.totals?.total > 0 && !canClaim && data.enabled ? <div style={{ fontSize: m(24), color: "var(--member-muted, #888)" }}>{rb.err.rebateTooLow.replace("{n}", data.minClaim)}</div> : null}
         </div>
       )}
 
@@ -220,13 +220,13 @@ const Mobile = () => {
               onClick={claim}
               disabled={!canClaim || busy}
               className="w-full"
-              style={{ height: m(87), borderRadius: m(8), background: canClaim ? "#f5333f" : "#dedede", boxShadow: "0 4px 10px rgba(0,0,0,.18)", color: "#fff", fontSize: m(38) }}
+              style={{ height: m(87), borderRadius: m(8), background: canClaim ? "var(--member-accent, #f5333f)" : "#dedede", boxShadow: "0 4px 10px rgba(0,0,0,.18)", color: "#fff", fontSize: m(38) }}
             >
               {page.claim}
             </button>
           </div>
         )}
-        <div className="flex items-center justify-center" style={{ height: m(60), background: "#fff5f5", borderTop: "1px solid #ffb3b3", color: "#e60012", fontSize: m(24), gap: m(12) }}>
+        <div className="flex items-center justify-center" style={{ height: m(60), background: "#fff5f5", borderTop: "1px solid #ffb3b3", color: "var(--member-accent, #e60012)", fontSize: m(24), gap: m(12) }}>
           <span className="grid place-items-center" style={{ width: m(34), height: m(34), borderRadius: "50%", background: "#ec1c24", color: "#fff", fontSize: m(24), fontWeight: 700 }}>
             !
           </span>

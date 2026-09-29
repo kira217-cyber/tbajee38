@@ -48,8 +48,8 @@
   --accent-bright: #bc43f4;
   --accent-soft: rgb(188 67 244 / 0.28);
   --accent-soft-strong: rgb(188 67 244 / 0.3);
-  --gold: #fbd029;
-  --surface: #241a3e;
+  --gold: var(--primary500);
+  --surface: var(--neutral900);
   --text-dim: #98a0ac;
   --text-faint: #808994;
 
@@ -534,10 +534,11 @@ body {
    ইনপুট bg #010E22, বর্ডার #D6E2F4, radius ২৪; সাবমিট #BC43F4 radius ৫০;
    লিংক সবুজ #7BC242, "ভুলে গেছেন" গোলাপি #FF6DB3 */
 .tb-auth {
-  --auth-line: #d6e2f4;
-  --auth-field: #010e22;
-  --auth-submit: var(--accent-bright);
-  --auth-link: #7bc242;
+  /* admin এর "Login & register" রঙ — না দিলে এগুলোই */
+  --auth-line: var(--aff-auth-line, #d6e2f4);
+  --auth-field: var(--aff-auth-field, #010e22);
+  --auth-submit: var(--aff-auth-submit, var(--accent-bright));
+  --auth-link: var(--aff-auth-link, #7bc242);
   --auth-alt: #ff6db3;
 }
 

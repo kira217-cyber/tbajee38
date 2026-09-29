@@ -5,6 +5,7 @@ import { RouterProvider } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import "./index.css";
+import { startTheme } from "./theme/liveTheme";
 
 import { store } from "./app/store";
 import { routes } from "./router/router";
@@ -22,6 +23,9 @@ const BootstrapAuth = ({ children }) => {
 
   return children;
 };
+
+// admin এর রঙ — React এর আগেই, যাতে পুরোনো রঙ এক ঝলক না দেখায়
+startTheme();
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

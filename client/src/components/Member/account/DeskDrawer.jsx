@@ -23,7 +23,7 @@ import { KycForm, PhoneForm } from "../ProfileForms";
  * প্রস্থ: ব্যক্তিগত তথ্য ৫২৫, পাসওয়ার্ড ৪২৩, ই-ওয়ালেট ৭৮০ (মাপা)।
  */
 
-const RED = "#fd2f2f";
+const RED = "var(--member-accent, #fd2f2f)";
 const IMG = "/assets/member-desk";
 
 export const Drawer = ({ width, onClose, children }) => (
@@ -31,19 +31,19 @@ export const Drawer = ({ width, onClose, children }) => (
     <div className="absolute inset-0 cursor-pointer" style={{ background: "rgb(0 0 0 / 0.5)" }} onClick={onClose} />
     <div
       className="absolute top-0 right-0 flex h-full flex-col"
-      style={{ width, background: "#fff", boxShadow: "-18px 0 40px -18px rgba(0,0,0,.2)", animation: "tb-drawer-in .25s ease-out" }}
+      style={{ width, background: "var(--member-surface, #fff)", boxShadow: "-18px 0 40px -18px rgba(0,0,0,.2)", animation: "tb-drawer-in .25s ease-out" }}
     >
       {/* বাঁ-উপরের খাঁজ + ক্রস */}
       <div
         className="absolute"
-        style={{ left: -30, top: 0, width: 31, height: 40, background: "#fff", clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 75%)" }}
+        style={{ left: -30, top: 0, width: 31, height: 40, background: "var(--member-surface, #fff)", clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 75%)" }}
       />
       <button
         type="button"
         aria-label="close"
         onClick={onClose}
         className="absolute grid cursor-pointer place-items-center"
-        style={{ left: -24, top: 7, width: 18, height: 18, borderRadius: "50%", background: "#ff1f2d", color: "#fff", fontSize: 13, lineHeight: 1 }}
+        style={{ left: -24, top: 7, width: 18, height: 18, borderRadius: "50%", background: "var(--member-accent, #ff1f2d)", color: "#fff", fontSize: 13, lineHeight: 1 }}
       >
         ×
       </button>
@@ -53,13 +53,13 @@ export const Drawer = ({ width, onClose, children }) => (
 );
 
 export const Caption = ({ children, color = "#23e63a", style }) => (
-  <div style={{ borderLeft: `4px solid ${color}`, lineHeight: "15px", paddingLeft: 9, margin: "17px 0 15px", fontSize: 14, color: "#333", ...style }}>{children}</div>
+  <div style={{ borderLeft: `4px solid ${color}`, lineHeight: "15px", paddingLeft: 9, margin: "17px 0 15px", fontSize: 14, color: "var(--member-title, #333)", ...style }}>{children}</div>
 );
 
 /** লেবেল বাঁয়ে, ঘর ডানে — মূল সাইটের `.form-group` */
 export const Row = ({ label, children, labelWidth = 125, top = false }) => (
   <div className="flex" style={{ marginBottom: 16, alignItems: top ? "flex-start" : "center" }}>
-    <span className="shrink-0" style={{ width: labelWidth, minHeight: 34, display: "flex", alignItems: "center", fontSize: 14, color: "#333", paddingRight: 6, lineHeight: 1.25 }}>
+    <span className="shrink-0" style={{ width: labelWidth, minHeight: 34, display: "flex", alignItems: "center", fontSize: 14, color: "var(--member-title, #333)", paddingRight: 6, lineHeight: 1.25 }}>
       {label}:
     </span>
     <div className="min-w-0 flex-1">{children}</div>
@@ -71,9 +71,9 @@ export const inputStyle = (disabled) => ({
   width: "100%",
   height: 34,
   borderRadius: 5,
-  border: "1px solid #e5e5e5",
+  border: "1px solid var(--member-line, #e5e5e5)",
   background: "#f5f5f5",
-  color: disabled ? "#999" : "#646464",
+  color: disabled ? "var(--member-muted, #999)" : "#646464",
   outline: "none",
   padding: "0 10px",
   fontSize: 12,
@@ -88,7 +88,7 @@ export const Warn = ({ children }) => (
 
 /** নিচের ফুটার আর লাল "জমা দিন" */
 export const Footer = ({ onClick, busy, disabled, children }) => (
-  <div className="absolute bottom-0 left-0 flex w-full items-center" style={{ height: 47, borderTop: "1px solid #efefef", paddingLeft: 30, background: "#fff" }}>
+  <div className="absolute bottom-0 left-0 flex w-full items-center" style={{ height: 47, borderTop: "1px solid #efefef", paddingLeft: 30, background: "var(--member-surface, #fff)" }}>
     <button
       type="button"
       onClick={onClick}
@@ -164,7 +164,7 @@ export const InfoDrawer = ({ profile, onClose, onPhone }) => {
         <Row label={d.phone}>
           <div className="flex items-center" style={{ gap: 8 }}>
             <Input value={user.phone ? `0${user.phone}` : ""} disabled placeholder={d.ph10} />
-            <button type="button" onClick={onPhone} className="shrink-0 cursor-pointer" style={{ height: 34, padding: "0 12px", borderRadius: 20, border: "1px solid #ddd", color: "#747474", fontSize: 12, background: "#fff" }}>
+            <button type="button" onClick={onPhone} className="shrink-0 cursor-pointer" style={{ height: 34, padding: "0 12px", borderRadius: 20, border: "1px solid #ddd", color: "#747474", fontSize: 12, background: "var(--member-surface, #fff)" }}>
               {user.phone ? d.change : d.bind}
             </button>
           </div>
@@ -218,7 +218,7 @@ export const PasswordDrawer = ({ profile, onClose }) => {
         <Row label={d.confirmPw} labelWidth={135}>
           <Secret value={form.confirm} onChange={set("confirm")} placeholder={d.phConfirm} maxLength={20} />
         </Row>
-        <div style={{ fontSize: 12, color: "#999", lineHeight: 1.5 }}>{p.pwHint}</div>
+        <div style={{ fontSize: 12, color: "var(--member-muted, #999)", lineHeight: 1.5 }}>{p.pwHint}</div>
       </Body>
       <Footer onClick={save} busy={profile.busy}>
         {d.submit}
@@ -264,7 +264,7 @@ export const TxDrawer = ({ profile, onClose }) => {
         <Row label={d.confirmPw} labelWidth={135}>
           <Secret value={form.confirm} onChange={set("confirm")} placeholder={d.phConfirm} maxLength={12} />
         </Row>
-        <div style={{ fontSize: 12, color: "#999", lineHeight: 1.5 }}>{hasTx ? p.txForgot : t.withdrawFlow.txHint}</div>
+        <div style={{ fontSize: 12, color: "var(--member-muted, #999)", lineHeight: 1.5 }}>{hasTx ? p.txForgot : t.withdrawFlow.txHint}</div>
       </Body>
       <Footer onClick={save} busy={profile.busy}>
         {d.submit}
@@ -369,7 +369,7 @@ export const WalletPanel = ({ flow, onChanged }) => {
               <Input value={accountName} onChange={(e) => setAccountName(e.target.value)} maxLength={60} placeholder={d.phCardName} />
               <Warn>{t.memberPage.pages.account.payeeWarn}</Warn>
             </Row>
-            <div style={{ border: "1px solid #e5e5e5", borderRadius: 6, padding: "14px 10px 0", marginBottom: 16 }}>
+            <div style={{ border: "1px solid var(--member-line, #e5e5e5)", borderRadius: 6, padding: "14px 10px 0", marginBottom: 16 }}>
               <Row label={d.walletType} labelWidth={90} top>
                 <div className="grid" style={{ gap: 10 }}>
                   {flow.methods.map((m) => {
@@ -380,7 +380,7 @@ export const WalletPanel = ({ flow, onChanged }) => {
                         type="button"
                         onClick={() => setMethodId(m.methodId)}
                         className="cursor-pointer"
-                        style={{ height: 34, borderRadius: 5, fontSize: 12, border: `1px solid ${on ? "#ff7b7b" : "#e5e5e5"}`, background: on ? "#fff5f5" : "#fff", color: on ? "#ea4c4c" : "#666" }}
+                        style={{ height: 34, borderRadius: 5, fontSize: 12, border: `1px solid ${on ? "#ff7b7b" : "var(--member-line, #e5e5e5)"}`, background: on ? "#fff5f5" : "var(--member-surface, #fff)", color: on ? "#ea4c4c" : "var(--member-text, #666)" }}
                       >
                         {flow.tv(m.methodName) || m.methodId}
                       </button>
@@ -409,7 +409,7 @@ export const WalletPanel = ({ flow, onChanged }) => {
         {/* ডান — নিবন্ধিত */}
         <div className="relative h-full" style={{ width: 393, paddingTop: 17 }}>
           <Caption color={RED} style={{ margin: "0 20px 15px" }}>
-            {d.registered} <span style={{ marginLeft: 10, color: "#666" }}>({flow.wallets.length}/{flow.cap})</span>
+            {d.registered} <span style={{ marginLeft: 10, color: "var(--member-text, #666)" }}>({flow.wallets.length}/{flow.cap})</span>
           </Caption>
           <div className="hide-scrollbar absolute overflow-y-auto" style={{ top: 57, bottom: 8, left: 0, width: 379, padding: "0 10px 0 20px" }}>
             {flow.wallets.length === 0 ? (
@@ -421,11 +421,11 @@ export const WalletPanel = ({ flow, onChanged }) => {
               flow.wallets.map((w) => {
                 const m = flow.methods.find((x) => x.methodId === w.methodId);
                 return (
-                  <div key={w._id} className="flex items-center" style={{ maxWidth: 356, minHeight: 86, padding: 10, marginBottom: 10, borderRadius: 8, background: "linear-gradient(135deg,#fff6f6,#fff)", boxShadow: "0 2px 10px rgba(0,0,0,.08)", gap: 12 }}>
+                  <div key={w._id} className="flex items-center" style={{ maxWidth: 356, minHeight: 86, padding: 10, marginBottom: 10, borderRadius: 8, background: "linear-gradient(135deg,#fff6f6,var(--member-surface, #fff))", boxShadow: "0 2px 10px rgba(0,0,0,.08)", gap: 12 }}>
                     <div className="min-w-0 flex-1">
-                      <div style={{ color: "#333", fontSize: 14, fontWeight: 500 }}>{flow.tv(m?.methodName) || w.methodId}</div>
-                      <div style={{ color: "#666", fontSize: 14, marginTop: 6 }}>{maskNumber(w.walletNumber)}</div>
-                      {w.accountName ? <div style={{ color: "#999", fontSize: 12, marginTop: 4 }}>{w.accountName}</div> : null}
+                      <div style={{ color: "var(--member-title, #333)", fontSize: 14, fontWeight: 500 }}>{flow.tv(m?.methodName) || w.methodId}</div>
+                      <div style={{ color: "var(--member-text, #666)", fontSize: 14, marginTop: 6 }}>{maskNumber(w.walletNumber)}</div>
+                      {w.accountName ? <div style={{ color: "var(--member-muted, #999)", fontSize: 12, marginTop: 4 }}>{w.accountName}</div> : null}
                     </div>
                     <button
                       type="button"

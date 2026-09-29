@@ -28,7 +28,7 @@ const pick = (value, lang) => (lang === "en" && value?.en) || value?.bn || value
 /* ─────────────────── ডেস্কটপ (মডালের ভিতরে) ─────────────────── */
 /** মূল সাইটের চেকবক্স — ২০ এর সাদা গোলচে বাক্স, বাছলে লাল টিক */
 const Box = ({ on }) => (
-  <span className="grid shrink-0 place-items-center" style={{ width: 20, height: 20, borderRadius: 4, border: `1px solid ${on ? "#fd2f2f" : "#dcdde2"}`, background: on ? "#fd2f2f" : "#fff" }}>
+  <span className="grid shrink-0 place-items-center" style={{ width: 20, height: 20, borderRadius: 4, border: `1px solid ${on ? "var(--member-accent, #fd2f2f)" : "#dcdde2"}`, background: on ? "var(--member-accent, #fd2f2f)" : "var(--member-surface, #fff)" }}>
     {on && (
       <svg viewBox="0 0 10 8" style={{ width: 10, height: 8 }} aria-hidden="true">
         <path d="M1 4l3 3 5-6" fill="none" stroke="#fff" strokeWidth="1.8" />
@@ -72,12 +72,12 @@ const Desktop = () => {
   };
 
   return (
-    <div className="flex flex-col" style={{ width: 1110, height: 620, background: "#fff" }}>
+    <div className="flex flex-col" style={{ width: 1110, height: 620, background: "var(--member-surface, #fff)" }}>
       {/* মূল সাইটের মতো — লেখা গাঢ়, শুধু দাগটা লাল */}
       <div className="flex items-center" style={{ height: 47, padding: "0 60px 0 30px" }}>
-        <span className="relative h-full" style={{ display: "grid", placeItems: "center", padding: "0 12px", fontSize: 14, color: "#333" }}>
+        <span className="relative h-full" style={{ display: "grid", placeItems: "center", padding: "0 12px", fontSize: 14, color: "var(--member-title, #333)" }}>
           {page.inbox}
-          <span className="absolute bottom-0 left-0 right-0" style={{ height: 2, background: "#fd2f2f" }} />
+          <span className="absolute bottom-0 left-0 right-0" style={{ height: 2, background: "var(--member-accent, #fd2f2f)" }} />
         </span>
       </div>
 
@@ -85,20 +85,20 @@ const Desktop = () => {
         {/* বাঁ — বার্তার তালিকা */}
         <div className="relative flex flex-col" style={{ width: 452, background: "#f4f5f9", boxShadow: "2px 0 6px rgba(0,0,0,.06)", zIndex: 1 }}>
           {/* ধূসর টুলবার — সব নির্বাচন | মুছুন, সব পড়া | সময় অনুযায়ী সাজান */}
-          <div className="flex items-center" style={{ height: 39, background: "#eef0f4", padding: "0 30px", gap: 14, fontSize: 14, color: "#888", boxShadow: "0 1px 3px rgba(0,0,0,.06)" }}>
+          <div className="flex items-center" style={{ height: 39, background: "#eef0f4", padding: "0 30px", gap: 14, fontSize: 14, color: "var(--member-muted, #888)", boxShadow: "0 1px 3px rgba(0,0,0,.06)" }}>
             <label className="flex cursor-pointer items-center" style={{ gap: 16 }}>
               <input type="checkbox" className="hidden" checked={allChecked} onChange={() => setSelected(allChecked ? [] : inbox.messages.map((msg) => msg._id))} />
               <Box on={allChecked} />
               {page.selectAll}
             </label>
             <span style={{ width: 1, height: 20, background: "#dcdde2" }} />
-            <button type="button" title={f.delete} onClick={removeSelected} disabled={!selected.length} className="cursor-pointer" style={{ color: selected.length ? "#fd2f2f" : "#666" }}>
+            <button type="button" title={f.delete} onClick={removeSelected} disabled={!selected.length} className="cursor-pointer" style={{ color: selected.length ? "var(--member-accent, #fd2f2f)" : "var(--member-text, #666)" }}>
               <Trash size={20} />
             </button>
-            <button type="button" title={f.markAllRead} onClick={inbox.markAllRead} className="cursor-pointer" style={{ color: "#666" }}>
+            <button type="button" title={f.markAllRead} onClick={inbox.markAllRead} className="cursor-pointer" style={{ color: "var(--member-text, #666)" }}>
               <MailRead />
             </button>
-            <button type="button" onClick={() => inbox.setSort(inbox.sort === "desc" ? "asc" : "desc")} className="flex cursor-pointer items-center" style={{ gap: 8, fontSize: 13, color: "#666", marginLeft: 12 }}>
+            <button type="button" onClick={() => inbox.setSort(inbox.sort === "desc" ? "asc" : "desc")} className="flex cursor-pointer items-center" style={{ gap: 8, fontSize: 13, color: "var(--member-text, #666)", marginLeft: 12 }}>
               {f.sortByTime}
               <span className="grid place-items-center" style={{ width: 16, height: 16, borderRadius: "50%", background: "#d8d9de", transform: inbox.sort === "asc" ? "rotate(180deg)" : "none" }}>
                 <svg viewBox="0 0 10 6" style={{ width: 8, height: 5 }} aria-hidden="true">
@@ -117,7 +117,7 @@ const Desktop = () => {
                   tabIndex={0}
                   onClick={() => show(msg)}
                   className="flex cursor-pointer items-start"
-                  style={{ padding: "12px 30px", gap: 14, borderBottom: "1px solid #e8e9ee", background: msg._id === openId ? "#fff" : "transparent" }}
+                  style={{ padding: "12px 30px", gap: 14, borderBottom: "1px solid #e8e9ee", background: msg._id === openId ? "var(--member-surface, #fff)" : "transparent" }}
                 >
                   <span
                     role="checkbox"
@@ -132,10 +132,10 @@ const Desktop = () => {
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center" style={{ gap: 6 }}>
-                      {!msg.read && <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#e8474c", flexShrink: 0 }} />}
-                      <span className="truncate" style={{ fontSize: 14, color: msg.read ? "#666" : "#222", fontWeight: msg.read ? 400 : 600 }}>{pick(msg.title, lang)}</span>
+                      {!msg.read && <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--member-accent, #e8474c)", flexShrink: 0 }} />}
+                      <span className="truncate" style={{ fontSize: 14, color: msg.read ? "var(--member-text, #666)" : "var(--member-title, #222)", fontWeight: msg.read ? 400 : 600 }}>{pick(msg.title, lang)}</span>
                     </div>
-                    <div className="truncate" style={{ fontSize: 12, color: "#999", marginTop: 4 }}>{pick(msg.body, lang)}</div>
+                    <div className="truncate" style={{ fontSize: 12, color: "var(--member-muted, #999)", marginTop: 4 }}>{pick(msg.body, lang)}</div>
                   </div>
                   <span style={{ fontSize: 11, color: "#aaa", flexShrink: 0 }}>{when(msg.createdAt).slice(5)}</span>
                 </div>
@@ -144,8 +144,8 @@ const Desktop = () => {
           </div>
 
           {/* নিচের বার — মুছুন */}
-          <div className="flex items-center" style={{ height: 48, background: "#fff", borderTop: "1px solid #eee", padding: "0 30px", gap: 16 }}>
-            <button type="button" title={f.delete} onClick={removeSelected} disabled={!selected.length} className="cursor-pointer" style={{ color: selected.length ? "#fd2f2f" : "#666" }}>
+          <div className="flex items-center" style={{ height: 48, background: "var(--member-surface, #fff)", borderTop: "1px solid var(--member-line, #eee)", padding: "0 30px", gap: 16 }}>
+            <button type="button" title={f.delete} onClick={removeSelected} disabled={!selected.length} className="cursor-pointer" style={{ color: selected.length ? "var(--member-accent, #fd2f2f)" : "var(--member-text, #666)" }}>
               <Trash size={20} />
             </button>
             <span style={{ width: 1, height: 20, background: "#e5e5e5" }} />
@@ -153,11 +153,11 @@ const Desktop = () => {
         </div>
 
         {/* ডান — বিস্তারিত */}
-        <div className="hide-scrollbar" style={{ flex: 1, background: "#fff", overflowY: "auto", padding: open ? "24px 28px" : 0 }}>
+        <div className="hide-scrollbar" style={{ flex: 1, background: "var(--member-surface, #fff)", overflowY: "auto", padding: open ? "24px 28px" : 0 }}>
           {open ? (
             <>
-              <div style={{ fontSize: 18, fontWeight: 700, color: "#222" }}>{pick(open.title, lang)}</div>
-              <div style={{ fontSize: 12, color: "#999", marginTop: 6 }}>{when(open.createdAt)}</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: "var(--member-title, #222)" }}>{pick(open.title, lang)}</div>
+              <div style={{ fontSize: 12, color: "var(--member-muted, #999)", marginTop: 6 }}>{when(open.createdAt)}</div>
               <div style={{ fontSize: 14, color: "#444", lineHeight: 1.8, marginTop: 18, whiteSpace: "pre-line" }}>{pick(open.body, lang)}</div>
             </>
           ) : (
@@ -174,14 +174,14 @@ const Desktop = () => {
 /** মূল সাইটের খালি মেইলবক্স — ধূসর মন-খারাপ মুখ */
 const EmptyFace = ({ text }) => (
   // মূল সাইটের মাপ — মুখ ১৮০, ট্যাবের নিচে ১৬০ ফাঁক
-  <div className="flex flex-col items-center" style={{ padding: `${m(160)} 0`, gap: m(10), background: "#fff" }}>
+  <div className="flex flex-col items-center" style={{ padding: `${m(160)} 0`, gap: m(10), background: "var(--member-surface, #fff)" }}>
     <svg viewBox="0 0 120 120" style={{ width: m(180), height: m(180), color: "#d8d8dc" }} aria-hidden="true">
       <circle cx="60" cy="60" r="52" fill="none" stroke="currentColor" strokeWidth="6" />
       <circle cx="43" cy="50" r="5" fill="currentColor" />
       <circle cx="77" cy="50" r="5" fill="currentColor" />
       <path d="M40 82c6-10 34-10 40 0" fill="none" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
     </svg>
-    <span style={{ fontSize: m(36), color: "#999" }}>{text}</span>
+    <span style={{ fontSize: m(36), color: "var(--member-muted, #999)" }}>{text}</span>
   </div>
 );
 
@@ -201,12 +201,12 @@ const Mobile = () => {
   if (open) {
     return (
       <MemberShell title={page.title}>
-        <div style={{ background: "#fff", minHeight: "70vh", padding: `${m(34)} ${m(30)}` }}>
-          <button type="button" onClick={() => setOpenId(null)} className="cursor-pointer" style={{ color: "#1e9bf0", fontSize: m(28), marginBottom: m(24) }}>
+        <div style={{ background: "var(--member-surface, #fff)", minHeight: "70vh", padding: `${m(34)} ${m(30)}` }}>
+          <button type="button" onClick={() => setOpenId(null)} className="cursor-pointer" style={{ color: "var(--member-link, #1e9bf0)", fontSize: m(28), marginBottom: m(24) }}>
             ‹ {f.back}
           </button>
-          <div style={{ fontSize: m(34), fontWeight: 700, color: "#222" }}>{pick(open.title, lang)}</div>
-          <div style={{ fontSize: m(24), color: "#999", marginTop: m(10) }}>{when(open.createdAt)}</div>
+          <div style={{ fontSize: m(34), fontWeight: 700, color: "var(--member-title, #222)" }}>{pick(open.title, lang)}</div>
+          <div style={{ fontSize: m(24), color: "var(--member-muted, #999)", marginTop: m(10) }}>{when(open.createdAt)}</div>
           <div style={{ fontSize: m(28), color: "#444", lineHeight: 1.7, marginTop: m(30), whiteSpace: "pre-line" }}>{pick(open.body, lang)}</div>
           <button
             type="button"
@@ -214,7 +214,7 @@ const Mobile = () => {
               if (await inbox.remove([open._id])) setOpenId(null);
             }}
             className="w-full cursor-pointer"
-            style={{ marginTop: m(60), height: m(88), borderRadius: m(12), border: "1px solid #f3c2c2", color: "#e60012", fontSize: m(30), background: "#fff" }}
+            style={{ marginTop: m(60), height: m(88), borderRadius: m(12), border: "1px solid #f3c2c2", color: "var(--member-accent, #e60012)", fontSize: m(30), background: "var(--member-surface, #fff)" }}
           >
             {f.delete}
           </button>
@@ -225,11 +225,11 @@ const Mobile = () => {
 
   return (
     <MemberShell title={page.title}>
-      <div className="relative flex items-center justify-center" style={{ height: m(96), background: "#fff" }}>
-        <span style={{ color: "#1e9bf0", fontSize: m(32) }}>{page.inbox}</span>
-        <span className="absolute bottom-0 left-0" style={{ width: "100%", height: m(4), background: "#1e9bf0" }} />
+      <div className="relative flex items-center justify-center" style={{ height: m(96), background: "var(--member-surface, #fff)" }}>
+        <span style={{ color: "var(--member-link, #1e9bf0)", fontSize: m(32) }}>{page.inbox}</span>
+        <span className="absolute bottom-0 left-0" style={{ width: "100%", height: m(4), background: "var(--member-link, #1e9bf0)" }} />
         {inbox.messages.some((msg) => !msg.read) && (
-          <button type="button" onClick={inbox.markAllRead} className="absolute cursor-pointer" style={{ right: m(24), fontSize: m(24), color: "#888" }}>
+          <button type="button" onClick={inbox.markAllRead} className="absolute cursor-pointer" style={{ right: m(24), fontSize: m(24), color: "var(--member-muted, #888)" }}>
             {f.markAllRead}
           </button>
         )}
@@ -238,18 +238,18 @@ const Mobile = () => {
       {inbox.loaded && inbox.messages.length === 0 ? (
         <EmptyFace text={page.empty} />
       ) : (
-        <div style={{ background: "#fff", minHeight: "70vh" }}>
+        <div style={{ background: "var(--member-surface, #fff)", minHeight: "70vh" }}>
           {inbox.messages.map((msg) => (
             <div key={msg._id} role="button" tabIndex={0} onClick={() => show(msg)} className="flex cursor-pointer items-start" style={{ padding: `${m(26)} ${m(30)}`, gap: m(18), borderBottom: "1px solid #f0f0f0" }}>
-              <span className="grid shrink-0 place-items-center" style={{ width: m(70), height: m(70), borderRadius: "50%", background: msg.read ? "#f0f0f3" : "#e8f3ff", color: msg.read ? "#aaa" : "#1e9bf0" }}>
+              <span className="grid shrink-0 place-items-center" style={{ width: m(70), height: m(70), borderRadius: "50%", background: msg.read ? "#f0f0f3" : "#e8f3ff", color: msg.read ? "#aaa" : "var(--member-link, #1e9bf0)" }}>
                 <Icon name="mailcen" size={m(36)} />
               </span>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center" style={{ gap: m(10) }}>
-                  {!msg.read && <span style={{ width: m(14), height: m(14), borderRadius: "50%", background: "#e60012", flexShrink: 0 }} />}
-                  <span className="truncate" style={{ fontSize: m(30), color: msg.read ? "#666" : "#222", fontWeight: msg.read ? 400 : 600 }}>{pick(msg.title, lang)}</span>
+                  {!msg.read && <span style={{ width: m(14), height: m(14), borderRadius: "50%", background: "var(--member-accent, #e60012)", flexShrink: 0 }} />}
+                  <span className="truncate" style={{ fontSize: m(30), color: msg.read ? "var(--member-text, #666)" : "var(--member-title, #222)", fontWeight: msg.read ? 400 : 600 }}>{pick(msg.title, lang)}</span>
                 </div>
-                <div className="truncate" style={{ fontSize: m(24), color: "#999", marginTop: m(8) }}>{pick(msg.body, lang)}</div>
+                <div className="truncate" style={{ fontSize: m(24), color: "var(--member-muted, #999)", marginTop: m(8) }}>{pick(msg.body, lang)}</div>
               </div>
               <span style={{ fontSize: m(22), color: "#aaa", flexShrink: 0 }}>{when(msg.createdAt).slice(5, 10)}</span>
             </div>

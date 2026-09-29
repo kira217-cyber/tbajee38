@@ -28,7 +28,7 @@ import { autoWithdrawRow } from "../../../features/payment/usePaymentModes";
  */
 
 const IMG = "/assets/member-desk";
-const RED = "#fd2f2f";
+const RED = "var(--member-accent, #fd2f2f)";
 const BLUE = "#0094d1";
 
 const two = (n) => (Number(n) || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -44,7 +44,7 @@ const Money = ({ value }) => {
 };
 
 const Label = ({ children, top }) => (
-  <span className="shrink-0" style={{ width: 102, fontSize: 14, color: "#666", lineHeight: 1.25, display: "flex", alignItems: top ? "flex-start" : "center", paddingTop: top ? 8 : 0 }}>
+  <span className="shrink-0" style={{ width: 102, fontSize: 14, color: "var(--member-text, #666)", lineHeight: 1.25, display: "flex", alignItems: top ? "flex-start" : "center", paddingTop: top ? 8 : 0 }}>
     {children}:
   </span>
 );
@@ -53,7 +53,7 @@ const inputBox = {
   width: 136,
   height: 34,
   borderRadius: 5,
-  border: "1px solid #e5e5e5",
+  border: "1px solid var(--member-line, #e5e5e5)",
   background: "#f5f5f5",
   color: "#646464",
   outline: "none",
@@ -97,7 +97,7 @@ const RecentHistory = ({ recent, tv }) => {
   const statusColor = { approved: "#0cc06d", rejected: RED, pending: "#f5a623" };
   return (
     <div className="absolute" style={{ top: 47, right: 0, width: 290, height: "calc(100% - 47px)", background: "#f5f5f5" }}>
-      <div style={{ lineHeight: "15px", margin: "18px 30px 0", paddingLeft: 10, borderLeft: "4px solid #4c8bff", fontSize: 14, color: "#666" }}>{w.recent}</div>
+      <div style={{ lineHeight: "15px", margin: "18px 30px 0", paddingLeft: 10, borderLeft: "4px solid #4c8bff", fontSize: 14, color: "var(--member-text, #666)" }}>{w.recent}</div>
       <div className="hide-scrollbar absolute w-full overflow-y-auto" style={{ top: 53, height: "calc(100% - 53px)" }}>
         {recent.rows.length === 0 ? (
           <div className="flex items-center justify-center" style={{ margin: "0 30px 16px", height: 101, background: "#fafafa", color: "#d1d1d1", borderRadius: 10, width: 240, boxShadow: "0 5px 24px 0 rgba(0,0,0,.08)", fontSize: 14 }}>
@@ -107,9 +107,9 @@ const RecentHistory = ({ recent, tv }) => {
         ) : (
           recent.rows.map((r) => (
             <div key={r._id} className="flex flex-col" style={{ marginLeft: 30, marginBottom: 16, minHeight: 101, width: 240, background: "#fcfcfc", borderRadius: 10, overflow: "hidden", boxShadow: "0 5px 24px 0 rgba(0,0,0,.08)", fontSize: 12 }}>
-              <div className="flex justify-between" style={{ background: "#fff", padding: "10px 14px 5px", minHeight: 30, color: "#999" }}>
+              <div className="flex justify-between" style={{ background: "var(--member-surface, #fff)", padding: "10px 14px 5px", minHeight: 30, color: "var(--member-muted, #999)" }}>
                 <span>{when(r.createdAt)}</span>
-                <span style={{ color: statusColor[r.status] || "#666" }}>{w.status[r.status] || r.status}</span>
+                <span style={{ color: statusColor[r.status] || "var(--member-text, #666)" }}>{w.status[r.status] || r.status}</span>
               </div>
               <div className="flex items-start justify-between" style={{ padding: "10px 15px 0", color: "#5e5e5e", gap: 10 }}>
                 <span className="flex-1">{tv(r.walletSnapshot?.methodName) || r.methodId}</span>
@@ -125,7 +125,7 @@ const RecentHistory = ({ recent, tv }) => {
           type="button"
           onClick={recent.load}
           className="mx-auto block cursor-pointer"
-          style={{ minWidth: 115, height: 34, borderRadius: 20, background: "#fff", color: "#747474", fontSize: 14, boxShadow: "0 1px 7px 0 rgba(148,147,147,.26)", marginBottom: 20 }}
+          style={{ minWidth: 115, height: 34, borderRadius: 20, background: "var(--member-surface, #fff)", color: "#747474", fontSize: 14, boxShadow: "0 1px 7px 0 rgba(148,147,147,.26)", marginBottom: 20 }}
         >
           {w.refresh}
         </button>
@@ -162,7 +162,7 @@ const WalletStack = ({ f }) => {
               style={{ width: "100%", height: 130, borderRadius: 14, background: `url(${IMG}/ewallet${(f.wallets.indexOf(wallet) % 4) + 1}.png) center / 100% 100% no-repeat`, color: "#fff", padding: "20px 18px 0", overflow: "hidden", transition: "all .5s linear", ...STACK[Math.min(i, 3)] }}
             >
               <div className="flex items-center" style={{ fontSize: 18, height: 30, gap: 10 }}>
-                {method?.logoUrl ? <img src={assetUrl(method.logoUrl)} alt="" style={{ width: 30, height: 30, objectFit: "contain", borderRadius: 6, background: "#fff" }} /> : <span style={{ width: 30 }} />}
+                {method?.logoUrl ? <img src={assetUrl(method.logoUrl)} alt="" style={{ width: 30, height: 30, objectFit: "contain", borderRadius: 6, background: "var(--member-surface, #fff)" }} /> : <span style={{ width: 30 }} />}
                 <span className="truncate">{f.tv(method?.methodName) || wallet.methodId}</span>
               </div>
               <div style={{ fontSize: 18, marginTop: 17, height: 36 }}>{maskNumber(wallet.walletNumber)}</div>
@@ -227,7 +227,7 @@ const DeskWithdraw = ({ mode = "manual", onChangeMode = null }) => {
   };
 
   return (
-    <div className="relative overflow-hidden" style={{ width: 1110, height: 620, background: "#fff", fontSize: 14, color: "#666", lineHeight: 1.2 }}>
+    <div className="relative overflow-hidden" style={{ width: 1110, height: 620, background: "var(--member-surface, #fff)", fontSize: 14, color: "var(--member-text, #666)", lineHeight: 1.2 }}>
       {/* ট্যাব */}
       <div className="flex" style={{ height: 47, borderBottom: "1px solid #efefef", paddingLeft: 30 }}>
         {[
@@ -265,11 +265,11 @@ const DeskWithdraw = ({ mode = "manual", onChangeMode = null }) => {
         <>
           {/* উপরের সারি — ওয়ালেটের ধরন + সম্পাদনা */}
           <div className="absolute flex items-center" style={{ top: 57, left: 34, gap: 35 }}>
-            <div className="flex items-center" style={{ width: 120, height: 48, borderRadius: 6, border: "1px solid #ff2f34", padding: "0 10px", gap: 5 }}>
+            <div className="flex items-center" style={{ width: 120, height: 48, borderRadius: 6, border: "1px solid var(--member-accent, #ff2f34)", padding: "0 10px", gap: 5 }}>
               <span className="grid place-items-center" style={{ width: 36, height: 36 }}>
                 <span style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg,#ff4fb4,#e3197f)", display: "grid", placeItems: "center", color: "#fff", fontWeight: 700, fontSize: 13 }}>ec</span>
               </span>
-              <span style={{ color: "#666" }}>{w.eWallet}</span>
+              <span style={{ color: "var(--member-text, #666)" }}>{w.eWallet}</span>
             </div>
             <button
               type="button"
@@ -293,7 +293,7 @@ const DeskWithdraw = ({ mode = "manual", onChangeMode = null }) => {
                     type="button"
                     onClick={() => setTab("manage")}
                     className="cursor-pointer"
-                    style={{ marginTop: 15, minWidth: 141, height: 34, padding: "0 10px", borderRadius: 17, background: "#ff2f34", boxShadow: "0 4px 10px 0 rgba(255,47,52,.3)", color: "#fff", fontSize: 14 }}
+                    style={{ marginTop: 15, minWidth: 141, height: 34, padding: "0 10px", borderRadius: 17, background: "var(--member-accent, #ff2f34)", boxShadow: "0 4px 10px 0 rgba(255,47,52,.3)", color: "#fff", fontSize: 14 }}
                   >
                     <img src={`${IMG}/plus.png`} alt="" style={{ width: 15, height: 15, display: "inline", verticalAlign: "-2px", marginRight: 5 }} />
                     {w.addWallet}
@@ -321,7 +321,7 @@ const DeskWithdraw = ({ mode = "manual", onChangeMode = null }) => {
                     placeholder={f.max ? `${f.min.toLocaleString("en-US")} - ${f.max.toLocaleString("en-US")}` : ""}
                     style={inputBox}
                   />
-                  <button type="button" onClick={f.refreshBalance} className="flex cursor-pointer items-center" style={{ marginLeft: 5, color: "#666", gap: 6 }}>
+                  <button type="button" onClick={f.refreshBalance} className="flex cursor-pointer items-center" style={{ marginLeft: 5, color: "var(--member-text, #666)", gap: 6 }}>
                     <img src={`${IMG}/icon-return.png`} alt="" style={{ width: 18, height: 18 }} />
                     {w.recall}
                   </button>
@@ -382,7 +382,7 @@ const DeskWithdraw = ({ mode = "manual", onChangeMode = null }) => {
             {turnoverBlock && (
               <div style={{ width: 288, marginLeft: 47, marginTop: 14, borderRadius: 10, border: "1px solid #ffd0d1", background: "#fff6f6", padding: 14 }}>
                 <div style={{ fontSize: 14, fontWeight: 700, color: RED }}>{f.block === "pendingWithdraw" ? wf.pendingTitle : f.block === "verification" ? wf.verifyTitle : f.block === "dailyLimit" ? wf.dailyTitle : wf.turnoverTitle}</div>
-                <div style={{ marginTop: 6, fontSize: 12, color: "#555", lineHeight: 1.5 }}>
+                <div style={{ marginTop: 6, fontSize: 12, color: "var(--member-text, #555)", lineHeight: 1.5 }}>
                   {f.block === "pendingWithdraw"
                     ? wf.pendingHint.replace("{amount}", two(f.elig?.pendingAmount))
                     : f.block === "verification"
@@ -394,7 +394,7 @@ const DeskWithdraw = ({ mode = "manual", onChangeMode = null }) => {
                 {f.block === "turnover" &&
                   (f.elig?.turnovers || []).map((item, index) => (
                     <div key={index} style={{ marginTop: 10 }}>
-                      <div className="flex justify-between" style={{ fontSize: 12, color: "#333" }}>
+                      <div className="flex justify-between" style={{ fontSize: 12, color: "var(--member-title, #333)" }}>
                         <span className="truncate">{item.title}</span>
                         <span>
                           {two(item.progress)} / {two(item.required)}
@@ -422,7 +422,7 @@ const DeskWithdraw = ({ mode = "manual", onChangeMode = null }) => {
             </button>
             {/* মূল সাইটের মতো — আজ আর কতবার তোলা যাবে (admin এর দিনের সীমা) */}
             {f.elig?.today?.remaining != null && (
-              <span className="flex items-center" style={{ marginLeft: 15, gap: 8, fontSize: 14, color: "#666" }}>
+              <span className="flex items-center" style={{ marginLeft: 15, gap: 8, fontSize: 14, color: "var(--member-text, #666)" }}>
                 {wf.todayLeft}
                 <b style={{ fontSize: 18, color: "#fd4b4b" }}>{f.elig.today.remaining}</b>
               </span>

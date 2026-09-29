@@ -71,7 +71,7 @@ const BottomNavbar = () => {
                 width: m(148.5),
                 height: m(148.5),
                 borderRadius: "50%",
-                background: "var(--accent-bright)",
+                background: "var(--bnav-share, var(--accent-bright))",
               }}
             >
               <span
@@ -87,7 +87,7 @@ const BottomNavbar = () => {
               />
               <span
                 className="w-full text-center"
-                style={{ marginTop: m(3.5), fontSize: m(20), color: "#fff" }}
+                style={{ marginTop: m(3.5), fontSize: m(20), color: "var(--bnav-text, #fff)" }}
               >
                 {t.bottomNav[item.key]}
               </span>
@@ -114,7 +114,7 @@ const BottomNavbar = () => {
             />
             <span
               className="w-full text-center"
-              style={{ fontSize: m(20), lineHeight: m(20), color: "#fff", marginTop: m(3) }}
+              style={{ fontSize: m(20), lineHeight: m(20), color: "var(--bnav-text, #fff)", marginTop: m(3) }}
             >
               {t.bottomNav[item.key]}
             </span>

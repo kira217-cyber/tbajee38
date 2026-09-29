@@ -193,7 +193,7 @@ const Withdraw = () => {
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-[12px] font-semibold text-white/60">{t("availableBalance")}</p>
-                <p className="mt-1 text-[38px] font-black leading-none text-white lg:text-[46px]" style={{ textShadow: `0 0 30px ${TONE}66` }}>
+                <p className="mt-1 text-[38px] font-black leading-none text-white lg:text-[46px]" style={{ textShadow: `0 0 30px color-mix(in srgb, ${TONE}, transparent 60%)` }}>
                   {money(user?.balance)}
                 </p>
               </div>

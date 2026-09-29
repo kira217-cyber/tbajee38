@@ -13,8 +13,8 @@ import "./pro.css";
 const toneStyle = (tone, style) => ({ "--tone": tone, ...style });
 
 /** পাতার মাথার ব্যানার — আইকন, ছোট লেখা, শিরোনাম; ডানে যা খুশি */
-export const Hero = ({ tone, Icon, eyebrow, title, subtitle, aside, children, className = "" }) => (
-  <section className={`pro-hero p-5 lg:p-7 ${className}`} style={toneStyle(tone)}>
+export const Hero = ({ tone, heroBg, Icon, eyebrow, title, subtitle, aside, children, className = "" }) => (
+  <section className={`pro-hero p-5 lg:p-7 ${className}`} style={toneStyle(tone, heroBg ? { "--hero-bg": heroBg } : undefined)}>
     <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-3">
@@ -133,11 +133,10 @@ export const Ring = ({ value = 0, max = 1, size = 120, stroke = 11, tone, childr
           cy={size / 2}
           r={r}
           fill="none"
-          stroke={tone}
           strokeWidth={stroke}
           strokeLinecap="round"
           strokeDasharray={`${c * pct} ${c}`}
-          style={{ transition: "stroke-dasharray 0.6s ease", filter: `drop-shadow(0 0 6px ${tone})` }}
+          style={{ stroke: tone, transition: "stroke-dasharray 0.6s ease", filter: `drop-shadow(0 0 6px ${tone})` }}
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">{children}</div>
@@ -165,7 +164,7 @@ export const Donut = ({ parts, size = 150, stroke = 16, children }) => {
                 cy={size / 2}
                 r={r}
                 fill="none"
-                stroke={p.tone}
+                style={{ stroke: p.tone }}
                 strokeWidth={stroke}
                 strokeDasharray={`${Math.max(0, len - 2)} ${c}`}
                 strokeDashoffset={-offset}

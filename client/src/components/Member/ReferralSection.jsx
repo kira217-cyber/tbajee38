@@ -36,7 +36,7 @@ const TILES = [
 
 /** বন্ধ/অ্যাফিলিয়েট — লেখা দেখানো */
 const Notice = ({ text, style }) => (
-  <div className="flex flex-1 items-center justify-center text-center" style={{ color: "#999", ...style }}>
+  <div className="flex flex-1 items-center justify-center text-center" style={{ color: "var(--member-muted, #999)", ...style }}>
     {text}
   </div>
 );
@@ -79,7 +79,7 @@ const DeskOverview = ({ data }) => {
             <div style={{ fontSize: 24, color: "#2b2e83", fontWeight: 700, marginBottom: 8, paddingLeft: 0 }}>{page.winnersTitle}</div>
             <div className="hide-scrollbar" style={{ height: 170, overflowY: "auto" }}>
               {(data.winners || []).length === 0 ? (
-                <div style={{ fontSize: 13, color: "#888", padding: "8px 4px" }}>{r.noWinners}</div>
+                <div style={{ fontSize: 13, color: "var(--member-muted, #888)", padding: "8px 4px" }}>{r.noWinners}</div>
               ) : (
                 data.winners.map((w, i) => (
                   <div key={i} className="flex items-center" style={{ height: 34, borderRadius: 17, background: "linear-gradient(180deg,#f4f6f9,#dfe5ec)", marginBottom: 10, fontSize: 14, color: "#444" }}>
@@ -104,7 +104,7 @@ const DeskOverview = ({ data }) => {
             ))}
           </div>
 
-          <AgentLink href={setting.agentLink} style={{ marginTop: 40, fontSize: 15, fontWeight: 700, color: "#333" }} dot={18} />
+          <AgentLink href={setting.agentLink} style={{ marginTop: 40, fontSize: 15, fontWeight: 700, color: "var(--member-title, #333)" }} dot={18} />
 
           <div style={{ marginTop: "auto" }}>
             <ShareBox code={data.referralCode} domain={setting.inviteDomain} title={page.shareTitle} />
@@ -117,12 +117,12 @@ const DeskOverview = ({ data }) => {
         <div style={{ fontSize: 22, color: "#2b2e83", fontWeight: 700 }}>{page.rewardTitle}</div>
         <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
           {REWARD_TYPES.map((key) => (
-            <div key={key} className="flex items-center" style={{ background: "#fff", borderRadius: 8, padding: 10, gap: 8 }}>
+            <div key={key} className="flex items-center" style={{ background: "var(--member-surface, #fff)", borderRadius: 8, padding: 10, gap: 8 }}>
               <img src={`/assets/referral/reward-${key}.png`} alt="" style={{ width: 34, height: 34, objectFit: "contain" }} />
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: 12, color: "#666" }}>{r.types[key]}</div>
+                <div style={{ fontSize: 12, color: "var(--member-text, #666)" }}>{r.types[key]}</div>
                 <div className="truncate" style={{ fontSize: 14, color: "#4c1d95", fontWeight: 700, marginTop: 3 }}>{tk(data.site?.[key]?.amount)}</div>
-                <div style={{ fontSize: 11, color: "#999", marginTop: 2 }}>{r.claimedCount.replace("{n}", data.site?.[key]?.members ?? 0)}</div>
+                <div style={{ fontSize: 11, color: "var(--member-muted, #999)", marginTop: 2 }}>{r.claimedCount.replace("{n}", data.site?.[key]?.members ?? 0)}</div>
               </div>
             </div>
           ))}
@@ -139,7 +139,7 @@ const AgentLink = ({ href, style, dot }) => {
   const { t } = useLanguage();
   const body = (
     <>
-      <span className="grid place-items-center" style={{ width: dot, height: dot, borderRadius: "50%", background: "#e8474c", color: "#fff", fontSize: dot * 0.6 }}>
+      <span className="grid place-items-center" style={{ width: dot, height: dot, borderRadius: "50%", background: "var(--member-accent, #e8474c)", color: "#fff", fontSize: dot * 0.6 }}>
         ›
       </span>
       {t.referralFlow.agentLink}
@@ -185,21 +185,21 @@ const Desktop = () => {
     );
 
   return (
-    <div className="flex flex-col" style={{ width: 1110, height: 620, background: "#fff" }}>
-      <div className="flex items-center" style={{ height: 47, borderBottom: "1px solid #eee", padding: "0 60px 0 30px", gap: 20 }}>
+    <div className="flex flex-col" style={{ width: 1110, height: 620, background: "var(--member-surface, #fff)" }}>
+      <div className="flex items-center" style={{ height: 47, borderBottom: "1px solid var(--member-line, #eee)", padding: "0 60px 0 30px", gap: 20 }}>
         {page.tabs.map((label, index) => (
           <button
             key={label}
             type="button"
             onClick={() => setTab(index)}
             className="relative h-full cursor-pointer"
-            style={{ padding: "0 10px", fontSize: 14, color: index === tab ? "#fd2f2f" : "#666" }}
+            style={{ padding: "0 10px", fontSize: 14, color: index === tab ? "var(--member-accent, #fd2f2f)" : "var(--member-text, #666)" }}
           >
             {label}
-            {index === tab && <span className="absolute bottom-0 left-0 right-0" style={{ height: 3, background: "#fd2f2f" }} />}
+            {index === tab && <span className="absolute bottom-0 left-0 right-0" style={{ height: 3, background: "var(--member-accent, #fd2f2f)" }} />}
           </button>
         ))}
-        {off ? <span style={{ marginLeft: "auto", fontSize: 12, color: "#e8474c" }}>{r.off}</span> : null}
+        {off ? <span style={{ marginLeft: "auto", fontSize: 12, color: "var(--member-accent, #e8474c)" }}>{r.off}</span> : null}
       </div>
       {body}
     </div>
@@ -224,7 +224,7 @@ const MobOverview = ({ data }) => {
   const setting = data.setting || {};
 
   return (
-    <div style={{ background: "#fff", padding: `${m(24)} ${m(24)} ${m(60)}` }}>
+    <div style={{ background: "var(--member-surface, #fff)", padding: `${m(24)} ${m(24)} ${m(60)}` }}>
       <ShareBox code={data.referralCode} domain={setting.inviteDomain} title={page.shareTitle} />
 
       <div style={{ marginTop: m(20), display: "grid", gridTemplateColumns: "1fr 1fr", gap: m(16) }}>
@@ -248,14 +248,14 @@ const MobOverview = ({ data }) => {
         </div>
       </div>
 
-      <div className="text-center" style={{ fontSize: m(42), fontWeight: 700, color: "#222", margin: `${m(20)} 0 ${m(20)}` }}>{page.rewardTitle}</div>
+      <div className="text-center" style={{ fontSize: m(42), fontWeight: 700, color: "var(--member-title, #222)", margin: `${m(20)} 0 ${m(20)}` }}>{page.rewardTitle}</div>
       {REWARD_TYPES.map((key) => (
         <div key={key} className="flex items-center" style={{ height: m(186), background: "linear-gradient(180deg,#f4f6fb,#e6ebf4)", borderRadius: m(10), padding: `0 ${m(20)}`, gap: m(24), marginBottom: m(22) }}>
           <img src={`/assets/referral/reward-${key}.png`} alt="" style={{ width: m(170), height: m(170), objectFit: "contain", flexShrink: 0 }} />
           <div>
             <div style={{ fontSize: m(34), color: "#444" }}>{r.types[key]}</div>
             <div style={{ fontSize: m(44), color: "#35287f", fontWeight: 700, marginTop: m(4) }}>{tk(data.site?.[key]?.amount)}</div>
-            <div style={{ fontSize: m(26), color: "#555", marginTop: m(2) }}>{r.claimedCount.replace("{n}", data.site?.[key]?.members ?? 0)}</div>
+            <div style={{ fontSize: m(26), color: "var(--member-text, #555)", marginTop: m(2) }}>{r.claimedCount.replace("{n}", data.site?.[key]?.members ?? 0)}</div>
           </div>
         </div>
       ))}
@@ -265,7 +265,7 @@ const MobOverview = ({ data }) => {
       <div style={{ borderRadius: m(16), background: "linear-gradient(135deg,#f3e8ff,#dbeafe)", padding: m(26) }}>
         <div style={{ fontSize: m(32), color: "#2b2e83", fontWeight: 700, marginBottom: m(18) }}>{desk.winnersTitle}</div>
         {(data.winners || []).length === 0 ? (
-          <div style={{ fontSize: m(26), color: "#888" }}>{r.noWinners}</div>
+          <div style={{ fontSize: m(26), color: "var(--member-muted, #888)" }}>{r.noWinners}</div>
         ) : (
           data.winners.map((w, i) => (
             <div key={i} className="flex items-center" style={{ height: m(68), borderRadius: m(34), background: "rgb(255 255 255 / 0.8)", marginBottom: m(14), fontSize: m(26), color: "#444" }}>
@@ -297,7 +297,7 @@ const Mobile = () => {
   else if (tab === 0) body = <MobOverview data={data} />;
   else
     body = (
-      <div style={{ background: "#fff", padding: `${m(24)} ${m(24)} ${m(60)}`, minHeight: "60vh" }}>
+      <div style={{ background: "var(--member-surface, #fff)", padding: `${m(24)} ${m(24)} ${m(60)}`, minHeight: "60vh" }}>
         {tab === 1 && (
           <>
             <ProgramCard setting={data.setting} />
@@ -312,22 +312,22 @@ const Mobile = () => {
 
   return (
     <MemberShell title={page.title}>
-      <div className="hide-scrollbar flex overflow-x-auto" style={{ background: "#fff", height: m(110) }}>
+      <div className="hide-scrollbar flex overflow-x-auto" style={{ background: "var(--member-surface, #fff)", height: m(110) }}>
         {page.tabs.map((item, index) => (
           <button
             key={item}
             type="button"
             onClick={() => setTab(index)}
             className="relative shrink-0 cursor-pointer"
-            style={{ padding: `0 ${m(34)}`, color: index === tab ? "#1e9bf0" : "#333", fontSize: m(32) }}
+            style={{ padding: `0 ${m(34)}`, color: index === tab ? "var(--member-link, #1e9bf0)" : "var(--member-title, #333)", fontSize: m(32) }}
           >
             {item}
-            {index === tab && <span className="absolute bottom-0 left-1/2 -translate-x-1/2" style={{ width: "80%", height: m(6), background: "#1e9bf0" }} />}
+            {index === tab && <span className="absolute bottom-0 left-1/2 -translate-x-1/2" style={{ width: "80%", height: m(6), background: "var(--member-link, #1e9bf0)" }} />}
           </button>
         ))}
       </div>
       {data && !data.setting?.isActive ? (
-        <div className="text-center" style={{ background: "#fff5f5", color: "#e60012", fontSize: m(26), padding: m(16) }}>{r.off}</div>
+        <div className="text-center" style={{ background: "#fff5f5", color: "var(--member-accent, #e60012)", fontSize: m(26), padding: m(16) }}>{r.off}</div>
       ) : null}
       {body}
     </MemberShell>

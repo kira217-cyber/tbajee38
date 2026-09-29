@@ -82,7 +82,7 @@ const GRID = [...MEMBER_SECTIONS.filter((section) => section.inGrid), ...EXTRA].
 /** `ডাকনাম :` / `যোগদান করেছেন:` এর মতো লেবেল-মান জোড়া */
 const InfoRow = ({ label, value, children }) => (
   <div className="flex items-center" style={{ gap: m(10), marginTop: m(12) }}>
-    <span style={{ fontSize: m(24), fontWeight: 700, color: "#666" }}>
+    <span style={{ fontSize: m(24), fontWeight: 700, color: "var(--member-text, #666)" }}>
       {label}: {value}
     </span>
     {children}
@@ -143,7 +143,7 @@ const MemberCenter = () => {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f5f5f9", paddingBottom: m(110) }}>
+    <div style={{ minHeight: "100vh", background: "var(--member-page-bg, #f5f5f9)", paddingBottom: m(110) }}>
       <div
         style={{
           backgroundImage: "url(/assets/mobile/member/bg.png)",
@@ -234,7 +234,7 @@ const MemberCenter = () => {
                 border: `${m(8)} solid #fff`,
                 objectFit: "cover",
                 flexShrink: 0,
-                background: "#fff",
+                background: "var(--member-surface, #fff)",
               }}
             />
 
@@ -285,7 +285,7 @@ const MemberCenter = () => {
                   onClick={() => navigate("/member/account")}
                   aria-label="edit"
                   className="cursor-pointer"
-                  style={{ width: m(31), height: m(31), color: "#666" }}
+                  style={{ width: m(31), height: m(31), color: "var(--member-text, #666)" }}
                 >
                   <Icon name="icon-icon-edit" size={m(28)} />
                 </button>
@@ -327,7 +327,7 @@ const MemberCenter = () => {
                 style={{
                   height: m(54),
                   borderRadius: m(30),
-                  background: "linear-gradient(0deg, rgb(255 255 255 / 0.7), #fff)",
+                  background: "linear-gradient(0deg, rgb(255 255 255 / 0.7), var(--member-surface, #fff))",
                   boxShadow: `0 ${m(2)} ${m(10)} rgb(110 110 110 / 0.5)`,
                   color: "#454545",
                   fontSize: m(24),
@@ -342,7 +342,7 @@ const MemberCenter = () => {
       </div>
 
       {/* ── সদস্য সেন্টারের গ্রিড ── */}
-      <div style={{ background: "#fff", marginTop: m(31) }}>
+      <div style={{ background: "var(--member-surface, #fff)", marginTop: m(31) }}>
         <div className="flex" style={{ paddingInline: m(50), paddingTop: m(4) }}>
           <span
             style={{
@@ -415,7 +415,7 @@ const MemberCenter = () => {
 
               <span
                 className="text-center"
-                style={{ marginTop: m(14), fontSize: m(24), color: "#333", lineHeight: 1.25 }}
+                style={{ marginTop: m(14), fontSize: m(24), color: "var(--member-title, #333)", lineHeight: 1.25 }}
               >
                 {t.memberPage.items[item.key] ?? item.title?.(t)}
               </span>

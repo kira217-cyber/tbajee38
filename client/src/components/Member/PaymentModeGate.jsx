@@ -23,7 +23,7 @@ import { getSupportUrl } from "../../data/contact";
  * `render(mode, onChange)` — `onChange` শুধু দুটো পথ খোলা থাকলে দেওয়া হয়।
  */
 
-const RED = "#ec2529";
+const RED = "var(--member-accent, #ec2529)";
 
 const useMode = () => {
   const isDesktop = useIsDesktop();
@@ -55,8 +55,8 @@ const Card = ({ Icon, color, title, hint, onClick, desktop }) => {
         padding: `${u(18, 28)} ${u(26, 34)}`,
         gap: u(20, 28),
         borderRadius: u(12, 18),
-        border: `${u("1px", m(2))} solid #eee`,
-        background: `linear-gradient(90deg, #fff 0%, ${color}14 100%)`,
+        border: `${u("1px", m(2))} solid var(--member-line, #eee)`,
+        background: `linear-gradient(90deg, var(--member-surface, #fff) 0%, color-mix(in srgb, ${color} 7.84%, transparent) 100%)`,
         boxShadow: "0 6px 20px rgb(0 0 0 / 0.06)",
       }}
     >
@@ -64,10 +64,10 @@ const Card = ({ Icon, color, title, hint, onClick, desktop }) => {
         <Icon size={desktop ? 30 : 26} />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block" style={{ fontSize: u(20, 32), fontWeight: 700, color: "#222" }}>
+        <span className="block" style={{ fontSize: u(20, 32), fontWeight: 700, color: "var(--member-title, #222)" }}>
           {title}
         </span>
-        <span className="block" style={{ marginTop: u(6, 10), fontSize: u(13, 24), color: "#888", lineHeight: 1.45 }}>
+        <span className="block" style={{ marginTop: u(6, 10), fontSize: u(13, 24), color: "var(--member-muted, #888)", lineHeight: 1.45 }}>
           {hint}
         </span>
       </span>
@@ -81,8 +81,8 @@ const Card = ({ Icon, color, title, hint, onClick, desktop }) => {
 
 const Frame = ({ desktop, title, children }) =>
   desktop ? (
-    <div className="flex flex-col" style={{ width: 1110, height: 620, background: "#fff" }}>
-      <div className="flex items-center" style={{ height: 47, padding: "0 20px", gap: 8, borderBottom: "1px solid #eee", flexShrink: 0 }}>
+    <div className="flex flex-col" style={{ width: 1110, height: 620, background: "var(--member-surface, #fff)" }}>
+      <div className="flex items-center" style={{ height: 47, padding: "0 20px", gap: 8, borderBottom: "1px solid var(--member-line, #eee)", flexShrink: 0 }}>
         <span style={{ width: 4, height: 16, background: "#23e63a" }} />
         <span style={{ fontSize: 16, color: "#000" }}>{title}</span>
       </div>
@@ -92,7 +92,7 @@ const Frame = ({ desktop, title, children }) =>
     </div>
   ) : (
     <MemberShell title={title}>
-      <div className="flex flex-col" style={{ padding: `${m(40)} ${m(30)}`, gap: m(26), background: "#fff" }}>
+      <div className="flex flex-col" style={{ padding: `${m(40)} ${m(30)}`, gap: m(26), background: "var(--member-surface, #fff)" }}>
         {children}
       </div>
     </MemberShell>
@@ -110,7 +110,7 @@ const PaymentModeGate = ({ kind, render }) => {
   if (modes.loading) {
     return (
       <Frame desktop={desktop} title={pageTitle}>
-        <div style={{ color: "#999", fontSize: desktop ? 14 : m(26) }}>{p.loading}</div>
+        <div style={{ color: "var(--member-muted, #999)", fontSize: desktop ? 14 : m(26) }}>{p.loading}</div>
       </Frame>
     );
   }
@@ -122,8 +122,8 @@ const PaymentModeGate = ({ kind, render }) => {
           <span className="grid place-items-center" style={{ width: desktop ? 84 : m(140), height: desktop ? 84 : m(140), borderRadius: "50%", background: "#fff1f1", color: RED }}>
             <Wallet size={desktop ? 38 : 34} />
           </span>
-          <div style={{ fontSize: desktop ? 20 : m(34), fontWeight: 700, color: "#222" }}>{isDeposit ? p.depositOffTitle : p.withdrawOffTitle}</div>
-          <div style={{ maxWidth: desktop ? 460 : "100%", fontSize: desktop ? 14 : m(26), color: "#888", lineHeight: 1.6 }}>
+          <div style={{ fontSize: desktop ? 20 : m(34), fontWeight: 700, color: "var(--member-title, #222)" }}>{isDeposit ? p.depositOffTitle : p.withdrawOffTitle}</div>
+          <div style={{ maxWidth: desktop ? 460 : "100%", fontSize: desktop ? 14 : m(26), color: "var(--member-muted, #888)", lineHeight: 1.6 }}>
             {isDeposit ? p.depositOffHint : p.withdrawOffHint}
           </div>
           <button

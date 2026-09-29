@@ -32,6 +32,7 @@ import { openSupport as openSupportLink } from "../data/contact";
 import { m } from "../hook/useUnits";
 import { referralInUrl } from "../utils/referralLink";
 import { useHideBootLoader } from "../hook/useHideBootLoader";
+import { inPreviewFrame } from "../theme/liveTheme";
 
 /**
  * পুরো সাইটের কাঠামো — ফিক্সড হেডার, বাঁয়ে সাইডবার (মোবাইলে ড্রয়ার),
@@ -43,7 +44,8 @@ import { useHideBootLoader } from "../hook/useHideBootLoader";
  *   - নোটিশ: সাইট খোলার পর একবার
  */
 /** এই পাতা-লোডে নোটিশ বন্ধ হয়েছে কিনা (reload এ আবার false) */
-let noticeDismissed = false;
+// admin এর প্রিভিউতে নোটিশ নিজে থেকে এসে পাতা ঢেকে দেয় না — "Notice popup" পাতা বাছলে খোলে
+let noticeDismissed = inPreviewFrame();
 
 const RootLayout = () => {
   const dispatch = useDispatch();
@@ -189,6 +191,19 @@ const RootLayout = () => {
 
   // গ্রাহক সেবা — মূল সাইটের টেলিগ্রাম চ্যানেল
   const openSupport = useCallback(() => openSupportLink(), []);
+
+  // admin এর থিম স্টুডিওর প্রিভিউ — "auth:login" বা "member:deposit" এলে সেই
+  // মডালটা খোলে, যাতে ডেস্কটপের মডালের রঙও দেখা যায় (theme/liveTheme.js)
+  useEffect(() => {
+    const onOpen = (event) => {
+      const [kind, tab] = String(event.detail || "").split(":");
+      if (kind === "auth") openAuth(tab || "login");
+      if (kind === "member") openMember(tab || "deposit");
+      if (kind === "notice") setNoticeClosed(false);
+    };
+    window.addEventListener("tb:preview-open", onOpen);
+    return () => window.removeEventListener("tb:preview-open", onOpen);
+  }, [openAuth, openMember, setNoticeClosed]);
 
   const ui = useMemo(
     () => ({

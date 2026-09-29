@@ -51,7 +51,7 @@ const NoticeModal = ({ items = [], onClose }) => {
           style={{
             width: m(562),
             maxHeight: "82vh",
-            background: "#1b2132",
+            background: "var(--popup-bg, #1b2132)",
             borderRadius: m(12),
             overflow: "hidden",
           }}
@@ -132,7 +132,7 @@ const NoticeModal = ({ items = [], onClose }) => {
             height: "100%",
             borderRadius: 5,
             overflow: "hidden",
-            background: "#1b2132 url(/assets/site/announce-bg.854443e2.png) 0 0 / 100% 100% no-repeat",
+            background: "var(--popup-bg, #1b2132) url(/assets/site/announce-bg.854443e2.png) 0 0 / 100% 100% no-repeat",
             padding: "30px 24px 30px 17px",
             display: "flex",
             gap: 19,
@@ -140,7 +140,7 @@ const NoticeModal = ({ items = [], onClose }) => {
         >
           {/* বাঁয়ে — মূল সাইটের `.content-nav` (২৪১ × ৫১০, #21233A, radius ১৪) আর নিচে পাতা বদল */}
           <div className="flex shrink-0 flex-col" style={{ width: 241, height: 588 }}>
-            <ul className="hide-scrollbar" style={{ height: 510, overflowY: "auto", background: "#21233a", borderRadius: 14 }}>
+            <ul className="hide-scrollbar" style={{ height: 510, overflowY: "auto", background: "var(--popup-list-bg, #21233a)", borderRadius: 14 }}>
               {pageItems.map((item, j) => {
                 const i = page * PER_PAGE + j;
                 const on = i === active;
@@ -150,7 +150,7 @@ const NoticeModal = ({ items = [], onClose }) => {
                       type="button"
                       onClick={() => setActive(i)}
                       className="flex w-full cursor-pointer items-center text-left"
-                      style={{ height: 53, padding: "0 13px", gap: 8, color: on ? "#f5df4b" : "#a6a6a6", fontSize: 15 }}
+                      style={{ height: 53, padding: "0 13px", gap: 8, color: on ? "var(--popup-title, #f5df4b)" : "var(--popup-text, #a6a6a6)", fontSize: 15 }}
                     >
                       <img src="/assets/site/notice-item.png" alt="" style={{ width: 18, height: 18, flexShrink: 0 }} />
                       <span className="flex-1 truncate">{titleOf(item)}</span>
@@ -163,14 +163,14 @@ const NoticeModal = ({ items = [], onClose }) => {
               })}
             </ul>
 
-            <div className="flex items-center justify-center" style={{ height: 36, marginTop: 23, background: "#21233a", borderRadius: 14, gap: 3 }}>
+            <div className="flex items-center justify-center" style={{ height: 36, marginTop: 23, background: "var(--popup-list-bg, #21233a)", borderRadius: 14, gap: 3 }}>
               <button type="button" aria-label="previous" disabled={page === 0} onClick={() => setPage((v) => v - 1)} className="grid cursor-pointer place-items-center" style={{ width: 34, height: 24, opacity: page === 0 ? 0.5 : 1 }}>
                 <svg viewBox="0 0 8 14" style={{ width: 8, height: 14 }} aria-hidden="true">
                   <path d="M7 1L1 7l6 6" fill="none" stroke="#fff" strokeWidth="1.6" />
                 </svg>
               </button>
               {Array.from({ length: pages }, (_, n) => (
-                <button key={n} type="button" onClick={() => setPage(n)} className="cursor-pointer" style={{ width: 34, height: 24, fontSize: 15, color: n === page ? "#f5df4b" : "#a6a6a6" }}>
+                <button key={n} type="button" onClick={() => setPage(n)} className="cursor-pointer" style={{ width: 34, height: 24, fontSize: 15, color: n === page ? "var(--popup-title, #f5df4b)" : "var(--popup-text, #a6a6a6)" }}>
                   {n + 1}
                 </button>
               ))}
@@ -185,7 +185,7 @@ const NoticeModal = ({ items = [], onClose }) => {
           {/* ডানে — `.content-detail` ৮৪৫ চওড়া, উপরে "Notice" ছবি (২০২ × ৬০), শিরোনাম fs ৩০ fw ৭০০ #F5DF4B */}
           <div className="hide-scrollbar relative" style={{ width: 845, height: 588, padding: "60px 20px 20px", overflowY: "auto" }}>
             <img src="/assets/site/notice-title.png" alt={t.noticeTitle} className="absolute" style={{ left: 20, top: 0, width: 202, height: 60 }} />
-            <div className="truncate" style={{ padding: "25px 0 30px", fontSize: 30, fontWeight: 700, color: "#f5df4b", lineHeight: "40px" }}>
+            <div className="truncate" style={{ padding: "25px 0 30px", fontSize: 30, fontWeight: 700, color: "var(--popup-title, #f5df4b)", lineHeight: "40px" }}>
               {titleOf(current)}
             </div>
             {current.image && (

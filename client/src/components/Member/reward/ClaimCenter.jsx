@@ -38,12 +38,12 @@ const ClaimCenter = () => {
         </button>
       }
     >
-      <div style={{ background: "#f5f5f9", minHeight: "calc(100vh - 1rem)" }}>
+      <div style={{ background: "var(--member-page-bg, #f5f5f9)", minHeight: "calc(100vh - 1rem)" }}>
         <div style={{ height: m(330), background: `url(${IMG}/mall-bg.jpg) center / cover`, overflow: "hidden" }}>
           <img
             src={user?.avatar || "/assets/mobile/avatar.png"}
             alt=""
-            style={{ float: "left", width: m(150), height: m(150), margin: `${m(24)} 0 0 ${m(60)}`, borderRadius: "50%", border: `${m(10)} solid #9fd2f9`, objectFit: "cover", background: "#fff" }}
+            style={{ float: "left", width: m(150), height: m(150), margin: `${m(24)} 0 0 ${m(60)}`, borderRadius: "50%", border: `${m(10)} solid #9fd2f9`, objectFit: "cover", background: "var(--member-surface, #fff)" }}
           />
           <div style={{ float: "left", margin: `${m(30)} 0 0 ${m(30)}`, color: "#fff" }}>
             <p style={{ fontSize: m(26), fontWeight: 700, padding: `${m(5)} 0` }}>{user?.userId || user?.username}</p>
@@ -55,7 +55,7 @@ const ClaimCenter = () => {
           {loading ? null : tickets.length ? (
             tickets.map((ticket) => <TicketCard key={ticket.id} ticket={ticket} history={history} onClaim={popups.open} onInfo={popups.info} />)
           ) : (
-            <div style={{ background: "#fff" }}>
+            <div style={{ background: "var(--member-surface, #fff)" }}>
               <EmptyState />
             </div>
           )}

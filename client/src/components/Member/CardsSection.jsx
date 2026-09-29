@@ -26,15 +26,15 @@ const CardsSection = () => {
 
   return (
     <MemberShell title={t.memberPage.cardBtn}>
-      <div style={{ background: "#fff", minHeight: "calc(100vh - 1rem)", padding: `${m(24)} ${m(24)} ${m(220)}` }}>
-        <div className="flex items-center" style={{ fontSize: m(28), color: "#333", gap: m(12), marginBottom: m(24) }}>
+      <div style={{ background: "var(--member-surface, #fff)", minHeight: "calc(100vh - 1rem)", padding: `${m(24)} ${m(24)} ${m(220)}` }}>
+        <div className="flex items-center" style={{ fontSize: m(28), color: "var(--member-title, #333)", gap: m(12), marginBottom: m(24) }}>
           <span style={{ width: m(12), height: m(12), borderRadius: "50%", background: "#f5a623" }} />
           {c.added}: {f.wallets.length}
         </div>
 
         {f.loading ? null : f.wallets.length === 0 ? (
-          <div className="flex items-center" style={{ height: m(140), borderRadius: m(14), background: "linear-gradient(90deg,#efeff1,#f7f7f9)", padding: `0 ${m(30)}`, gap: m(18), color: "#666", fontSize: m(28) }}>
-            <span className="grid place-items-center" style={{ width: m(54), height: m(54), borderRadius: "50%", background: "#fff", color: "#aaa", fontSize: m(26) }}>
+          <div className="flex items-center" style={{ height: m(140), borderRadius: m(14), background: "linear-gradient(90deg,#efeff1,#f7f7f9)", padding: `0 ${m(30)}`, gap: m(18), color: "var(--member-text, #666)", fontSize: m(28) }}>
+            <span className="grid place-items-center" style={{ width: m(54), height: m(54), borderRadius: "50%", background: "var(--member-surface, #fff)", color: "#aaa", fontSize: m(26) }}>
               ▭
             </span>
             {c.empty}
@@ -50,7 +50,7 @@ const CardsSection = () => {
               >
                 <div className="flex items-center" style={{ gap: m(16), fontSize: m(32), height: m(56) }}>
                   {method?.logoUrl ? (
-                    <img src={assetUrl(method.logoUrl)} alt="" style={{ width: m(56), height: m(56), objectFit: "contain", background: "#fff", borderRadius: m(10) }} />
+                    <img src={assetUrl(method.logoUrl)} alt="" style={{ width: m(56), height: m(56), objectFit: "contain", background: "var(--member-surface, #fff)", borderRadius: m(10) }} />
                   ) : null}
                   {f.tv(method?.methodName) || wallet.methodId}
                 </div>
@@ -76,7 +76,7 @@ const CardsSection = () => {
           aria-label={c.add}
           onClick={() => navigate("/member/withdraw?add=1")}
           className="fixed grid cursor-pointer place-items-center"
-          style={{ left: "50%", transform: "translateX(-50%)", bottom: m(40), width: m(84), height: m(84), borderRadius: "50%", background: "#f5333f", color: "#fff", fontSize: m(56), lineHeight: 1, boxShadow: "0 4px 12px rgba(245,51,63,.4)", zIndex: 5 }}
+          style={{ left: "50%", transform: "translateX(-50%)", bottom: m(40), width: m(84), height: m(84), borderRadius: "50%", background: "var(--member-accent, #f5333f)", color: "#fff", fontSize: m(56), lineHeight: 1, boxShadow: "0 4px 12px rgba(245,51,63,.4)", zIndex: 5 }}
         >
           +
         </button>

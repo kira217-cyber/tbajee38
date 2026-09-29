@@ -59,7 +59,7 @@ export const ShareBox = ({ code, domain, title }) => {
 
       <div className="flex" style={{ gap: u(12, 24) }}>
         <button type="button" onClick={saveQr} className="shrink-0 cursor-pointer self-start" title={r.myCode}>
-          <div style={{ background: "#fff", padding: u(3, 8), lineHeight: 0 }}>
+          <div style={{ background: "var(--member-surface, #fff)", padding: u(3, 8), lineHeight: 0 }}>
             <QRCodeCanvas id="tb-invite-qr" value={link || " "} size={isDesktop ? 58 : 132} marginSize={0} style={{ width: u(58, 116), height: u(58, 116) }} />
           </div>
           <div className="text-center" style={{ background: "#4c2a85", color: "#fff", fontSize: u(8, 20), padding: `${u(2, 8)} 0`, lineHeight: 1.3 }}>
@@ -70,7 +70,7 @@ export const ShareBox = ({ code, domain, title }) => {
         <div style={{ flex: 1, minWidth: 0 }}>
           <div
             className="flex items-center"
-            style={{ height: u(28, 48), borderRadius: u(14, 24), background: "#fff", padding: isDesktop ? "0 4px 0 12px" : `0 ${m(6)} 0 ${m(20)}`, gap: u(6, 10), overflow: "hidden" }}
+            style={{ height: u(28, 48), borderRadius: u(14, 24), background: "var(--member-surface, #fff)", padding: isDesktop ? "0 4px 0 12px" : `0 ${m(6)} 0 ${m(20)}`, gap: u(6, 10), overflow: "hidden" }}
           >
             <span className="flex-1 truncate" style={{ fontSize: u(11, 20), color: "#444", fontWeight: isDesktop ? 400 : 600 }}>{link}</span>
             <button
@@ -174,7 +174,7 @@ export const MilestoneList = ({ milestones = [], busy, onClaim }) => {
 
   return (
     <div>
-      <div className="text-right" style={{ fontSize: u(12, 26), color: "#666", margin: `${u(4, 10)} 0 ${u(8, 16)}` }}>{r.notExpired}</div>
+      <div className="text-right" style={{ fontSize: u(12, 26), color: "var(--member-text, #666)", margin: `${u(4, 10)} 0 ${u(8, 16)}` }}>{r.notExpired}</div>
       {milestones.map((ms, i) => {
         const claimable = ms.state === "claimable";
         const claimed = ms.state === "claimed";
@@ -183,7 +183,7 @@ export const MilestoneList = ({ milestones = [], busy, onClaim }) => {
             <Medal color={MEDAL[i % MEDAL.length]} size={u(40, 90)} />
             <div className="min-w-0 flex-1">
               <div style={{ fontSize: u(13, 27), color: "#777" }}>{fill(r.milestoneText, { n: ms.count })}</div>
-              <div style={{ fontSize: u(13, 27), color: "#555", marginTop: u(4, 10) }}>🪙 {Number(ms.amount).toLocaleString("en-US", { minimumFractionDigits: 2 })}</div>
+              <div style={{ fontSize: u(13, 27), color: "var(--member-text, #555)", marginTop: u(4, 10) }}>🪙 {Number(ms.amount).toLocaleString("en-US", { minimumFractionDigits: 2 })}</div>
             </div>
             <div className="shrink-0 text-center">
               <div style={{ color: "#8b8cf7" }}>
@@ -202,7 +202,7 @@ export const MilestoneList = ({ milestones = [], busy, onClaim }) => {
                   borderRadius: u(6, 10),
                   fontSize: u(12, 24),
                   color: "#fff",
-                  background: claimable ? "linear-gradient(90deg,#f5333f,#ff6b6b)" : claimed ? "#b9bcc8" : "linear-gradient(90deg,#8ec5fc,#b28dff)",
+                  background: claimable ? "linear-gradient(90deg,var(--member-accent, #f5333f),#ff6b6b)" : claimed ? "#b9bcc8" : "linear-gradient(90deg,#8ec5fc,#b28dff)",
                   opacity: claimable || claimed ? 1 : 0.75,
                 }}
               >
@@ -222,7 +222,7 @@ const TYPE_KEYS = ["invitation", "achievement", "deposit", "betting"];
 
 const IncomeBlock = ({ title, amount, rows, counts, u }) => (
   <div style={{ background: "#f5f5f7", borderRadius: u(10, 16), padding: u("14px 16px", 20), marginBottom: u(12, 30) }}>
-    <div className="text-center" style={{ fontSize: u(15, 30), color: "#555", paddingBottom: u(10, 24), borderBottom: "1px solid #ddd" }}>
+    <div className="text-center" style={{ fontSize: u(15, 30), color: "var(--member-text, #555)", paddingBottom: u(10, 24), borderBottom: "1px solid #ddd" }}>
       {title} <b style={{ color: "#2b2e83", fontSize: u(17, 34) }}>{tk(amount)}</b>
     </div>
     <div style={{ background: "linear-gradient(180deg,#f4f6fb,#e4eaf4)", borderRadius: u(8, 12), marginTop: u(10, 24), padding: u("8px 16px", 26) }}>
@@ -268,7 +268,7 @@ export const IncomePanel = ({ data }) => {
           [r.depositors, ov.depositorCount ?? 0],
         ]}
       />
-      <div style={{ fontSize: u(12, 24), color: "#999" }}>{r.note}</div>
+      <div style={{ fontSize: u(12, 24), color: "var(--member-muted, #999)" }}>{r.note}</div>
     </div>
   );
 };
@@ -281,7 +281,7 @@ export const Empty = () => {
   return (
     <div className="flex flex-col items-center justify-center" style={{ padding: `${u(60, 160)} 0`, gap: u(10, 20) }}>
       <img src="/assets/mobile/no-data.svg" alt="" style={{ width: u(120, 300), height: u(120, 300) }} />
-      <span style={{ fontSize: u(13, 34), color: "#1e9bf0" }}>{t.referralFlow.noData || t.noData}</span>
+      <span style={{ fontSize: u(13, 34), color: "var(--member-link, #1e9bf0)" }}>{t.referralFlow.noData || t.noData}</span>
     </div>
   );
 };
@@ -291,7 +291,7 @@ const Select = ({ value, onChange, options, u }) => (
     value={value}
     onChange={(e) => onChange(e.target.value)}
     className="cursor-pointer"
-    style={{ height: u(32, 64), border: "1px solid #1e9bf0", borderRadius: u(4, 8), color: "#1e9bf0", fontSize: u(13, 28), padding: `0 ${u(8, 16)}`, background: "#fff", outline: "none" }}
+    style={{ height: u(32, 64), border: "1px solid var(--member-link, #1e9bf0)", borderRadius: u(4, 8), color: "var(--member-link, #1e9bf0)", fontSize: u(13, 28), padding: `0 ${u(8, 16)}`, background: "var(--member-surface, #fff)", outline: "none" }}
   >
     {options.map(([key, label]) => (
       <option key={key} value={key}>
@@ -313,9 +313,9 @@ const Chips = ({ value, onChange, options, u }) => (
           height: u(32, 64),
           padding: `0 ${u(14, 24)}`,
           borderRadius: u(4, 8),
-          border: `1px solid ${key === value ? "#1e9bf0" : "#d6dbe3"}`,
-          background: key === value ? "#1e9bf0" : "#fff",
-          color: key === value ? "#fff" : "#555",
+          border: `1px solid ${key === value ? "var(--member-link, #1e9bf0)" : "#d6dbe3"}`,
+          background: key === value ? "var(--member-link, #1e9bf0)" : "var(--member-surface, #fff)",
+          color: key === value ? "#fff" : "var(--member-text, #555)",
           fontSize: u(13, 26),
         }}
       >
@@ -327,7 +327,7 @@ const Chips = ({ value, onChange, options, u }) => (
 
 const Table = ({ heads, rows, u, footer }) => (
   <div>
-    <div className="grid" style={{ gridTemplateColumns: `repeat(${heads.length}, 1fr)`, background: "#f4f5f7", color: "#666", fontSize: u(13, 26), textAlign: "center" }}>
+    <div className="grid" style={{ gridTemplateColumns: `repeat(${heads.length}, 1fr)`, background: "#f4f5f7", color: "var(--member-text, #666)", fontSize: u(13, 26), textAlign: "center" }}>
       {heads.map((h) => (
         <div key={h} style={{ padding: `${u(10, 22)} ${u(4, 6)}` }}>{h}</div>
       ))}
@@ -377,7 +377,7 @@ export const RecordsPanel = () => {
         heads={[r.cols.date, r.cols.user, r.cols.amount]}
         rows={loading ? [] : rows.map((row) => [when(row.createdAt), who(row), `${Number(row.amount).toFixed(2)}${row.tier > 1 ? ` (${fill(r.tierLine, { n: row.tier })})` : ""}`])}
         footer={
-          <div className="flex justify-between" style={{ padding: `${u(12, 26)} ${u(20, 60)}`, fontSize: u(14, 30), color: "#555", borderTop: "1px solid #eee" }}>
+          <div className="flex justify-between" style={{ padding: `${u(12, 26)} ${u(20, 60)}`, fontSize: u(14, 30), color: "var(--member-text, #555)", borderTop: "1px solid var(--member-line, #eee)" }}>
             <span>{r.total}</span>
             <span>{Number(total || 0).toFixed(2)}</span>
           </div>
@@ -406,9 +406,9 @@ export const InviteesPanel = ({ vipName }) => {
         </div>
         <div className="flex-1" style={{ fontSize: u(13, 25), color: "#1d3a6b" }}>
           <div className="text-center">{r.members}</div>
-          <div className="text-center" style={{ background: "#fff", borderRadius: u(12, 24), margin: `${u(4, 6)} 0 ${u(8, 14)}`, color: "#4a90e2" }}>{footer.totalInviteeCount ?? 0}</div>
+          <div className="text-center" style={{ background: "var(--member-surface, #fff)", borderRadius: u(12, 24), margin: `${u(4, 6)} 0 ${u(8, 14)}`, color: "#4a90e2" }}>{footer.totalInviteeCount ?? 0}</div>
           <div className="text-center">{r.qualified}</div>
-          <div className="text-center" style={{ background: "#fff", borderRadius: u(12, 24), marginTop: u(4, 6), color: "#4a90e2" }}>{footer.totalQualifiedCount ?? 0}</div>
+          <div className="text-center" style={{ background: "var(--member-surface, #fff)", borderRadius: u(12, 24), marginTop: u(4, 6), color: "#4a90e2" }}>{footer.totalQualifiedCount ?? 0}</div>
         </div>
       </div>
       <div className="flex flex-col justify-between" style={{ width: isDesktop ? 220 : "44%", gap: u(6, 10) }}>
@@ -436,7 +436,7 @@ export const InviteesPanel = ({ vipName }) => {
       <Table
         u={u}
         heads={[r.cols.registered, r.cols.user, r.cols.status]}
-        rows={loading ? [] : rows.map((row) => [when(row.registeredAt), row.user, <span key="s" style={{ color: row.qualified ? "#16a34a" : "#999" }}>{row.qualified ? r.isQualified : r.notQualified}</span>])}
+        rows={loading ? [] : rows.map((row) => [when(row.registeredAt), row.user, <span key="s" style={{ color: row.qualified ? "var(--member-success, #16a34a)" : "var(--member-muted, #999)" }}>{row.qualified ? r.isQualified : r.notQualified}</span>])}
       />
     </div>
   );
@@ -453,11 +453,11 @@ export const Rules = ({ setting }) => {
   if (!text && !inv) return null;
   return (
     <div style={{ background: "#f7f8fb", borderRadius: u(8, 14), padding: u(14, 24), marginTop: u(14, 24) }}>
-      <div style={{ fontSize: u(14, 30), fontWeight: 700, color: "#333", marginBottom: u(6, 12) }}>{r.rulesTitle}</div>
+      <div style={{ fontSize: u(14, 30), fontWeight: 700, color: "var(--member-title, #333)", marginBottom: u(6, 12) }}>{r.rulesTitle}</div>
       {inv?.enabled ? (
-        <div style={{ fontSize: u(12, 25), color: "#e8474c", marginBottom: u(6, 12) }}>{fill(r.qualifyRule, { d: inv.requireDeposit, b: inv.requireTurnover })}</div>
+        <div style={{ fontSize: u(12, 25), color: "var(--member-accent, #e8474c)", marginBottom: u(6, 12) }}>{fill(r.qualifyRule, { d: inv.requireDeposit, b: inv.requireTurnover })}</div>
       ) : null}
-      <div style={{ fontSize: u(12, 25), color: "#666", whiteSpace: "pre-line", lineHeight: 1.6 }}>{text}</div>
+      <div style={{ fontSize: u(12, 25), color: "var(--member-text, #666)", whiteSpace: "pre-line", lineHeight: 1.6 }}>{text}</div>
     </div>
   );
 };

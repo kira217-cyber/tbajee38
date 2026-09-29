@@ -36,7 +36,7 @@ const Notice = ({ notices = [] }) => {
           className="whitespace-nowrap"
           style={{
             fontSize: isDesktop ? 16 : m(24),
-            color: "#fff",
+            color: "var(--home-notice-text, #fff)",
             paddingInlineEnd: isDesktop ? 40 : m(60),
           }}
         >
@@ -68,7 +68,7 @@ const Notice = ({ notices = [] }) => {
             marginInlineStart: m(10),
             paddingInline: m(24),
             borderRadius: m(30),
-            background: "var(--surface)",
+            background: "var(--home-notice-bg, var(--surface))",
           }}
         >
           {marquee}
@@ -83,7 +83,7 @@ const Notice = ({ notices = [] }) => {
             style={{
               width: m(26),
               height: m(14),
-              backgroundColor: "var(--accent-bright)",
+              backgroundColor: "var(--home-notice-icon, var(--accent-bright))",
               clipPath: "polygon(0 0, 50% 100%, 100% 0)",
             }}
           />
@@ -109,7 +109,7 @@ const Notice = ({ notices = [] }) => {
       style={{
         height: "var(--notice-h)",
         borderRadius: "var(--notice-radius)",
-        background: "var(--surface)",
+        background: "var(--home-notice-bg, var(--surface))",
         padding: "0 13.5px",
         gap: 19,
       }}

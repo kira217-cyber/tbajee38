@@ -92,10 +92,10 @@ const FeedbackSection = () => {
 
   return (
     <MemberShell title={page.title}>
-      <div style={{ padding: `${m(30)} ${m(30)} ${m(60)}`, background: "#fff" }}>
+      <div style={{ padding: `${m(30)} ${m(30)} ${m(60)}`, background: "var(--member-surface, #fff)" }}>
         {/* সমস্যার ধরন */}
         <button type="button" onClick={() => setPicker(true)} className="flex w-full cursor-pointer text-left" style={{ height: m(120), marginBottom: m(26) }}>
-          <span className="flex flex-1 items-center" style={{ background: "#f2f2f4", borderRadius: `${m(12)} 0 0 ${m(12)}`, padding: `0 ${m(26)}`, color: type ? "#333" : "#8b8b93", fontSize: m(28) }}>
+          <span className="flex flex-1 items-center" style={{ background: "#f2f2f4", borderRadius: `${m(12)} 0 0 ${m(12)}`, padding: `0 ${m(26)}`, color: type ? "var(--member-title, #333)" : "#8b8b93", fontSize: m(28) }}>
             {type ? fb.types[type] : page.type}
           </span>
           <span className="grid place-items-center" style={{ width: m(140), background: "#2f80ed", borderRadius: `0 ${m(12)} ${m(12)} 0`, color: "#fff" }}>
@@ -105,13 +105,13 @@ const FeedbackSection = () => {
 
         {/* বিষয়বস্তু */}
         <div className="relative" style={{ background: "#f2f2f4", borderRadius: m(12), padding: m(26), marginBottom: m(26) }}>
-          <div style={{ color: "#333", fontSize: m(30), fontWeight: 600 }}>{page.subject}</div>
+          <div style={{ color: "var(--member-title, #333)", fontSize: m(30), fontWeight: 600 }}>{page.subject}</div>
           <textarea
             value={text}
             maxLength={MAX}
             onChange={(e) => setText(e.target.value)}
             placeholder={page.placeholder}
-            style={{ width: "100%", height: m(300), marginTop: m(16), background: "transparent", border: "none", outline: "none", resize: "none", fontSize: m(26), color: "#333" }}
+            style={{ width: "100%", height: m(300), marginTop: m(16), background: "transparent", border: "none", outline: "none", resize: "none", fontSize: m(26), color: "var(--member-title, #333)" }}
           />
           <span className="absolute" style={{ right: m(26), bottom: m(20), color: "#8b8b93", fontSize: m(30) }}>
             ( {text.length} / {MAX} )
@@ -153,7 +153,7 @@ const FeedbackSection = () => {
             onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 5))}
             inputMode="numeric"
             placeholder={page.captcha}
-            style={{ flex: 1, minWidth: 0, height: m(110), background: "#f2f2f4", border: "none", outline: "none", borderRadius: m(12), padding: `0 ${m(26)}`, fontSize: m(28), color: "#333" }}
+            style={{ flex: 1, minWidth: 0, height: m(110), background: "#f2f2f4", border: "none", outline: "none", borderRadius: m(12), padding: `0 ${m(26)}`, fontSize: m(28), color: "var(--member-title, #333)" }}
           />
           <button type="button" onClick={loadCaptcha} aria-label={fb.newCaptcha} className="shrink-0 cursor-pointer overflow-hidden" style={{ width: m(310), height: m(110), borderRadius: m(12), background: "#eef3ea" }}>
             {captcha.image ? <img src={captcha.image} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} /> : null}
@@ -168,8 +168,8 @@ const FeedbackSection = () => {
       {/* নিচ থেকে ধরনের তালিকা — মূল সাইটের van-picker এর মতো */}
       {picker && (
         <div className="fixed inset-0 flex items-end" style={{ zIndex: 90, background: "rgb(0 0 0 / .45)" }} onClick={() => setPicker(false)}>
-          <div className="w-full" style={{ background: "#fff", borderRadius: `${m(24)} ${m(24)} 0 0`, paddingBottom: m(30) }} onClick={(e) => e.stopPropagation()}>
-            <div className="text-center" style={{ padding: m(28), fontSize: m(30), color: "#333", borderBottom: "1px solid #eee" }}>
+          <div className="w-full" style={{ background: "var(--member-surface, #fff)", borderRadius: `${m(24)} ${m(24)} 0 0`, paddingBottom: m(30) }} onClick={(e) => e.stopPropagation()}>
+            <div className="text-center" style={{ padding: m(28), fontSize: m(30), color: "var(--member-title, #333)", borderBottom: "1px solid var(--member-line, #eee)" }}>
               {page.type.replace(/^\*\s*/, "")}
             </div>
             {TYPES.map((key) => (
@@ -181,7 +181,7 @@ const FeedbackSection = () => {
                   setPicker(false);
                 }}
                 className="block w-full cursor-pointer text-center"
-                style={{ padding: `${m(26)} 0`, fontSize: m(32), color: key === type ? "#2f80ed" : "#333", fontWeight: key === type ? 700 : 400 }}
+                style={{ padding: `${m(26)} 0`, fontSize: m(32), color: key === type ? "#2f80ed" : "var(--member-title, #333)", fontWeight: key === type ? 700 : 400 }}
               >
                 {fb.types[key]}
               </button>

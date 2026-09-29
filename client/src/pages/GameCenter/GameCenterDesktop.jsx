@@ -56,8 +56,8 @@ const PageButton = ({ active, disabled, onClick, children }) => (
       height: 24,
       margin: "0 3px",
       borderRadius: 2,
-      background: active ? "#DA394F" : "transparent",
-      color: "#fff",
+      background: active ? "var(--games-active, #DA394F)" : "transparent",
+      color: "var(--games-text, #fff)",
       fontSize: 14,
       opacity: disabled ? 0.35 : 1,
       pointerEvents: disabled || active ? "none" : "auto",
@@ -134,7 +134,7 @@ const GameCenterDesktop = ({ category, tabs, label, vendor, search, setVendor, s
       <div
         ref={tabRow}
         className="hide-scrollbar flex overflow-x-auto"
-        style={{ height: 62, padding: 2.8, gap: 7, borderRadius: 10, background: "#1C2638" }}
+        style={{ height: 62, padding: 2.8, gap: 7, borderRadius: 10, background: "var(--games-tab-bg, #1C2638)" }}
       >
         {[{ key: "__home", home: true }, ...tabs].map((c) => {
           const active = c.key === category?.key;
@@ -150,7 +150,7 @@ const GameCenterDesktop = ({ category, tabs, label, vendor, search, setVendor, s
                 padding: "6px 14.7px",
                 borderRadius: 7,
                 background: active ? "url(/assets/gamecenter/tab-active-bg.png) 50% / cover no-repeat" : "transparent",
-                color: active ? "#fff" : "#5C677A",
+                color: active ? "var(--games-text, #fff)" : "var(--games-tab-text, #5C677A)",
                 fontSize: 17,
                 fontWeight: 500,
                 lineHeight: "25px",
@@ -177,7 +177,7 @@ const GameCenterDesktop = ({ category, tabs, label, vendor, search, setVendor, s
           type="button"
           onClick={() => navigate("/")}
           className="tb-more-btn flex cursor-pointer items-center justify-center"
-          style={{ width: 151, height: 42.8, gap: 26, borderRadius: 10, background: "#222A38", color: "#5C677A", fontSize: 14 }}
+          style={{ width: 151, height: 42.8, gap: 26, borderRadius: 10, background: "var(--games-tab-bg, #222A38)", color: "var(--games-tab-text, #5C677A)", fontSize: 14 }}
         >
           {/* মূল সাইটের ভরাট "reply" তীর */}
           <svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true">
@@ -188,7 +188,7 @@ const GameCenterDesktop = ({ category, tabs, label, vendor, search, setVendor, s
 
         <label
           className="relative flex items-center"
-          style={{ width: 230, height: 43, borderRadius: 10, background: "#222A38", border: "1px solid #5D6C87" }}
+          style={{ width: 230, height: 43, borderRadius: 10, background: "var(--games-tab-bg, #222A38)", border: "1px solid #5D6C87" }}
         >
           <Search size={15} className="absolute" style={{ left: 13, color: "#8a93a6" }} />
           <input
@@ -196,7 +196,7 @@ const GameCenterDesktop = ({ category, tabs, label, vendor, search, setVendor, s
             onChange={(e) => setDraft(e.target.value)}
             placeholder={t.games.searchDesk}
             className="h-full w-full bg-transparent outline-none"
-            style={{ padding: "0 13px 0 35px", color: "#fff", fontSize: 14 }}
+            style={{ padding: "0 13px 0 35px", color: "var(--games-text, #fff)", fontSize: 14 }}
           />
         </label>
       </div>
@@ -214,7 +214,7 @@ const GameCenterDesktop = ({ category, tabs, label, vendor, search, setVendor, s
               borderRadius: "var(--vendor-radius)",
               border: "1.5px solid var(--accent-bright)",
               background: !vendor ? "var(--accent-soft-strong)" : "transparent",
-              color: "#fff",
+              color: "var(--games-text, #fff)",
               fontSize: 16,
             }}
           >
@@ -238,7 +238,7 @@ const GameCenterDesktop = ({ category, tabs, label, vendor, search, setVendor, s
               {p.icon ? (
                 <img src={p.icon} alt={p.name} style={{ width: 150, height: "100%", objectFit: "contain" }} />
               ) : (
-                <span style={{ color: "#fff", fontSize: 16 }}>{p.name}</span>
+                <span style={{ color: "var(--games-text, #fff)", fontSize: 16 }}>{p.name}</span>
               )}
             </button>
           ))}
@@ -275,7 +275,7 @@ const GameCenterDesktop = ({ category, tabs, label, vendor, search, setVendor, s
           </PageButton>
           {pageList(page, lastPage).map((p, i) =>
             p === "…" ? (
-              <span key={`gap-${i}`} style={{ width: 34, textAlign: "center", color: "#fff", fontSize: 14 }}>
+              <span key={`gap-${i}`} style={{ width: 34, textAlign: "center", color: "var(--games-text, #fff)", fontSize: 14 }}>
                 …
               </span>
             ) : (

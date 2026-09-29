@@ -41,7 +41,7 @@ const inputStyle = (disabled) => ({
   border: "none",
   outline: "none",
   fontSize: m(30),
-  color: disabled ? "#999" : "#333",
+  color: disabled ? "var(--member-muted, #999)" : "var(--member-title, #333)",
 });
 
 
@@ -72,7 +72,7 @@ const Mobile = () => {
   return (
     <MemberShell title={page.title}>
       <div style={{ padding: `${m(30)} ${m(30)} ${m(60)}` }}>
-        <div style={{ fontSize: m(34), color: "#222", marginBottom: m(24) }}>
+        <div style={{ fontSize: m(34), color: "var(--member-title, #222)", marginBottom: m(24) }}>
           {page.usernameLabel} <span style={{ marginInlineStart: m(10) }}>{user.username ?? "-"}</span>
         </div>
 
@@ -80,7 +80,7 @@ const Mobile = () => {
         <Row icon="form-icon-id">
           <input value={form.fullName} onChange={set("fullName")} disabled={Boolean(user.fullName)} placeholder={page.payee} maxLength={60} style={inputStyle(Boolean(user.fullName))} />
         </Row>
-        <div style={{ color: "#e60012", fontSize: m(28), fontWeight: 700, lineHeight: 1.45, marginBottom: m(26) }}>{page.payeeWarn}</div>
+        <div style={{ color: "var(--member-accent, #e60012)", fontSize: m(28), fontWeight: 700, lineHeight: 1.45, marginBottom: m(26) }}>{page.payeeWarn}</div>
 
         <Row icon="form-icon-name">
           <input value={user.username || ""} disabled placeholder={page.nickname} style={inputStyle(true)} />
@@ -99,7 +99,7 @@ const Mobile = () => {
 
         <div style={{ marginTop: m(16) }}>
           <div style={{ color: "#4a9df5", fontSize: m(32) }}>{page.privacyTitle}</div>
-          <div style={{ color: "#888", fontSize: m(24), marginTop: m(10), lineHeight: 1.5 }}>{page.privacyDesc}</div>
+          <div style={{ color: "var(--member-muted, #888)", fontSize: m(24), marginTop: m(10), lineHeight: 1.5 }}>{page.privacyDesc}</div>
         </div>
 
         <button
@@ -107,7 +107,7 @@ const Mobile = () => {
           onClick={submit}
           disabled={profile.busy}
           className="w-full cursor-pointer"
-          style={{ marginTop: m(40), height: m(100), borderRadius: m(14), background: "#f5333f", color: "#fff", fontSize: m(34), boxShadow: `0 0 ${m(24)} rgb(245 51 63 / 0.45)` }}
+          style={{ marginTop: m(40), height: m(100), borderRadius: m(14), background: "var(--member-accent, #f5333f)", color: "#fff", fontSize: m(34), boxShadow: `0 0 ${m(24)} rgb(245 51 63 / 0.45)` }}
         >
           {page.submit}
         </button>

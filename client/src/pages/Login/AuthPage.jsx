@@ -50,7 +50,7 @@ const AuthForm = ({ mode, onDone, onReset }) => {
   if (isLogin && f.step === "otp") {
     return (
       <form onSubmit={f.submit} noValidate>
-        <div className="text-center" style={{ fontSize: m(52), fontWeight: 700, color: "#d6e2f4" }}>
+        <div className="text-center" style={{ fontSize: m(52), fontWeight: 700, color: "var(--auth-line, #d6e2f4)" }}>
           {t.auth.otpTitle}
         </div>
         <div className="text-center" style={{ color: "#a8b4c8", fontSize: m(28), marginTop: m(16), marginBottom: m(40) }}>
@@ -74,7 +74,7 @@ const AuthForm = ({ mode, onDone, onReset }) => {
           <MobileSubmit busy={f.busy}>{t.auth.confirm}</MobileSubmit>
         </div>
         <div className="text-center" style={{ marginTop: m(40), fontSize: m(32) }}>
-          <span className="cursor-pointer" style={{ color: "#7bc242" }} onClick={f.backToForm}>
+          <span className="cursor-pointer" style={{ color: "var(--auth-link, #7bc242)" }} onClick={f.backToForm}>
             {t.auth.back}
           </span>
         </div>
@@ -84,7 +84,7 @@ const AuthForm = ({ mode, onDone, onReset }) => {
 
   return (
     <form onSubmit={f.submit} noValidate>
-      <div className="text-center" style={{ height: m(69), fontSize: m(60), fontWeight: 700, color: "#d6e2f4" }}>
+      <div className="text-center" style={{ height: m(69), fontSize: m(60), fontWeight: 700, color: "var(--auth-line, #d6e2f4)" }}>
         {isLogin ? t.auth.loginTab : t.auth.registerShort}
       </div>
 
@@ -190,13 +190,13 @@ const AuthForm = ({ mode, onDone, onReset }) => {
               onChange={(e) => f.setRemember(e.target.checked)}
               style={{ width: m(40), height: m(40), borderRadius: m(12), accentColor: "#27416a" }}
             />
-            <span style={{ fontSize: m(33), fontWeight: 500, color: "#d6e2f4" }}>{t.auth.remember}</span>
+            <span style={{ fontSize: m(33), fontWeight: 500, color: "var(--auth-line, #d6e2f4)" }}>{t.auth.remember}</span>
           </label>
           <span className="flex-1" />
           <span
             className="cursor-pointer"
             onClick={() => navigate("/forget")}
-            style={{ fontSize: m(33), fontWeight: 500, color: "#ff6db3" }}
+            style={{ fontSize: m(33), fontWeight: 500, color: "var(--auth-alt, #ff6db3)" }}
           >
             {t.auth.forgotMobile}
           </span>
@@ -221,7 +221,7 @@ const AuthForm = ({ mode, onDone, onReset }) => {
               borderRadius: m(50),
               background: "transparent",
               border: "1px solid var(--accent-bright)",
-              color: "#d6e2f4",
+              color: "var(--auth-line, #d6e2f4)",
               fontSize: m(42),
               fontWeight: 500,
             }}
@@ -235,7 +235,7 @@ const AuthForm = ({ mode, onDone, onReset }) => {
         <span>{isLogin ? t.auth.noAccountMobile : t.auth.haveAccount}</span>
         <span
           className="cursor-pointer"
-          style={{ color: "#7bc242", fontSize: m(30) }}
+          style={{ color: "var(--auth-link, #7bc242)", fontSize: m(30) }}
           onClick={() => navigate(isLogin ? "/register" : "/login", { replace: true, state: location.state })}
         >
           {isLogin ? t.auth.registerShort : t.auth.loginNow}

@@ -387,7 +387,7 @@ const GameSection = ({
             style={{ width: 34, height: 34, objectFit: "contain" }}
           />
         )}
-        <span style={{ fontSize: 25, color: "#fff" }}>{section.title}</span>
+        <span style={{ fontSize: 25, color: "var(--home-title, #fff)" }}>{section.title}</span>
       </div>
       )}
 

@@ -27,7 +27,7 @@ import PaymentModeGate from "./PaymentModeGate";
  * ফর্মের বদলে কী করতে হবে সেটাই দেখায়।
  */
 
-const RED = "#ec2529";
+const RED = "var(--member-accent, #ec2529)";
 
 const fmt = (n) => (Number(n) || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -43,7 +43,7 @@ const MethodLogo = ({ method, size }) =>
   method?.logoUrl ? (
     <img src={assetUrl(method.logoUrl)} alt="" style={{ width: size, height: size, objectFit: "contain", borderRadius: 6 }} />
   ) : (
-    <span style={{ width: size, height: size, borderRadius: 6, background: "#f2f2f2", display: "grid", placeItems: "center", fontSize: 11, fontWeight: 700, color: "#888" }}>
+    <span style={{ width: size, height: size, borderRadius: 6, background: "#f2f2f2", display: "grid", placeItems: "center", fontSize: 11, fontWeight: 700, color: "var(--member-muted, #888)" }}>
       {String(method?.methodId || "?").slice(0, 2)}
     </span>
   );
@@ -59,7 +59,7 @@ const FieldRow = ({ label, ...input }) => {
       <span style={{ width: u(170, 230), flexShrink: 0, fontSize: u(14, 29), color: "#0a0a0a", lineHeight: 1.15 }}>{label}</span>
       <input
         {...input}
-        style={{ flex: 1, minWidth: 0, height: "100%", border: "none", outline: "none", background: "transparent", fontSize: u(14, 30), color: "#333" }}
+        style={{ flex: 1, minWidth: 0, height: "100%", border: "none", outline: "none", background: "transparent", fontSize: u(14, 30), color: "var(--member-title, #333)" }}
       />
     </div>
   );
@@ -87,7 +87,7 @@ const GhostButton = ({ children, onClick }) => {
       type="button"
       onClick={onClick}
       className="w-full cursor-pointer"
-      style={{ marginTop: u(12, 24), height: u(42, 95), borderRadius: u(6, 10), border: `${u(1, 2)} solid ${RED}`, color: RED, fontSize: u(15, 30), background: "#fff" }}
+      style={{ marginTop: u(12, 24), height: u(42, 95), borderRadius: u(6, 10), border: `${u(1, 2)} solid ${RED}`, color: RED, fontSize: u(15, 30), background: "var(--member-surface, #fff)" }}
     >
       {children}
     </button>
@@ -115,12 +115,12 @@ const BlockPanel = ({ f }) => {
   return (
     <div style={{ marginTop: u(16, 30), borderRadius: u(8, 16), background: "#fff6f6", border: `${u(1, 2)} solid #ffd0d1`, padding: isDesktop ? "16px 18px" : `${m(30)} ${m(30)}` }}>
       <div style={{ fontSize: u(16, 32), fontWeight: 700, color: RED }}>{title}</div>
-      <div style={{ marginTop: u(6, 12), fontSize: u(13, 26), color: "#555", lineHeight: 1.5 }}>{hint}</div>
+      <div style={{ marginTop: u(6, 12), fontSize: u(13, 26), color: "var(--member-text, #555)", lineHeight: 1.5 }}>{hint}</div>
 
       {reason === "turnover" &&
         (f.elig?.turnovers || []).map((item, index) => (
           <div key={index} style={{ marginTop: u(14, 26) }}>
-            <div className="flex justify-between" style={{ fontSize: u(13, 24), color: "#333" }}>
+            <div className="flex justify-between" style={{ fontSize: u(13, 24), color: "var(--member-title, #333)" }}>
               <span className="truncate">{item.title}</span>
               <span>
                 ৳ {fmt(item.progress)} / ৳ {fmt(item.required)}
@@ -152,8 +152,8 @@ const TxForm = ({ f }) => {
 
   return (
     <div>
-      <div style={{ marginTop: u(16, 30), fontSize: u(16, 32), fontWeight: 700, color: "#333" }}>{w.txTitle}</div>
-      <div style={{ marginTop: u(6, 12), fontSize: u(13, 25), color: "#888", lineHeight: 1.5 }}>{w.txHint}</div>
+      <div style={{ marginTop: u(16, 30), fontSize: u(16, 32), fontWeight: 700, color: "var(--member-title, #333)" }}>{w.txTitle}</div>
+      <div style={{ marginTop: u(6, 12), fontSize: u(13, 25), color: "var(--member-muted, #888)", lineHeight: 1.5 }}>{w.txHint}</div>
       <FieldRow label={w.loginPassword} placeholder={w.loginPassword} {...bind("loginPassword")} />
       <FieldRow label={w.newTx} placeholder="6–12" {...bind("newTx")} />
       <FieldRow label={w.confirmTx} placeholder={w.confirmTx} {...bind("confirmTx")} />
@@ -177,7 +177,7 @@ const AddWalletForm = ({ f }) => {
 
   return (
     <div>
-      <div style={{ marginTop: u(16, 30), fontSize: u(16, 32), fontWeight: 700, color: "#333" }}>{w.addWallet}</div>
+      <div style={{ marginTop: u(16, 30), fontSize: u(16, 32), fontWeight: 700, color: "var(--member-title, #333)" }}>{w.addWallet}</div>
 
       <div style={{ marginTop: u(12, 24), fontSize: u(13, 26), color: "#595959" }}>{w.walletMethod}</div>
       <div className="flex flex-wrap" style={{ marginTop: u(8, 16), gap: u(10, 16) }}>
@@ -198,7 +198,7 @@ const AddWalletForm = ({ f }) => {
                 color: active ? RED : "#333",
                 fontSize: u(14, 26),
                 fontWeight: 700,
-                background: "#fff",
+                background: "var(--member-surface, #fff)",
               }}
             >
               <MethodLogo method={item} size={u(28, 50)} />
@@ -262,9 +262,9 @@ const WalletCards = ({ f }) => {
             >
               <MethodLogo method={item.method} size={u(44, 80)} />
               <div className="min-w-0 flex-1">
-                <div style={{ fontSize: u(14, 26), color: "#888" }}>{f.tv(item.method?.name) || item.methodId}</div>
-                <div style={{ fontSize: u(20, 38), fontWeight: 700, color: "#222", letterSpacing: 1 }}>{maskNumber(item.walletNumber)}</div>
-                {item.accountName && <div className="truncate" style={{ fontSize: u(12, 22), color: "#999" }}>{item.accountName}</div>}
+                <div style={{ fontSize: u(14, 26), color: "var(--member-muted, #888)" }}>{f.tv(item.method?.name) || item.methodId}</div>
+                <div style={{ fontSize: u(20, 38), fontWeight: 700, color: "var(--member-title, #222)", letterSpacing: 1 }}>{maskNumber(item.walletNumber)}</div>
+                {item.accountName && <div className="truncate" style={{ fontSize: u(12, 22), color: "var(--member-muted, #999)" }}>{item.accountName}</div>}
               </div>
               <button
                 type="button"
@@ -274,7 +274,7 @@ const WalletCards = ({ f }) => {
                   f.removeWallet(item);
                 }}
                 className="grid cursor-pointer place-items-center"
-                style={{ width: u(30, 56), height: u(30, 56), borderRadius: "50%", color: "#999" }}
+                style={{ width: u(30, 56), height: u(30, 56), borderRadius: "50%", color: "var(--member-muted, #999)" }}
               >
                 <Trash2 size={f.isDesktop ? 16 : 18} />
               </button>
@@ -337,7 +337,7 @@ const MainForm = ({ f }) => {
 
       <div style={{ marginTop: u(22, 60) }}>
         {info.map((row) => (
-          <div key={row.key} style={{ fontSize: u(13, 24), color: row.dim ? "#bababa" : "#333", lineHeight: isDesktop ? "22px" : m(34) }}>
+          <div key={row.key} style={{ fontSize: u(13, 24), color: row.dim ? "#bababa" : "var(--member-title, #333)", lineHeight: isDesktop ? "22px" : m(34) }}>
             {row.text}
           </div>
         ))}
@@ -365,7 +365,7 @@ const MainForm = ({ f }) => {
         <BlockPanel f={f} />
       ) : (
         <>
-          <div style={{ marginTop: u(20, 40), fontSize: u(14, 26), color: "#333" }}>{money.withdrawAmount}</div>
+          <div style={{ marginTop: u(20, 40), fontSize: u(14, 26), color: "var(--member-title, #333)" }}>{money.withdrawAmount}</div>
           <FieldRow
             label={money.amount}
             placeholder={f.method ? `${fmt(f.min)} ~ ${fmt(f.max)}` : ""}
@@ -373,7 +373,7 @@ const MainForm = ({ f }) => {
             value={f.amount}
             onChange={(e) => f.setAmount(e.target.value)}
           />
-          <div style={{ marginTop: u(6, 12), fontSize: u(12, 24), color: "#888" }}>
+          <div style={{ marginTop: u(6, 12), fontSize: u(12, 24), color: "var(--member-muted, #888)" }}>
             {w.receive} : ৳ {fmt(f.amount)}
           </div>
           <FieldRow
@@ -398,10 +398,10 @@ const Body = ({ f }) => {
   const w = t.withdrawFlow;
   const { u } = useSize();
 
-  if (f.loading) return <div style={{ padding: u(20, 40), color: "#999", fontSize: u(13, 26) }}>{w.loading}</div>;
+  if (f.loading) return <div style={{ padding: u(20, 40), color: "var(--member-muted, #999)", fontSize: u(13, 26) }}>{w.loading}</div>;
   // লেনদেন পাসওয়ার্ড নেই — আগে সেটা (ওয়ালেট বাঁধা আর তোলা দুটোতেই লাগে)
   if (f.block === "noTx") return <TxForm f={f} />;
-  if (f.view === "addWallet") return f.methods.length ? <AddWalletForm f={f} /> : <div style={{ color: "#999" }}>{w.noMethods}</div>;
+  if (f.view === "addWallet") return f.methods.length ? <AddWalletForm f={f} /> : <div style={{ color: "var(--member-muted, #999)" }}>{w.noMethods}</div>;
   return <MainForm f={f} />;
 };
 
@@ -410,7 +410,7 @@ const WalletTab = ({ auto }) => {
   const { t } = useLanguage();
   const { u } = useSize();
   return (
-    <div className="flex items-center justify-center" style={{ height: u(52, 87), background: "#fff", borderBottom: `${u(3, 4)} solid ${RED}`, gap: u(12, 20), flexShrink: 0 }}>
+    <div className="flex items-center justify-center" style={{ height: u(52, 87), background: "var(--member-surface, #fff)", borderBottom: `${u(3, 4)} solid ${RED}`, gap: u(12, 20), flexShrink: 0 }}>
       <span className="grid place-items-center" style={{ width: u(34, 60), height: u(34, 60), borderRadius: "50%", background: "#ff2d9b" }}>
         <Icon name="cashback" size={u(20, 36)} />
       </span>
@@ -434,7 +434,7 @@ const Mobile = ({ mode }) => {
   return (
     <MemberShell title={f.isAuto ? t.payMode.autoWithdraw : t.money.withdrawTitle} headerIcon="withrec3">
       <WalletTab auto={f.isAuto} />
-      <div style={{ background: "#fff", padding: `${m(35)} ${m(40)} ${m(60)}` }}>
+      <div style={{ background: "var(--member-surface, #fff)", padding: `${m(35)} ${m(40)} ${m(60)}` }}>
         <Body f={{ ...f, isDesktop: false }} />
       </div>
     </MemberShell>

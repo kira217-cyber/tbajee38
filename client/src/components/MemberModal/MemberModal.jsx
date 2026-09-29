@@ -80,13 +80,13 @@ const MemberModal = ({ tab = "deposit", onClose, onTab }) => {
           style={{
             width: 180,
             height: 620,
-            background: "#2b3248",
+            background: "var(--member-nav-bg, #2b3248)",
             borderRadius: "10px 0 0 10px",
             overflowY: "auto",
           }}
         >
           {/* মূল সাইটের `.br_acmc_mltitle` — ২৭px ৬০০, padding `30px 0`, দুই লাইনে */}
-          <div className="text-center" style={{ padding: "30px 10px", color: "#fff", fontSize: 27, fontWeight: 600, lineHeight: 1.33 }}>
+          <div className="text-center" style={{ padding: "30px 10px", color: "var(--member-nav-text, #fff)", fontSize: 27, fontWeight: 600, lineHeight: 1.33 }}>
             {t.member.title}
           </div>
 
@@ -100,10 +100,10 @@ const MemberModal = ({ tab = "deposit", onClose, onTab }) => {
                 width: 180,
                 height: 50,
                 padding: "0 0 0 10px",
-                color: "#fff",
+                color: "var(--member-nav-text, #fff)",
                 fontSize: 15,
                 lineHeight: 1.33,
-                background: item.key === tab ? "#da394f" : undefined,
+                background: item.key === tab ? "var(--member-nav-active, #da394f)" : undefined,
               }}
             >
               <MenuIcon id={item.key} />
@@ -137,7 +137,7 @@ const MemberModal = ({ tab = "deposit", onClose, onTab }) => {
             width: 31,
             height: 31,
             borderRadius: "50%",
-            background: "#2b3248",
+            background: "var(--member-nav-bg, #2b3248)",
             color: "#fff",
           }}
         >

@@ -4,6 +4,7 @@ import { Provider } from "react-redux";
 import { RouterProvider } from "react-router";
 
 import "./index.css";
+import { startTheme } from "./theme/liveTheme";
 
 import { store } from "./app/store";
 import { routes } from "./router/router";
@@ -12,6 +13,9 @@ import { captureReferral } from "./utils/referralLink";
 
 // আমন্ত্রণ লিংকে (?referralCode=) ঢুকলে কোডটা নিবন্ধন পর্যন্ত মনে রাখা
 captureReferral();
+
+// admin এর রঙ — React এর আগেই, যাতে পুরোনো রঙ এক ঝলক না দেখায়
+startTheme();
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

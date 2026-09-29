@@ -181,10 +181,10 @@ const Navber = ({ topOffset = 0, onToggleSidebar, onAuth, onMember, onSupport, o
           const body = (
             <>
               {item.label}
-              {item.active && <span className="absolute bottom-0 left-0 w-full" style={{ height: 2, background: "#ad00ff" }} />}
+              {item.active && <span className="absolute bottom-0 left-0 w-full" style={{ height: 2, background: "var(--accent, #ad00ff)" }} />}
             </>
           );
-          const style = { fontSize: 20, color: "#ad00ff" };
+          const style = { fontSize: 20, color: "var(--accent, #ad00ff)" };
           return item.to ? (
             <Link key={item.key} to={item.to} className="relative flex h-full items-center whitespace-nowrap" style={style}>
               {body}

@@ -18,7 +18,7 @@ import { notify } from "../../utils/notify";
  * মোবাইলে ৭৫০-ডিজাইনের `m()`।
  */
 
-const RED = "#f5333f";
+const RED = "var(--member-accent, #f5333f)";
 
 const useSize = () => {
   const isDesktop = useIsDesktop();
@@ -36,13 +36,13 @@ export const Sheet = ({ title, onClose, children }) => {
         <div
           className="hide-scrollbar"
           onClick={(e) => e.stopPropagation()}
-          style={{ width: 480, maxHeight: "86vh", overflowY: "auto", background: "#fff", borderRadius: 12, padding: "22px 26px 26px" }}
+          style={{ width: 480, maxHeight: "86vh", overflowY: "auto", background: "var(--member-surface, #fff)", borderRadius: 12, padding: "22px 26px 26px" }}
         >
           <div className="flex items-center" style={{ marginBottom: 14 }}>
-            <span className="flex-1" style={{ fontSize: 18, fontWeight: 700, color: "#222" }}>
+            <span className="flex-1" style={{ fontSize: 18, fontWeight: 700, color: "var(--member-title, #222)" }}>
               {title}
             </span>
-            <button type="button" onClick={onClose} aria-label="close" className="cursor-pointer" style={{ color: "#999" }}>
+            <button type="button" onClick={onClose} aria-label="close" className="cursor-pointer" style={{ color: "var(--member-muted, #999)" }}>
               <Icon name="popup-close" size={18} />
             </button>
           </div>
@@ -53,14 +53,14 @@ export const Sheet = ({ title, onClose, children }) => {
   }
 
   return (
-    <div className="fixed inset-0 flex flex-col" style={{ zIndex: 80, background: "#f5f5f9" }}>
-      <div className="relative flex shrink-0 items-center justify-center" style={{ height: m(100), background: "#180836", color: "#fff" }}>
+    <div className="fixed inset-0 flex flex-col" style={{ zIndex: 80, background: "var(--member-page-bg, #f5f5f9)" }}>
+      <div className="relative flex shrink-0 items-center justify-center" style={{ height: m(100), background: "var(--member-header-bg, #180836)", color: "#fff" }}>
         <button type="button" onClick={onClose} aria-label="back" className="absolute cursor-pointer" style={{ left: m(30), color: "#fff" }}>
           <Icon name="icon-back" size={m(44)} />
         </button>
         <span style={{ fontSize: m(34) }}>{title}</span>
       </div>
-      <div className="min-h-0 flex-1 overflow-y-auto" style={{ padding: `${m(30)} ${m(30)} ${m(60)}`, background: "#fff" }}>
+      <div className="min-h-0 flex-1 overflow-y-auto" style={{ padding: `${m(30)} ${m(30)} ${m(60)}`, background: "var(--member-surface, #fff)" }}>
         {children}
       </div>
     </div>
@@ -73,7 +73,7 @@ const Field = ({ label, hint, trailing, ...input }) => {
   const { u } = useSize();
   return (
     <label className="block" style={{ marginBottom: u(14, 26) }}>
-      <span className="block" style={{ fontSize: u(13, 26), color: "#666", marginBottom: u(6, 10) }}>
+      <span className="block" style={{ fontSize: u(13, 26), color: "var(--member-text, #666)", marginBottom: u(6, 10) }}>
         {label}
       </span>
       <span className="relative block">
@@ -85,11 +85,11 @@ const Field = ({ label, hint, trailing, ...input }) => {
             height: u(42, 90),
             borderRadius: u(6, 12),
             border: `${u(1, 2)} solid #e4e4e8`,
-            background: input.disabled ? "#f4f4f6" : "#fff",
+            background: input.disabled ? "#f4f4f6" : "var(--member-surface, #fff)",
             padding: `0 ${u(12, 24)}`,
             paddingRight: trailing ? u(110, 200) : u(12, 24),
             fontSize: u(14, 28),
-            color: input.disabled ? "#999" : "#333",
+            color: input.disabled ? "var(--member-muted, #999)" : "var(--member-title, #333)",
             outline: "none",
           }}
         />
@@ -318,7 +318,7 @@ const ImagePick = ({ label, file, onPick, existing }) => {
       <span style={{ width: u(64, 120), height: u(46, 86), borderRadius: u(6, 10), background: "#f4f4f6", overflow: "hidden", flexShrink: 0 }}>
         {preview && <img src={preview} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />}
       </span>
-      <span className="flex-1" style={{ fontSize: u(14, 26), color: "#333" }}>
+      <span className="flex-1" style={{ fontSize: u(14, 26), color: "var(--member-title, #333)" }}>
         {label}
         <span className="block" style={{ fontSize: u(12, 22), color: RED, marginTop: u(2, 4) }}>
           {t.profileFlow.choose}
@@ -381,12 +381,12 @@ export const KycForm = ({ profile, onDone }) => {
 
   if (!info) return <Note>{t.auth.wait}</Note>;
 
-  const badgeColor = status === "approved" ? "#16a34a" : status === "rejected" ? RED : status === "pending" ? "#f59e0b" : "#999";
+  const badgeColor = status === "approved" ? "var(--member-success, #16a34a)" : status === "rejected" ? RED : status === "pending" ? "#f59e0b" : "#999";
 
   return (
     <>
       <div className="flex items-center" style={{ gap: u(10, 16), marginBottom: u(12, 22) }}>
-        <span style={{ fontSize: u(13, 26), color: "#666" }}>{p.kycTitle}:</span>
+        <span style={{ fontSize: u(13, 26), color: "var(--member-text, #666)" }}>{p.kycTitle}:</span>
         <span style={{ fontSize: u(13, 24), color: badgeColor, border: `1px solid ${badgeColor}`, borderRadius: 99, padding: `${u(2, 4)} ${u(10, 16)}` }}>{p.kycStatus[status]}</span>
       </div>
 
@@ -399,13 +399,13 @@ export const KycForm = ({ profile, onDone }) => {
           <Note>{p.kycPrivacy}</Note>
           <Field label={p.fullName} value={form.fullName} onChange={set("fullName")} maxLength={80} />
           <label className="block" style={{ marginBottom: u(14, 26) }}>
-            <span className="block" style={{ fontSize: u(13, 26), color: "#666", marginBottom: u(6, 10) }}>
+            <span className="block" style={{ fontSize: u(13, 26), color: "var(--member-text, #666)", marginBottom: u(6, 10) }}>
               {p.docType}
             </span>
             <select
               value={form.documentType}
               onChange={set("documentType")}
-              style={{ width: "100%", height: u(42, 90), borderRadius: u(6, 12), border: `${u(1, 2)} solid #e4e4e8`, padding: `0 ${u(10, 20)}`, fontSize: u(14, 28), background: "#fff", color: "#333" }}
+              style={{ width: "100%", height: u(42, 90), borderRadius: u(6, 12), border: `${u(1, 2)} solid #e4e4e8`, padding: `0 ${u(10, 20)}`, fontSize: u(14, 28), background: "var(--member-surface, #fff)", color: "var(--member-title, #333)" }}
             >
               {Object.entries(p.docTypes).map(([key, label]) => (
                 <option key={key} value={key}>

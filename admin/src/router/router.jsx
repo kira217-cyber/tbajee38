@@ -47,6 +47,7 @@ import AutoDeposit from "../pages/AutoDeposit/AutoDeposit";
 import AutoDepositHistory from "../pages/AutoDepositHistory/AutoDepositHistory";
 import AutoWithdraw from "../pages/AutoWithdraw/AutoWithdraw";
 import AutoWithdrawHistory from "../pages/AutoWithdrawHistory/AutoWithdrawHistory";
+import ThemeStudio from "../pages/ThemeStudio/ThemeStudio";
 import AffWithdrawMethods from "../pages/AffWithdrawMethods/AffWithdrawMethods";
 import IdentityPage from "../pages/SiteSettings/SiteIdentity";
 import FooterPage from "../pages/SiteSettings/FooterSetting";
@@ -119,6 +120,8 @@ const REAL_PAGES = {
   "/auto-deposit-history": <AutoDepositHistory />,
   "/auto-withdraw": <AutoWithdraw />,
   "/auto-withdraw-history": <AutoWithdrawHistory />,
+  "/site-theme/client": <ThemeStudio key="client" site="client" />,
+  "/site-theme/affiliate": <ThemeStudio key="affiliate" site="affiliate" />,
   "/aff-withdraw-methods": <AffWithdrawMethods />,
   "/aff-identity": <IdentityPage title="Affiliate Identity" subtitle="Affiliate site name, logo and favicon." endpoint="aff-identify" Icon={UserRoundCheck} />,
   "/aff-footer": <FooterPage title="Affiliate Footer" subtitle="Affiliate footer logo, description and copyright." endpoint="aff-footer" logoKey="logo" fields={AFF_FOOTER_FIELDS} Icon={Handshake} />,

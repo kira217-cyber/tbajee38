@@ -41,7 +41,7 @@ export const TemuHistoryBody = () => {
         </div>
       </div>
 
-      <ul className="flex flex-col" style={{ width: `calc(100% - ${z(90)})`, margin: "0 auto", background: "#fff", borderRadius: z(15), color: "#826849", fontSize: z(24), fontWeight: 600, minHeight: z(600), overflow: "hidden" }}>
+      <ul className="flex flex-col" style={{ width: `calc(100% - ${z(90)})`, margin: "0 auto", background: "var(--member-surface, #fff)", borderRadius: z(15), color: "#826849", fontSize: z(24), fontWeight: 600, minHeight: z(600), overflow: "hidden" }}>
         {list.length === 0 && <li style={{ padding: z(60), textAlign: "center", color: "#b8a06c" }}>{rf.noHistory}</li>}
         {list.map((row, i) => (
           <li key={`${row.at}-${i}`} className="flex flex-col" style={{ padding: z(20), gap: z(12), background: i % 2 ? "rgba(255,227,181,.2)" : "transparent" }}>

@@ -47,7 +47,7 @@ const AuthCard = ({ title, subtitle, width = "460px", children, footer, footerLe
           <div
             className="rounded-[16px] p-5 sm:p-6"
             style={{
-              background: "var(--surface)",
+              background: "var(--aff-auth-card, var(--surface))",
               border: "1px solid rgb(188 67 244 / 0.28)",
             }}
           >

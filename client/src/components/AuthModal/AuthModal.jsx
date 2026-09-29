@@ -58,9 +58,9 @@ const Field = ({ kind, error, trailing, trailingWidth = 0, ...input }) => (
         style={{
           width: 374,
           height: 47,
-          background: "#212937",
+          background: "var(--auth-modal-panel, #212937)",
           borderRadius: 10,
-          color: "#fff",
+          color: "var(--auth-modal-text, #fff)",
           fontSize: 14,
           fontWeight: 600,
           padding: `0 ${16 + trailingWidth}px 0 63px`,
@@ -117,7 +117,7 @@ const SideButton = ({ onClick, disabled, children }) => (
       minWidth: 84,
       padding: "0 10px",
       borderRadius: 6,
-      background: disabled ? "#3a4252" : "var(--accent-bright)",
+      background: disabled ? "#3a4252" : "var(--auth-submit, var(--accent-bright))",
       color: disabled ? MUTED : "#fff",
       fontSize: 13,
       fontWeight: 600,
@@ -140,8 +140,8 @@ const SubmitButton = ({ busy, children }) => {
         width: 374,
         height: 58,
         borderRadius: 7,
-        background: "var(--accent-bright)",
-        color: "#fff",
+        background: "var(--auth-submit, var(--accent-bright))",
+        color: "var(--auth-modal-text, #fff)",
         fontSize: 18,
         fontWeight: 700,
         opacity: busy ? 0.7 : 1,
@@ -177,9 +177,9 @@ const AuthForm = ({ mode, onDone, onForgot }) => {
   if (isLogin && f.step === "otp") {
     return (
       <form onSubmit={f.submit} noValidate style={{ width: 374, marginTop: 40 }}>
-        <div style={{ color: "#fff", fontSize: 18, fontWeight: 700 }}>{t.auth.otpTitle}</div>
+        <div style={{ color: "var(--auth-modal-text, #fff)", fontSize: 18, fontWeight: 700 }}>{t.auth.otpTitle}</div>
         <div style={{ color: MUTED, fontSize: 14, marginTop: 8, marginBottom: 22 }}>
-          {t.auth.otpSentTo} <span style={{ color: "#fff", fontWeight: 700 }}>{f.maskedPhone}</span>
+          {t.auth.otpSentTo} <span style={{ color: "var(--auth-modal-text, #fff)", fontWeight: 700 }}>{f.maskedPhone}</span>
         </div>
         <Field
           kind="sms"
@@ -199,7 +199,7 @@ const AuthForm = ({ mode, onDone, onForgot }) => {
           <SubmitButton busy={f.busy}>{t.auth.confirm}</SubmitButton>
         </div>
         <div className="text-center" style={{ fontSize: 14 }}>
-          <span className="cursor-pointer" style={{ color: "var(--accent-bright)" }} onClick={f.backToForm}>
+          <span className="cursor-pointer" style={{ color: "var(--auth-submit, var(--accent-bright))" }} onClick={f.backToForm}>
             {t.auth.back}
           </span>
         </div>
@@ -295,13 +295,13 @@ const AuthForm = ({ mode, onDone, onForgot }) => {
         <div className="flex items-center" style={{ height: 50 }}>
           <label
             className="flex cursor-pointer items-center"
-            style={{ gap: 10, color: "var(--accent-bright)", fontSize: 17, fontWeight: 500 }}
+            style={{ gap: 10, color: "var(--auth-submit, var(--accent-bright))", fontSize: 17, fontWeight: 500 }}
           >
             <input
               type="checkbox"
               checked={f.remember}
               onChange={(e) => f.setRemember(e.target.checked)}
-              style={{ width: 30, height: 30, accentColor: "var(--accent-bright)" }}
+              style={{ width: 30, height: 30, accentColor: "var(--auth-submit, var(--accent-bright))" }}
             />
             {t.auth.remember}
           </label>
@@ -309,7 +309,7 @@ const AuthForm = ({ mode, onDone, onForgot }) => {
           <span
             className="cursor-pointer"
             onClick={onForgot}
-            style={{ color: "var(--accent-bright)", fontSize: 17, fontWeight: 500 }}
+            style={{ color: "var(--auth-submit, var(--accent-bright))", fontSize: 17, fontWeight: 500 }}
           >
             {t.auth.forgot}
           </span>
@@ -320,7 +320,7 @@ const AuthForm = ({ mode, onDone, onForgot }) => {
         <SubmitButton busy={f.busy}>{isLogin ? t.auth.loginTab : t.auth.registerTab}</SubmitButton>
       </div>
 
-      <div style={{ fontSize: 14, color: "#fff", lineHeight: "16px" }}>{t.auth.terms}</div>
+      <div style={{ fontSize: 14, color: "var(--auth-modal-text, #fff)", lineHeight: "16px" }}>{t.auth.terms}</div>
     </form>
   );
 };
@@ -339,13 +339,13 @@ const ForgotForm = ({ onLogin }) => {
   });
 
   const note = (text) => (
-    <div style={{ color: "#fff", fontSize: 15, lineHeight: "22px", marginTop: 26, marginBottom: 26 }}>{text}</div>
+    <div style={{ color: "var(--auth-modal-text, #fff)", fontSize: 15, lineHeight: "22px", marginTop: 26, marginBottom: 26 }}>{text}</div>
   );
 
   return (
     <form onSubmit={f.submit} noValidate style={{ width: 374 }}>
-      <div style={{ color: "#fff", fontSize: 30, fontWeight: 700, lineHeight: "36px" }}>{t.auth.forgotTitle}</div>
-      <div style={{ color: "#fff", fontSize: 14, fontWeight: 700, marginTop: 10, marginBottom: 22 }}>
+      <div style={{ color: "var(--auth-modal-text, #fff)", fontSize: 30, fontWeight: 700, lineHeight: "36px" }}>{t.auth.forgotTitle}</div>
+      <div style={{ color: "var(--auth-modal-text, #fff)", fontSize: 14, fontWeight: 700, marginTop: 10, marginBottom: 22 }}>
         {t.auth.forgotSub}
       </div>
 
@@ -361,7 +361,7 @@ const ForgotForm = ({ onLogin }) => {
       {f.step === "reset" && (
         <>
           <div style={{ color: MUTED, fontSize: 14, marginBottom: 14 }}>
-            {t.auth.otpSentTo} <span style={{ color: "#fff", fontWeight: 700 }}>{f.maskedPhone}</span>
+            {t.auth.otpSentTo} <span style={{ color: "var(--auth-modal-text, #fff)", fontWeight: 700 }}>{f.maskedPhone}</span>
           </div>
           <Field
             kind="sms"
@@ -392,7 +392,7 @@ const ForgotForm = ({ onLogin }) => {
             type="button"
             onClick={openSupport}
             className="tb-hover-fade cursor-pointer"
-            style={{ width: 374, height: 58, borderRadius: 7, background: "var(--accent-bright)", color: "#fff", fontSize: 18, fontWeight: 700 }}
+            style={{ width: 374, height: 58, borderRadius: 7, background: "var(--auth-submit, var(--accent-bright))", color: "var(--auth-modal-text, #fff)", fontSize: 18, fontWeight: 700 }}
           >
             {t.auth.support}
           </button>
@@ -406,7 +406,7 @@ const ForgotForm = ({ onLogin }) => {
             type="button"
             onClick={onLogin}
             className="tb-hover-fade cursor-pointer"
-            style={{ width: 374, height: 58, borderRadius: 7, background: "var(--accent-bright)", color: "#fff", fontSize: 18, fontWeight: 700 }}
+            style={{ width: 374, height: 58, borderRadius: 7, background: "var(--auth-submit, var(--accent-bright))", color: "var(--auth-modal-text, #fff)", fontSize: 18, fontWeight: 700 }}
           >
             {t.auth.loginNow}
           </button>
@@ -415,7 +415,7 @@ const ForgotForm = ({ onLogin }) => {
 
       {f.step !== "done" && (
         <div className="text-center" style={{ paddingTop: 19, fontSize: 14 }}>
-          <span className="cursor-pointer" style={{ color: "var(--accent-bright)" }} onClick={onLogin}>
+          <span className="cursor-pointer" style={{ color: "var(--auth-submit, var(--accent-bright))" }} onClick={onLogin}>
             {t.auth.back}
           </span>
         </div>
@@ -452,14 +452,14 @@ const AuthModal = ({ tab = "login", onClose, onDone, onSwitch }) => {
           onClick={onClose}
           aria-label="close"
           className="tb-hover-fade absolute cursor-pointer"
-          style={{ top: 25, right: 25, width: 22, height: 22, zIndex: 1, color: "#fff" }}
+          style={{ top: 25, right: 25, width: 22, height: 22, zIndex: 1, color: "var(--auth-modal-text, #fff)" }}
         >
           <Icon name="popup-close" size={22} />
         </button>
 
         <div
           style={{
-            background: "#181f2b",
+            background: "var(--auth-modal-bg, #181f2b)",
             borderRadius: 20,
             padding: isForgot ? "70px 35px 30px" : "95px 35px 30px",
           }}
@@ -485,8 +485,8 @@ const AuthModal = ({ tab = "login", onClose, onDone, onSwitch }) => {
                       borderRadius: 10,
                       fontSize: 18,
                       fontWeight: 600,
-                      color: "#fff",
-                      background: item.key === tab ? "var(--accent-bright)" : "transparent",
+                      color: "var(--auth-modal-text, #fff)",
+                      background: item.key === tab ? "var(--auth-submit, var(--accent-bright))" : "transparent",
                     }}
                   >
                     {item.label}
@@ -500,12 +500,12 @@ const AuthModal = ({ tab = "login", onClose, onDone, onSwitch }) => {
               {/* নিচের লিংক */}
               <div
                 className="flex justify-center"
-                style={{ width: 374, paddingTop: 19, fontSize: 14, color: "#fff", gap: 6 }}
+                style={{ width: 374, paddingTop: 19, fontSize: 14, color: "var(--auth-modal-text, #fff)", gap: 6 }}
               >
                 <span>{isLogin ? t.auth.noAccount : t.auth.haveAccount}</span>
                 <span
                   className="cursor-pointer"
-                  style={{ color: "var(--accent-bright)" }}
+                  style={{ color: "var(--auth-submit, var(--accent-bright))" }}
                   onClick={() => onSwitch?.(isLogin ? "register" : "login")}
                 >
                   {isLogin ? t.auth.registerNow : t.auth.loginNow}

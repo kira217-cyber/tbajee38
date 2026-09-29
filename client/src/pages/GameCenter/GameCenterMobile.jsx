@@ -29,7 +29,7 @@ import { m } from "../../hook/useUnits";
  */
 const PAGE = 30;
 const GRADIENT = "linear-gradient(270deg, #39BEE9 9.48%, #50D2AE 51.57%, #66E578)";
-const BG = "#181F2B";
+const BG = "var(--games-panel-bg, #181F2B)";
 
 const ring = (active) => `url(/assets/mobile/cat/${active ? "ring-active" : "ring"}.png)`;
 
@@ -115,7 +115,7 @@ const GameCenterMobile = ({ category, tabs, label, vendor, search, setVendor, se
             aria-label="back"
             onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/"))}
             className="flex shrink-0 cursor-pointer items-center justify-center"
-            style={{ width: m(68), height: m(68), color: "#fff" }}
+            style={{ width: m(68), height: m(68), color: "var(--games-text, #fff)" }}
           >
             <ChevronLeft size={m(60)} strokeWidth={2} style={{ width: m(60), height: m(60) }} />
           </button>
@@ -131,7 +131,7 @@ const GameCenterMobile = ({ category, tabs, label, vendor, search, setVendor, se
                 gap: m(22),
                 borderRadius: m(30),
                 border: `${m(3)} solid #fff`,
-                color: "#fff",
+                color: "var(--games-text, #fff)",
                 fontSize: m(26),
               }}
             >
@@ -139,13 +139,13 @@ const GameCenterMobile = ({ category, tabs, label, vendor, search, setVendor, se
               <X style={{ width: m(30), height: m(30) }} strokeWidth={3} />
             </button>
           ) : (
-            <span className="truncate" style={{ color: "#fff", fontSize: m(36), fontWeight: 700 }}>
+            <span className="truncate" style={{ color: "var(--games-text, #fff)", fontSize: m(36), fontWeight: 700 }}>
               {t.games.title}
             </span>
           )}
         </div>
 
-        <div className="flex shrink-0 items-center" style={{ gap: m(24), color: "#fff" }}>
+        <div className="flex shrink-0 items-center" style={{ gap: m(24), color: "var(--games-text, #fff)" }}>
           <button type="button" aria-label="search" onClick={() => setSearchOpen((v) => !v)} className="cursor-pointer">
             <Search style={{ width: m(48), height: m(48) }} />
           </button>
@@ -270,7 +270,7 @@ const GameCenterMobile = ({ category, tabs, label, vendor, search, setVendor, se
                   {p.icon ? (
                     <img src={p.icon} alt={p.name} style={{ width: m(100), height: m(50), objectFit: "contain" }} />
                   ) : (
-                    <span style={{ fontSize: m(20), color: active ? "#000" : "#fff" }}>{p.name}</span>
+                    <span style={{ fontSize: m(20), color: active ? "#000" : "var(--games-text, #fff)" }}>{p.name}</span>
                   )}
                 </button>
               );
@@ -333,7 +333,7 @@ const FilterSheet = ({ providers, value, onClose, onApply }) => {
           padding: `0 ${m(10)}`,
           borderRadius: m(12),
           background: active ? GRADIENT : "#3E4247",
-          color: active ? "#000" : "#fff",
+          color: active ? "#000" : "var(--games-text, #fff)",
           fontSize: m(26),
         }}
       >
@@ -357,10 +357,10 @@ const FilterSheet = ({ providers, value, onClose, onApply }) => {
         <X style={{ width: m(30), height: m(30) }} strokeWidth={3} />
       </button>
 
-      <h2 className="text-center" style={{ fontSize: m(40), fontWeight: 800, color: "#fff", marginBottom: m(45) }}>
+      <h2 className="text-center" style={{ fontSize: m(40), fontWeight: 800, color: "var(--games-text, #fff)", marginBottom: m(45) }}>
         {t.games.filterTitle}
       </h2>
-      <p style={{ fontSize: m(34), color: "#fff", marginBottom: m(20) }}>{t.games.providers}</p>
+      <p style={{ fontSize: m(34), color: "var(--games-text, #fff)", marginBottom: m(20) }}>{t.games.providers}</p>
 
       <div className="grid" style={{ gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: `${m(20)} ${m(35)}` }}>
         <Item code="">{t.games.all}</Item>

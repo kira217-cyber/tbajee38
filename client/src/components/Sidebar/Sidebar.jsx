@@ -36,7 +36,7 @@ const Png = ({ name, w = 40, h = 40 }) => (
   <img src={`/assets/sidebar/${name}.png`} alt="" style={{ width: w, height: h, objectFit: "contain" }} />
 );
 
-const MUTED = "#97A5C9";
+const MUTED = "var(--text-muted, #97A5C9)";
 
 const NavItem = ({ icon, label, active, trailing, onClick, iconSize = 40, muted = false, labelSize = 18, ghost = false }) => (
   <button

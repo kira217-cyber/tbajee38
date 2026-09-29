@@ -42,11 +42,11 @@ const Countdown = ({ endAt, z, rf }) => {
   const pad = (n) => String(n).padStart(2, "0");
   return (
     <>
-      <p className="flex items-end justify-center" style={{ flex: 1, color: "#666", fontSize: z(68), fontWeight: 700, lineHeight: 1 }}>
+      <p className="flex items-end justify-center" style={{ flex: 1, color: "var(--member-text, #666)", fontSize: z(68), fontWeight: 700, lineHeight: 1 }}>
         {c.days}
         <i style={{ fontSize: z(22), fontStyle: "normal", marginBottom: z(6) }}>{rf.days}</i>
       </p>
-      <span style={{ color: "#666", fontSize: z(24), fontWeight: 700, margin: `${z(6)} 0 ${z(10)}` }}>
+      <span style={{ color: "var(--member-text, #666)", fontSize: z(24), fontWeight: 700, margin: `${z(6)} 0 ${z(10)}` }}>
         {pad(c.h)}:{pad(c.m)}:{pad(c.s)}
       </span>
     </>
@@ -100,7 +100,7 @@ export const TicketCard = ({ ticket, onClaim, onInfo, history = false }) => {
         {/* নাম */}
         <div className="flex flex-col" style={{ flex: 1, minWidth: 0, gap: z(5), paddingRight: z(14) }}>
           <h3 style={{ color: "#737373", fontSize: z(28), fontWeight: 700, lineHeight: 1.5 }}>{tv(ticket.name)}</h3>
-          <span style={{ color: "#666", fontSize: z(24), lineHeight: 1.5 }}>
+          <span style={{ color: "var(--member-text, #666)", fontSize: z(24), lineHeight: 1.5 }}>
             {rf.prize} :
             <br />
             {tv(ticket.name)}
@@ -110,7 +110,7 @@ export const TicketCard = ({ ticket, onClaim, onInfo, history = false }) => {
               type="button"
               onClick={() => onInfo?.(ticket)}
               className="inline-flex cursor-pointer items-center"
-              style={{ gap: z(6), color: "#888", fontSize: z(20), borderRadius: z(50), background: "rgba(255,255,255,.8)", padding: `${z(6)} ${z(12)}`, width: "fit-content" }}
+              style={{ gap: z(6), color: "var(--member-muted, #888)", fontSize: z(20), borderRadius: z(50), background: "rgba(255,255,255,.8)", padding: `${z(6)} ${z(12)}`, width: "fit-content" }}
             >
               {rf.desc}
               <span className="grid place-items-center" style={{ width: z(22), height: z(22), borderRadius: "50%", background: "#888", color: "#fff", fontSize: z(16), fontWeight: 700 }}>
@@ -122,11 +122,11 @@ export const TicketCard = ({ ticket, onClaim, onInfo, history = false }) => {
       </div>
 
       {/* ডানের সাদা অংশ */}
-      <div className="flex h-full flex-col items-center text-center" style={{ width: z(175), background: "#fff", padding: `${z(17)} ${z(8)}`, color: "#bababa", fontSize: z(24) }}>
+      <div className="flex h-full flex-col items-center text-center" style={{ width: z(175), background: "var(--member-surface, #fff)", padding: `${z(17)} ${z(8)}`, color: "#bababa", fontSize: z(24) }}>
         {history ? (
           <>
             <span style={{ marginBottom: z(8) }}>{ticket.status === "claimed" ? rf.claimedLabel : rf.expired}</span>
-            <p className="flex flex-1 items-center justify-center" style={{ color: ticket.status === "claimed" ? "#f32246" : "#999", fontSize: z(30), fontWeight: 700 }}>
+            <p className="flex flex-1 items-center justify-center" style={{ color: ticket.status === "claimed" ? "var(--member-accent, #f32246)" : "var(--member-muted, #999)", fontSize: z(30), fontWeight: 700 }}>
               {ticket.status === "claimed" ? `৳ ${money(ticket.amount)}` : "—"}
             </p>
             <span style={{ fontSize: z(20) }}>{dotDate(ticket.claimedAt || ticket.endAt)}</span>
@@ -160,7 +160,7 @@ const Overlay = ({ onClose, children, z, closable = true }) => (
         aria-label="close"
         onClick={onClose}
         className="absolute grid cursor-pointer place-items-center"
-        style={{ top: z(40), right: z(30), width: z(60), height: z(60), borderRadius: "50%", background: "#fff", color: "#000", fontSize: z(40), lineHeight: 1 }}
+        style={{ top: z(40), right: z(30), width: z(60), height: z(60), borderRadius: "50%", background: "var(--member-surface, #fff)", color: "#000", fontSize: z(40), lineHeight: 1 }}
       >
         ×
       </button>
@@ -348,7 +348,7 @@ const TemuPopup = ({ ticket, actions, onClose, onGo, z, rf, tv }) => {
         {/* অগ্রগতি */}
         <div className="relative flex flex-col items-center" style={{ zIndex: 1, marginTop: z(-50), height: z(440), background: `url(${IMG}/temu-condition-count-bg.png) center / 100% 100% no-repeat` }}>
           <div className="flex items-center" style={{ marginTop: z(14), height: z(66), padding: `0 ${z(30)}`, gap: z(14), color: "#fff", fontSize: z(30), fontWeight: 700, background: "linear-gradient(180deg,#ee5a16,#e0300f)" }}>
-            <span className="grid place-items-center" style={{ width: z(36), height: z(36), borderRadius: "50%", background: "#fff", color: "#e0300f", fontSize: z(22) }}>
+            <span className="grid place-items-center" style={{ width: z(36), height: z(36), borderRadius: "50%", background: "var(--member-surface, #fff)", color: "#e0300f", fontSize: z(22) }}>
               ⏱
             </span>
             {c.days} {rf.days} {pad(c.h)} : {pad(c.m)} : {pad(c.s)} {rf.ends}
@@ -443,9 +443,9 @@ const TemuPopup = ({ ticket, actions, onClose, onGo, z, rf, tv }) => {
 
 const InfoPopup = ({ ticket, onClose, z, rf, tv }) => (
   <Overlay onClose={onClose} z={z}>
-    <div style={{ width: z(620), background: "#fff", borderRadius: z(20), padding: z(36) }}>
-      <div style={{ color: "#333", fontSize: z(32), fontWeight: 700, marginBottom: z(20) }}>{tv(ticket.name)}</div>
-      <p style={{ color: "#666", fontSize: z(26), lineHeight: 1.5, whiteSpace: "pre-line" }}>{tv(ticket.description)}</p>
+    <div style={{ width: z(620), background: "var(--member-surface, #fff)", borderRadius: z(20), padding: z(36) }}>
+      <div style={{ color: "var(--member-title, #333)", fontSize: z(32), fontWeight: 700, marginBottom: z(20) }}>{tv(ticket.name)}</div>
+      <p style={{ color: "var(--member-text, #666)", fontSize: z(26), lineHeight: 1.5, whiteSpace: "pre-line" }}>{tv(ticket.description)}</p>
       <button type="button" onClick={onClose} className="w-full cursor-pointer" style={{ marginTop: z(30), height: z(80), borderRadius: z(40), background: "#30d005", color: "#fff", fontSize: z(28) }}>
         {rf.ok}
       </button>

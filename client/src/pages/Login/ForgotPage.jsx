@@ -41,7 +41,7 @@ const ForgotPage = () => {
   const note = (text) => (
     <div
       className="text-center"
-      style={{ color: "#d6e2f4", fontSize: m(30), lineHeight: 1.5, marginTop: m(30), marginBottom: m(50) }}
+      style={{ color: "var(--auth-line, #d6e2f4)", fontSize: m(30), lineHeight: 1.5, marginTop: m(30), marginBottom: m(50) }}
     >
       {text}
     </div>
@@ -50,7 +50,7 @@ const ForgotPage = () => {
   return (
     <MobileAuthShell>
       <form onSubmit={f.submit} noValidate>
-        <div className="text-center" style={{ fontSize: m(60), fontWeight: 700, color: "#d6e2f4" }}>
+        <div className="text-center" style={{ fontSize: m(60), fontWeight: 700, color: "var(--auth-line, #d6e2f4)" }}>
           {t.auth.forgotTitleMobile}
         </div>
         <div
@@ -116,7 +116,7 @@ const ForgotPage = () => {
 
         {f.step !== "done" && (
           <div className="text-center" style={{ marginTop: m(50), fontSize: m(32) }}>
-            <span className="cursor-pointer" style={{ color: "#7bc242" }} onClick={toLogin}>
+            <span className="cursor-pointer" style={{ color: "var(--auth-link, #7bc242)" }} onClick={toLogin}>
               {t.auth.back}
             </span>
           </div>

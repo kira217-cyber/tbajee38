@@ -174,7 +174,7 @@ body::-webkit-scrollbar,
 
 .tb-banner .swiper-horizontal > .swiper-pagination-bullets .swiper-pagination-bullet-active,
 .tb-banner .swiper-pagination-bullet-active {
-  background: #da394f;
+  background: var(--home-banner-dot, #da394f);
 }
 
 /* মোবাইলের ব্যানারে ডিজাইনটা আলাদা — সরু বার নয়, ১৮ × ১৮ গোল সাদা
@@ -451,7 +451,7 @@ body::-webkit-scrollbar,
 
 /* সদস্য মডালের মেনু — ঘোরালে মূল সাইটের মতো লাল (#DA394F) */
 .tb-menu-item:hover {
-  background: #da394f;
+  background: var(--member-nav-active, #da394f);
 }
 
 /* বটম নেভের মাঝের "শেয়ার" — মূল সাইটের animate.css `heartBeat`, ১.৫s বারবার */

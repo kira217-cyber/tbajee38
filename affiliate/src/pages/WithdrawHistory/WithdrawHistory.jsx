@@ -4,7 +4,7 @@ import { BanknoteArrowDown, CircleCheck, CircleX, Clock3, MessageSquareText, Rec
 
 import { Loading, Pager } from "../../components/Panel/Panel";
 import { Badge, Blank, Glass, Hero, Segmented } from "../../components/Panel/Pro";
-import { TONES } from "../../components/Panel/tones";
+import { HEROES, TONES } from "../../components/Panel/tones";
 import { money, when } from "../../components/Panel/panelFormat";
 import { useLanguage } from "../../Context/LanguageProvider";
 import { fetchMyWithdraws } from "../../features/affiliate/affiliateApi";
@@ -59,6 +59,7 @@ const WithdrawHistory = () => {
     <div className="flex flex-col gap-5">
       <Hero
         tone={TONE}
+        heroBg={HEROES.history}
         Icon={Receipt}
         eyebrow={t("navDashboard")}
         title={t("navWithdrawHistory")}

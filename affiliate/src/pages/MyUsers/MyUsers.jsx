@@ -3,7 +3,7 @@ import { Clock3, Search, TrendingUp, Users, Wallet, X } from "lucide-react";
 
 import { Loading, Pager } from "../../components/Panel/Panel";
 import { Avatar, Badge, Blank, Glass, Hero, Segmented } from "../../components/Panel/Pro";
-import { TONES } from "../../components/Panel/tones";
+import { HEROES, TONES } from "../../components/Panel/tones";
 import { money, when } from "../../components/Panel/panelFormat";
 import { useLanguage } from "../../Context/LanguageProvider";
 import { fetchMyUsers } from "../../features/affiliate/affiliateApi";
@@ -71,6 +71,7 @@ const MyUsers = () => {
     <div className="flex flex-col gap-5">
       <Hero
         tone={TONE}
+        heroBg={HEROES.users}
         Icon={Users}
         eyebrow={t("navDashboard")}
         title={t("navMyUsers")}

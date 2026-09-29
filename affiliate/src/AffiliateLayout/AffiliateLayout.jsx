@@ -217,9 +217,9 @@ const AffiliateLayout = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[var(--content-bg)]">
+    <div className="min-h-screen" style={{ background: "var(--aff-panel-bg, var(--content-bg))" }}>
       {/* ডেস্কটপ সাইডবার */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[250px] flex-col border-r border-white/[0.07] bg-[var(--neutral900)] lg:flex">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[250px] flex-col border-r border-white/[0.07] lg:flex" style={{ background: "var(--aff-panel-sidebar, var(--neutral900))" }}>
         {sidebar}
       </aside>
 
@@ -234,8 +234,8 @@ const AffiliateLayout = () => {
       />
 
       <aside
-        className="fixed inset-y-0 left-0 z-[51] flex w-[260px] max-w-[84vw] flex-col border-r border-white/[0.07] bg-[var(--neutral900)] transition-transform duration-300 lg:hidden"
-        style={{ transform: open ? "translateX(0)" : "translateX(-100%)" }}
+        className="fixed inset-y-0 left-0 z-[51] flex w-[260px] max-w-[84vw] flex-col border-r border-white/[0.07] transition-transform duration-300 lg:hidden"
+        style={{ transform: open ? "translateX(0)" : "translateX(-100%)", background: "var(--aff-panel-sidebar, var(--neutral900))" }}
       >
         <button
           type="button"
@@ -250,7 +250,10 @@ const AffiliateLayout = () => {
       </aside>
 
       <div className="lg:ps-[250px]">
-        <header className="sticky top-0 z-30 flex h-[64px] items-center gap-3 border-b border-white/[0.07] bg-[var(--neutral900)]/90 px-4 backdrop-blur lg:px-6">
+        <header
+          className="sticky top-0 z-30 flex h-[64px] items-center gap-3 border-b border-white/[0.07] px-4 backdrop-blur lg:px-6"
+          style={{ background: "color-mix(in srgb, var(--aff-panel-header, var(--neutral900)), transparent 10%)" }}
+        >
           <button
             type="button"
             onClick={() => setOpen(true)}

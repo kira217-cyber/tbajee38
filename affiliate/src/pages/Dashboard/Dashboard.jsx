@@ -23,7 +23,7 @@ import {
 
 import { Loading } from "../../components/Panel/Panel";
 import { Avatar, Badge, Blank, Glass, Hero, Metric, StackBar, Title } from "../../components/Panel/Pro";
-import { TONES } from "../../components/Panel/tones";
+import { HEROES, PARTS, TONES } from "../../components/Panel/tones";
 import { day, money, referralLink } from "../../components/Panel/panelFormat";
 import { useLanguage } from "../../Context/LanguageProvider";
 import { fetchAffiliate, fetchMyUsers } from "../../features/affiliate/affiliateApi";
@@ -32,12 +32,7 @@ import { notify } from "../../utils/notify";
 const TONE = TONES.dashboard;
 
 /** কমিশনের চার ভাগের রঙ — ভাগ-বার, তালিকা আর হারের টাইলে একই */
-const PART = {
-  refer: "#22d3ee",
-  deposit: "#fbd029",
-  gameLoss: "#34d399",
-  gameWin: "#ff777c",
-};
+const PART = PARTS;
 
 /**
  * অ্যাফিলিয়েটের প্রথম পাতা — "কন্ট্রোল রুম"।
@@ -128,6 +123,7 @@ const Dashboard = () => {
       {/* ── ব্যানার ── */}
       <Hero
         tone={TONE}
+        heroBg={HEROES.dashboard}
         Icon={LayoutDashboard}
         eyebrow={t("welcomeBack")}
         title={
@@ -179,7 +175,7 @@ const Dashboard = () => {
         <div className="mt-6 flex flex-wrap items-end gap-8">
           <div>
             <p className="text-[11px] font-semibold text-[var(--text-disabled)]">{t("availableBalance")}</p>
-            <p className="text-[36px] font-black leading-tight lg:text-[44px]" style={{ color: TONE, textShadow: `0 0 28px ${TONE}55` }}>
+            <p className="text-[36px] font-black leading-tight lg:text-[44px]" style={{ color: TONE, textShadow: `0 0 28px color-mix(in srgb, ${TONE}, transparent 67%)` }}>
               {money(data.user?.balance)}
             </p>
           </div>
