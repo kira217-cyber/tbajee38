@@ -6,40 +6,20 @@ import { api } from "../../api/axios";
 import { HistoryHeader } from "../../components/HistoryBits/HistoryBits";
 import ConfirmModal from "../../components/ConfirmModal/ConfirmModal";
 import SitePreview from "../../components/SitePreview/SitePreview";
-import { LangRow } from "./bits";
+import { ImageRow, LangRow } from "./bits";
 import { imageUrl, useUpload } from "./helpers";
 
 const ENDPOINT = "/api/site-settings/admin/client-footer";
 const EMPTY = { bn: "", en: "" };
 
-const TITLES = [
-  ["license", "Gaming license"],
-  ["responsible", "Responsible gaming"],
-  ["payment", "Payment method"],
-  ["certification", "Certification"],
-  ["security", "Security"],
-  ["help", "Help (desktop)"],
-  ["products", "Products (desktop)"],
-  ["social", "Social media (desktop)"],
-];
-
-/** মোবাইল ফুটারের ছবির সারি — ক্লায়েন্টের Footer.jsx এর ক্রমে */
-const IMAGE_ROWS = [
-  ["license", "Gaming license", "Under the licence heading."],
-  ["responsible", "Responsible gaming", "Next to the licence."],
-  ["providers", "Game providers", "The wide providers image."],
-  ["payment", "Payment methods", "Under the payment heading."],
-  ["certification", "Certification", "Tick “new line” to start a second row."],
-  ["security", "Security", "Under the security heading."],
-];
-
+/** server থেকে আসা ফুটার → এই পাতার খসড়া (কিছু না থাকলে খালি ঘর) */
 const pick = (d = {}) => ({
-  titles: Object.fromEntries(TITLES.map(([k]) => [k, d.titles?.[k] || { ...EMPTY }])),
-  licenseText: d.licenseText || { ...EMPTY },
+  about: { show: d.about?.show !== false, title: d.about?.title || { ...EMPTY }, logo: d.about?.logo || "", text: d.about?.text || { ...EMPTY } },
+  games: { show: d.games?.show !== false, title: d.games?.title || { ...EMPTY }, items: d.games?.items || [] },
+  certificates: { show: d.certificates?.show !== false, title: d.certificates?.title || { ...EMPTY }, items: d.certificates?.items || [] },
+  showProviders: d.showProviders !== false,
+  providerLogos: d.providerLogos || [],
   copyright: d.copyright || { ...EMPTY },
-  ...Object.fromEntries(IMAGE_ROWS.map(([k]) => [k, d[k] || []])),
-  desktopProviders: d.desktopProviders || [],
-  socials: d.socials || [],
 });
 
 /** ছোট ছবির ঘর — ক্লিক করলে আপলোড */
@@ -111,86 +91,102 @@ const useList = (list, onChange) => ({
   add: (row) => onChange([...list, row]),
 });
 
-const num = "ad-input !h-9 !w-[74px] !px-2 text-center";
-
-/** মোবাইলের একটা ছবির সারি */
-const ImageList = ({ title, hint, list, onChange }) => {
-  const L = useList(list, onChange);
-  return (
-    <div className="rounded-[14px] border border-white/[0.07] p-3">
-      <div className="mb-2 flex items-center gap-2">
-        <p className="text-[13px] font-extrabold text-[var(--neutral100)]">{title}</p>
-        <span className="text-[11px] text-[var(--text-muted)]">{hint}</span>
-      </div>
-      <div className="flex flex-col gap-2">
-        {list.map((row, i) => (
-          <div key={i} className="flex flex-wrap items-center gap-2 rounded-[10px] bg-black/20 p-2">
-            <Thumb value={row.image} onChange={(v) => L.update(i, { image: v })} />
-            <label className="flex items-center gap-1 text-[11px] text-[var(--text-muted)]">
-              W <input type="number" min="0" value={row.w ?? 0} onChange={(e) => L.update(i, { w: Number(e.target.value) })} className={num} />
-            </label>
-            <label className="flex items-center gap-1 text-[11px] text-[var(--text-muted)]">
-              H <input type="number" min="0" value={row.h ?? 0} onChange={(e) => L.update(i, { h: Number(e.target.value) })} className={num} />
-            </label>
-            <input value={row.link || ""} onChange={(e) => L.update(i, { link: e.target.value })} placeholder="Link (optional) https://…" className="ad-input !h-9 min-w-[160px] flex-1" />
-            {i > 0 ? (
-              <label className="flex cursor-pointer items-center gap-1.5 text-[11px] text-[var(--text-muted)]">
-                <input type="checkbox" checked={Boolean(row.br)} onChange={(e) => L.update(i, { br: e.target.checked })} /> New line
-              </label>
-            ) : null}
-            <RowTools index={i} count={list.length} onMove={L.move} onRemove={L.remove} />
-          </div>
-        ))}
-      </div>
-      <button type="button" onClick={() => L.add({ image: "", w: 60, h: 40, link: "", br: false })} className="ad-btn ad-btn--ghost ad-btn--sm mt-2">
-        <Plus size={13} /> Add image
-      </button>
-    </div>
-  );
-};
-
-/** ডেস্কটপের প্রোভাইডার লোগো / সোশ্যাল লিংক — ছবি + নাম + লিংক */
-const NamedList = ({ list, onChange, imageKey, linkKey, namePh, linkPh, addLabel }) => {
+/** ছবি + নাম + লিংক — সার্টিফিকেট আর প্রোভাইডার লোগো */
+const LogoList = ({ list, onChange, addLabel, thumb = "h-10 w-16" }) => {
   const L = useList(list, onChange);
   return (
     <div>
       <div className="flex flex-col gap-2">
         {list.map((row, i) => (
           <div key={i} className="flex flex-wrap items-center gap-2 rounded-[10px] bg-black/20 p-2">
-            <Thumb value={row[imageKey]} onChange={(v) => L.update(i, { [imageKey]: v })} size="h-10 w-14" />
-            <input value={row.name || ""} onChange={(e) => L.update(i, { name: e.target.value })} placeholder={namePh} className="ad-input !h-9 !w-[140px]" />
-            <input value={row[linkKey] || ""} onChange={(e) => L.update(i, { [linkKey]: e.target.value })} placeholder={linkPh} className="ad-input !h-9 min-w-[160px] flex-1" />
+            <Thumb value={row.image} onChange={(v) => L.update(i, { image: v })} size={thumb} />
+            <input value={row.name || ""} onChange={(e) => L.update(i, { name: e.target.value })} placeholder="Name" className="ad-input !h-9 !w-[140px]" />
+            <input value={row.link || ""} onChange={(e) => L.update(i, { link: e.target.value })} placeholder="Link (optional) https://…" className="ad-input !h-9 min-w-[160px] flex-1" />
             <RowTools index={i} count={list.length} onMove={L.move} onRemove={L.remove} />
           </div>
         ))}
-        {!list.length ? <p className="text-[12px] text-[var(--text-muted)]">Nothing yet — this part stays empty on the site.</p> : null}
+        {!list.length ? <p className="text-[12px] text-[var(--text-muted)]">Nothing yet.</p> : null}
       </div>
-      <button type="button" onClick={() => L.add({ name: "", [imageKey]: "", [linkKey]: "" })} className="ad-btn ad-btn--ghost ad-btn--sm mt-2">
+      <button type="button" onClick={() => L.add({ name: "", image: "", link: "" })} className="ad-btn ad-btn--ghost ad-btn--sm mt-2">
         <Plus size={13} /> {addLabel}
       </button>
     </div>
   );
 };
 
-const Section = ({ title, hint, children }) => (
+/** "প্রয়োজনীয় খেলা" — প্রতিটা সারি একটা গেম ক্যাটাগরি + দুই ভাষার লেখা */
+const GameList = ({ list, onChange, categories }) => {
+  const L = useList(list, onChange);
+  const known = new Set(categories.map((c) => c.key));
+  return (
+    <div>
+      <div className="flex flex-col gap-2">
+        {list.map((row, i) => (
+          <div key={i} className="flex flex-wrap items-center gap-2 rounded-[10px] bg-black/20 p-2">
+            <select
+              value={row.category || ""}
+              onChange={(e) => {
+                const cat = categories.find((c) => c.key === e.target.value);
+                // লেখা খালি থাকলে ক্যাটাগরির নামই বসে
+                const label = row.label?.bn || row.label?.en ? row.label : { bn: cat?.name?.bn || "", en: cat?.name?.en || "" };
+                L.update(i, { category: e.target.value, label });
+              }}
+              className="ad-input !h-9 !w-[150px]"
+              title="Game category it opens"
+            >
+              <option value="">Choose category…</option>
+              {categories.map((c) => (
+                <option key={c.key} value={c.key}>
+                  {c.name?.en || c.name?.bn || c.key}
+                </option>
+              ))}
+              {row.category && !known.has(row.category) ? <option value={row.category}>{row.category}</option> : null}
+            </select>
+            <input value={row.label?.bn || ""} onChange={(e) => L.update(i, { label: { ...row.label, bn: e.target.value } })} placeholder="Bangla" className="ad-input !h-9 min-w-[120px] flex-1" />
+            <input value={row.label?.en || ""} onChange={(e) => L.update(i, { label: { ...row.label, en: e.target.value } })} placeholder="English" className="ad-input !h-9 min-w-[120px] flex-1" />
+            <RowTools index={i} count={list.length} onMove={L.move} onRemove={L.remove} />
+          </div>
+        ))}
+        {!list.length ? <p className="text-[12px] text-[var(--text-muted)]">Nothing yet — this column stays hidden.</p> : null}
+      </div>
+      <button type="button" onClick={() => L.add({ category: "", label: { ...EMPTY } })} className="ad-btn ad-btn--ghost ad-btn--sm mt-2">
+        <Plus size={13} /> Add game
+      </button>
+    </div>
+  );
+};
+
+/** অংশের কার্ড — ডানে "দেখাও" সুইচ */
+const Section = ({ title, hint, show, onShow, children }) => (
   <div className="ad-card mb-4">
-    <p className="text-[15px] font-extrabold text-[var(--neutral100)]">{title}</p>
-    {hint ? <p className="mb-3 mt-0.5 text-[12px] text-[var(--text-muted)]">{hint}</p> : <div className="mb-3" />}
-    {children}
+    <div className="flex items-start gap-3">
+      <div className="min-w-0 flex-1">
+        <p className="text-[15px] font-extrabold text-[var(--neutral100)]">{title}</p>
+        {hint ? <p className="mt-0.5 text-[12px] text-[var(--text-muted)]">{hint}</p> : null}
+      </div>
+      {onShow ? (
+        <label className="flex shrink-0 cursor-pointer items-center gap-2 text-[12px] font-semibold text-[var(--text-secondary)]">
+          <input type="checkbox" checked={show} onChange={(e) => onShow(e.target.checked)} /> Show
+        </label>
+      ) : null}
+    </div>
+    <div className={`mt-3 ${onShow && !show ? "pointer-events-none opacity-40" : ""}`}>{children}</div>
   </div>
 );
 
 /**
- * ক্লায়েন্ট সাইটের ফুটার — প্রতিটা শিরোনাম, লেখা, মোবাইলের ছবির সারি,
- * ডেস্কটপের প্রোভাইডার লোগো আর সোশ্যাল লিংক। পাশে লাইভ প্রিভিউ।
+ * ক্লায়েন্ট সাইটের ফুটার — তিন কলাম (আমাদের সম্পর্কে, প্রয়োজনীয় খেলা,
+ * সার্টিফিকেট), প্রোভাইডার লোগো আর কপিরাইট; ডেস্কটপ ও মোবাইল দুটোতেই।
+ * পাশে লাইভ প্রিভিউ।
  */
 const ClientFooter = () => {
   const [draft, setDraft] = useState(null);
+  const [categories, setCategories] = useState([]);
   const [busy, setBusy] = useState("");
   const [resetAsk, setResetAsk] = useState(false);
 
   const set = (k, v) => setDraft((p) => ({ ...p, [k]: v }));
-  const setTitle = (k, v) => setDraft((p) => ({ ...p, titles: { ...p.titles, [k]: v } }));
+  const setIn = (sec, k, v) => setDraft((p) => ({ ...p, [sec]: { ...p[sec], [k]: v } }));
 
   const load = async () => {
     try {
@@ -203,6 +199,15 @@ const ClientFooter = () => {
 
   useEffect(() => {
     queueMicrotask(load);
+    // খেলার তালিকার ড্রপডাউন — সাইটের আসল গেম ক্যাটাগরি (না পেলে লেখা key ই থাকে)
+    api
+      .get("/api/games/game-data")
+      .then(({ data }) => {
+        // server এর /api/games/game-data → { data: { data: { categories } } }
+        const cats = data?.data?.data?.categories || [];
+        setCategories(cats.filter((c) => c.key && c.type !== "favorite").map((c) => ({ key: c.key, name: c.name || {} })));
+      })
+      .catch(() => {});
   }, []);
 
   const save = async () => {
@@ -246,41 +251,45 @@ const ClientFooter = () => {
     <div>
       <HistoryHeader
         title="Footer Setting"
-        subtitle="Every heading, text, image and link in the client site footer. The preview shows your changes before you save."
+        subtitle="The client site footer on desktop and mobile — every text, logo, game link and certificate. The preview shows your changes before you save."
         Icon={PanelBottom}
       />
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <div className="min-w-0">
-          <Section title="Headings" hint="Mobile shows the first five, desktop the last three.">
+          <Section title="About us" hint="First column: logo and a short text." show={draft.about.show} onShow={(v) => setIn("about", "show", v)}>
             <div className="flex flex-col gap-3">
-              {TITLES.map(([k, label]) => (
-                <LangRow key={k} label={label} value={draft.titles[k]} onChange={(v) => setTitle(k, v)} />
-              ))}
+              <LangRow label="Heading" value={draft.about.title} onChange={(v) => setIn("about", "title", v)} />
+              <ImageRow label="Logo" size="empty = the Site Identity logo" value={draft.about.logo} onChange={(v) => setIn("about", "logo", v)} />
+              <LangRow label="Text" value={draft.about.text} onChange={(v) => setIn("about", "text", v)} textarea rows={4} />
             </div>
           </Section>
 
-          <Section title="Text">
+          <Section title="Popular games" hint="Second column: each line opens its game category (like the sidebar)." show={draft.games.show} onShow={(v) => setIn("games", "show", v)}>
             <div className="flex flex-col gap-3">
-              <LangRow label="Licence text (mobile)" value={draft.licenseText} onChange={(v) => set("licenseText", v)} />
-              <LangRow label="Copyright" value={draft.copyright} onChange={(v) => set("copyright", v)} />
+              <LangRow label="Heading" value={draft.games.title} onChange={(v) => setIn("games", "title", v)} />
+              <GameList list={draft.games.items} onChange={(v) => setIn("games", "items", v)} categories={categories} />
             </div>
           </Section>
 
-          <Section title="Mobile footer images" hint="W / H are in the 750px mobile design (0 = keep the image's own shape). Click an image to change it.">
+          <Section
+            title="Certificates"
+            hint="Third column: badges such as Gaming Curacao and Oracle API. With a link, a click opens it in a new tab."
+            show={draft.certificates.show}
+            onShow={(v) => setIn("certificates", "show", v)}
+          >
             <div className="flex flex-col gap-3">
-              {IMAGE_ROWS.map(([k, title, hint]) => (
-                <ImageList key={k} title={title} hint={hint} list={draft[k]} onChange={(v) => set(k, v)} />
-              ))}
+              <LangRow label="Heading" value={draft.certificates.title} onChange={(v) => setIn("certificates", "title", v)} />
+              <LogoList list={draft.certificates.items} onChange={(v) => setIn("certificates", "items", v)} addLabel="Add certificate" thumb="h-12 w-24" />
             </div>
           </Section>
 
-          <Section title="Desktop provider logos" hint="Shown in grey along the bottom of the desktop footer.">
-            <NamedList list={draft.desktopProviders} onChange={(v) => set("desktopProviders", v)} imageKey="image" linkKey="link" namePh="Name" linkPh="Link (optional) https://…" addLabel="Add logo" />
+          <Section title="Provider logos" hint="The grey logo row under the columns." show={draft.showProviders} onShow={(v) => set("showProviders", v)}>
+            <LogoList list={draft.providerLogos} onChange={(v) => set("providerLogos", v)} addLabel="Add logo" />
           </Section>
 
-          <Section title="Social media (desktop)" hint="Links under the social media heading; the icon is optional.">
-            <NamedList list={draft.socials} onChange={(v) => set("socials", v)} imageKey="icon" linkKey="url" namePh="Name (Facebook…)" linkPh="https://…" addLabel="Add link" />
+          <Section title="Copyright">
+            <LangRow label="Copyright" value={draft.copyright} onChange={(v) => set("copyright", v)} />
           </Section>
 
           <div className="sticky bottom-3 z-10 flex flex-wrap gap-2 rounded-[16px] border border-white/[0.08] bg-[var(--neutral1000)]/90 p-3 backdrop-blur">
@@ -304,7 +313,7 @@ const ClientFooter = () => {
         danger
         busy={busy === "reset"}
         title="Reset the footer?"
-        message="Every heading, text, image and link goes back to the site's original footer, for everyone."
+        message="Every text, logo, game link and certificate goes back to the default footer, for everyone."
         confirmText="Reset"
         onConfirm={reset}
         onClose={() => busy !== "reset" && setResetAsk(false)}

@@ -4,7 +4,7 @@ import upload from "../config/multer.js";
 import AffSiteIdentify from "../models/AffSiteIdentify.js";
 import AffFooterSetting from "../models/AffFooterSetting.js";
 import SiteIdentify, { IDENTITY_DEFAULTS } from "../models/SiteIdentify.js";
-import ClientFooterSetting, { FOOTER_DEFAULTS, FOOTER_IMAGE_ROWS, FOOTER_TITLES } from "../models/ClientFooterSetting.js";
+import ClientFooterSetting, { FOOTER_DEFAULTS } from "../models/ClientFooterSetting.js";
 import { protectAdmin, requireMother, requireWrite } from "../middleware/protectAdmin.js";
 import { successResponse, errorResponse } from "../utils/response.js";
 
@@ -30,7 +30,6 @@ const webLink = (v) => {
   const s = text(v, 500);
   return /^https?:\/\/[^\s]+$/i.test(s) ? s : "";
 };
-const size = (v) => Math.max(0, Math.min(1000, Math.round(Number(v) || 0)));
 
 router.get("/client/public", async (req, res) => {
   try {
@@ -133,49 +132,68 @@ const imageList = (list, map, max = 30) => {
   return { out };
 };
 
+/** ক্যাটাগরির key — ছোট হাতের অক্ষর, সংখ্যা, - _ */
+const categoryKey = (v) => {
+  const s = text(v, 40).toLowerCase();
+  return /^[a-z0-9_-]+$/.test(s) ? s : "";
+};
+
+/** ছবি + নাম + লিংক (সার্টিফিকেট, প্রোভাইডার লোগো) */
+const logoRow = (r) => {
+  const image = imagePath(r.image);
+  if (image === null) return null;
+  return image ? { name: text(r.name, 60), image, link: webLink(r.link) } : false;
+};
+
 makeCrud(
   ClientFooterSetting,
   "client-footer",
   (doc, b) => {
-    if (b.titles && typeof b.titles === "object") {
-      FOOTER_TITLES.forEach((k) => {
-        if (b.titles[k] !== undefined) doc.titles[k] = lang(b.titles[k], 80);
-      });
-      doc.markModified("titles");
+    if (b.about && typeof b.about === "object") {
+      const a = b.about;
+      if (a.show !== undefined) doc.about.show = Boolean(a.show);
+      if (a.title !== undefined) doc.about.title = lang(a.title, 80);
+      if (a.text !== undefined) doc.about.text = lang(a.text, 1000);
+      if (a.logo !== undefined) {
+        const logo = imagePath(a.logo);
+        if (logo === null) return "Upload the image here instead of pasting a link";
+        doc.about.logo = logo;
+      }
+      doc.markModified("about");
     }
-    if (b.licenseText !== undefined) doc.licenseText = lang(b.licenseText, 200);
+    if (b.games && typeof b.games === "object") {
+      const g = b.games;
+      if (g.show !== undefined) doc.games.show = Boolean(g.show);
+      if (g.title !== undefined) doc.games.title = lang(g.title, 80);
+      if (g.items !== undefined) {
+        const { out, error } = imageList(g.items, (r) => {
+          const category = categoryKey(r.category);
+          const label = lang(r.label, 80);
+          return category && (label.bn || label.en) ? { category, label } : false;
+        }, 20);
+        if (error) return error;
+        doc.games.items = out;
+      }
+      doc.markModified("games");
+    }
+    if (b.certificates && typeof b.certificates === "object") {
+      const c = b.certificates;
+      if (c.show !== undefined) doc.certificates.show = Boolean(c.show);
+      if (c.title !== undefined) doc.certificates.title = lang(c.title, 80);
+      if (c.items !== undefined) {
+        const { out, error } = imageList(c.items, logoRow, 12);
+        if (error) return error;
+        doc.certificates.items = out;
+      }
+      doc.markModified("certificates");
+    }
+    if (b.showProviders !== undefined) doc.showProviders = Boolean(b.showProviders);
+    if (b.providerLogos !== undefined) {
+      const { out, error } = imageList(b.providerLogos, logoRow);
+      if (error) return error;
+      doc.providerLogos = out;
+    }
     if (b.copyright !== undefined) doc.copyright = lang(b.copyright, 300);
-
-    for (const k of FOOTER_IMAGE_ROWS) {
-      if (b[k] === undefined) continue;
-      const { out, error } = imageList(b[k], (r) => {
-        const image = imagePath(r.image);
-        if (image === null) return null;
-        return image ? { image, w: size(r.w), h: size(r.h), link: webLink(r.link), br: Boolean(r.br) } : false;
-      });
-      if (error) return error;
-      doc[k] = out;
-    }
-    if (b.desktopProviders !== undefined) {
-      const { out, error } = imageList(b.desktopProviders, (r) => {
-        const image = imagePath(r.image);
-        if (image === null) return null;
-        return image ? { name: text(r.name, 40), image, link: webLink(r.link) } : false;
-      });
-      if (error) return error;
-      doc.desktopProviders = out;
-    }
-    if (b.socials !== undefined) {
-      const { out, error } = imageList(b.socials, (r) => {
-        const icon = imagePath(r.icon);
-        if (icon === null) return null;
-        const name = text(r.name, 40);
-        const url = webLink(r.url);
-        return name || icon ? { name, icon, url } : false;
-      }, 12);
-      if (error) return error;
-      doc.socials = out;
-    }
     return "";
   },
   FOOTER_DEFAULTS,

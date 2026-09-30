@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router";
 
 import { useLanguage } from "../../Context/LanguageProvider";
 import { useIsDesktop } from "../../hook/useIsDesktop";
@@ -8,232 +9,188 @@ import { pickLang, siteImage, useSiteSettings } from "../../site/siteSettings";
 import HelpModal from "../Help/HelpModal";
 
 /**
- * ফুটার।
+ * ফুটার — সব কিছু admin এর "Footer Setting" থেকে (site/siteSettings.js)।
  *
- * **মোবাইল** (`.home-footer`, ৭৫০-ডিজাইনে মাপা) — ডেস্কটপের চেয়ে পুরো
- * আলাদা, তাই আলাদা করে লেখা:
- *   মোট উচ্চতা ৭৮৬, ভিতরের কনটেন্ট ৭০০ চওড়া, বাঁয়ে ২৫
- *   লাইসেন্স সারি y ৩১ উঁচু ১৩৮ — বাঁয়ে "গেমিং লাইসেন্স" (৩৩৫ চওড়া),
- *     শিরোনাম fs ২০, পাশে ব্যাজ ২৮; নিচে curacao ৯০ × ৩০,
- *     তারপর `local_license_1` fs ১৮ রঙ #D9D9D9
- *     ডানে "দায়িত্বশীল গেমিং" (x ৩৯০) — আইকন ৪০ ও ৭০ × ৫০
- *   প্রোভাইডার ছবি y ১৯২, ৭০০ × ২৪৪
- *   "পেমেন্ট মেথড" y ৪৬৮ — ছবি ৩৭৪ × ৬০ (y ৫০৬)
- *   সার্টিফিকেশন ও সুরক্ষা y ৬০২, দুই কলাম ৩৫০
- *   কপিরাইট y ৭৬৩ fs ২০ রঙ #D9D9D9
+ * তিন কলাম: আমাদের সম্পর্কে (লোগো + লেখা), প্রয়োজনীয় খেলা (ক্লিক করলে
+ * সেই ক্যাটাগরির খেলার কেন্দ্র — সাইডবারের মতো), সার্টিফিকেট (Gaming
+ * Curacao, Oracle API — লিংক থাকলে নতুন ট্যাবে)। নিচে প্রোভাইডার লোগো আর
+ * কপিরাইট। ডেস্কটপে তিন কলাম পাশাপাশি; মোবাইলে (৭৫০-ডিজাইন) "সম্পর্কে"
+ * উপরে পুরো চওড়া, নিচে খেলা আর সার্টিফিকেট পাশাপাশি।
  *
- * **ডেস্কটপ**: পুরো প্রস্থে bg #241A3E, উচ্চতা ৪০৮, padding-top ৩৫,
- *   ভিতরের কনটেন্ট সেই ১০৮৫ কলামে।
+ * রঙ admin এর "Client Colours › Footer" থেকে (`--footer-*`)।
  */
 
-/** ছবি — মোবাইলে মাপ ৭৫০-ডিজাইনের px (০ = নিজের অনুপাতে), লিংক থাকলে নতুন ট্যাবে */
-const FooterImage = ({ item, style }) => {
-  const el = (
-    <img
-      src={siteImage(item.image)}
-      alt=""
-      style={{ width: item.w ? m(item.w) : undefined, height: item.h ? m(item.h) : undefined, objectFit: "contain", display: "block", ...style }}
-    />
-  );
-  return item.link ? (
-    <a href={item.link} target="_blank" rel="noreferrer noopener">
-      {el}
-    </a>
-  ) : (
-    el
-  );
+const C = {
+  bg: "var(--footer-bg, var(--surface))",
+  heading: "var(--footer-heading, #fff)",
+  line: "var(--footer-line, var(--gold))",
+  text: "var(--footer-text, #d9d9d9)",
+  link: "var(--footer-link, #fff)",
+  bullet: "var(--footer-bullet, #fff)",
 };
 
-/** ছবির সারি — `br` দেওয়া ছবি থেকে নতুন লাইন, লাইনের মাঝে `rowGap` */
-const ImageRow = ({ items, gap, rowGap = 0, style }) => {
-  const lines = [];
-  items.forEach((item, i) => {
-    if (i === 0 || item.br) lines.push([]);
-    lines[lines.length - 1].push(item);
-  });
-  return (
-    <div style={style}>
-      {lines.map((line, li) => (
-        <div key={li} className="flex flex-wrap items-end" style={{ gap, marginTop: li ? rowGap : 0 }}>
-          {line.map((item, i) => (
-            <FooterImage key={`${item.image}-${i}`} item={item} />
-          ))}
-        </div>
+/** লিংক থাকলে নতুন ট্যাবে খোলে, না থাকলে শুধু ছবি */
+const MaybeLink = ({ href, label, children }) =>
+  href ? (
+    <a href={href} target="_blank" rel="noreferrer noopener" aria-label={label} className="tb-hover-fade block">
+      {children}
+    </a>
+  ) : (
+    children
+  );
+
+/** কলামের শিরোনাম — নিচে সোনালি দাগ */
+const Heading = ({ children, size, gap }) => (
+  <div
+    style={{
+      display: "inline-block",
+      fontSize: size,
+      fontWeight: 600,
+      color: C.heading,
+      paddingBottom: `calc(${typeof gap === "number" ? `${gap}px` : gap} / 3)`,
+      borderBottom: `2px solid ${C.line}`,
+      marginBottom: gap,
+      lineHeight: 1.3,
+    }}
+  >
+    {children}
+  </div>
+);
+
+/** খেলার ক্যাটাগরিতে যাওয়া — ডেস্কটপে হোমের ট্যাব, মোবাইলে খেলার কেন্দ্র (সাইডবারের মতো) */
+const useOpenCategory = () => {
+  const navigate = useNavigate();
+  const isDesktop = useIsDesktop();
+  return (key) => {
+    navigate(isDesktop ? `/?tab=${encodeURIComponent(key)}` : `/games/${encodeURIComponent(key)}`);
+    window.scrollTo({ top: 0 });
+  };
+};
+
+const Footer = () => {
+  const isDesktop = useIsDesktop();
+  const { lang } = useLanguage();
+  const { footer: f, identify } = useSiteSettings();
+  const openCategory = useOpenCategory();
+  // admin এর Help Content এ "Show on desktop" দেওয়া লেখা — কপিরাইটের উপরে ছোট লিংক
+  const { articles } = useHelp("desktop");
+  const [helpAt, setHelpAt] = useState(null);
+  const tx = (v) => pickLang(v, lang);
+
+  // মাপ: ডেস্কটপে px, মোবাইলে ৭৫০-ডিজাইনের rem
+  const u = (d, mob) => (isDesktop ? d : m(mob));
+  const headingSize = u(22, 30);
+  const headingGap = u(16, 20);
+
+  const about = f.about.show && (
+    <div>
+      <Heading size={headingSize} gap={headingGap}>
+        {tx(f.about.title)}
+      </Heading>
+      <img
+        src={siteImage(f.about.logo || identify.logo)}
+        alt={identify.siteName}
+        style={{ display: "block", height: u(64, 90), maxWidth: "100%", objectFit: "contain", marginBottom: u(14, 18) }}
+      />
+      <p style={{ fontSize: u(13.5, 22), lineHeight: 1.7, color: C.text, whiteSpace: "pre-line" }}>{tx(f.about.text)}</p>
+    </div>
+  );
+
+  const games = f.games.show && f.games.items.length > 0 && (
+    <div>
+      <Heading size={headingSize} gap={headingGap}>
+        {tx(f.games.title)}
+      </Heading>
+      <ul style={{ display: "grid", gap: u(8, 14) }}>
+        {f.games.items.map((item, i) => (
+          <li key={`${item.category}-${i}`}>
+            <button
+              type="button"
+              onClick={() => openCategory(item.category)}
+              className="tb-hover-fade flex cursor-pointer items-center text-left"
+              style={{ gap: u(10, 14), fontSize: u(16, 24), color: C.link }}
+            >
+              <span className="shrink-0" style={{ width: u(16, 22), height: u(16, 22), borderRadius: "50%", background: C.bullet }} />
+              {tx(item.label)}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+
+  const certificates = f.certificates.show && f.certificates.items.length > 0 && (
+    <div>
+      <Heading size={headingSize} gap={headingGap}>
+        {tx(f.certificates.title)}
+      </Heading>
+      <div className="flex flex-col items-start" style={{ gap: u(16, 22) }}>
+        {f.certificates.items.map((item, i) => (
+          <MaybeLink key={`${item.image}-${i}`} href={item.link} label={item.name}>
+            <img src={siteImage(item.image)} alt={item.name} style={{ display: "block", width: u(210, 270), maxWidth: "100%", height: "auto" }} />
+          </MaybeLink>
+        ))}
+      </div>
+    </div>
+  );
+
+  const providers = f.showProviders && f.providerLogos.length > 0 && (
+    <div
+      className="flex flex-wrap items-center justify-center"
+      style={{
+        marginTop: u(34, 40),
+        paddingTop: u(26, 34),
+        borderTop: "1px solid rgb(255 255 255 / 0.08)",
+        gap: isDesktop ? "20px 46px" : `${m(24)} ${m(34)}`,
+      }}
+    >
+      {f.providerLogos.map((p, i) => (
+        <MaybeLink key={`${p.image}-${i}`} href={p.link} label={p.name}>
+          <img
+            src={siteImage(p.image)}
+            alt={p.name}
+            style={{ display: "block", height: u(34, 40), objectFit: "contain", filter: "grayscale(1) brightness(1.6)", opacity: 0.75 }}
+          />
+        </MaybeLink>
       ))}
     </div>
   );
-};
 
-const MobileFooter = () => {
-  const { lang } = useLanguage();
-  const { footer: f } = useSiteSettings();
-  const tx = (v) => pickLang(v, lang);
-  const title = { fontSize: m(20), color: "var(--footer-heading, #fff)" };
-
-  return (
-    <footer style={{ paddingBottom: m(130) }}>
-      <div style={{ width: m(700), marginInline: "auto", paddingTop: m(31) }}>
-        {/* লাইসেন্স ও দায়িত্বশীল গেমিং */}
-        <div className="flex" style={{ minHeight: m(138) }}>
-          <div style={{ width: m(335) }}>
-            <div className="flex items-center" style={{ height: m(28), gap: m(10) }}>
-              <span style={title}>{tx(f.titles.license)}</span>
-              <img
-                src="/assets/mobile/title-icon.png"
-                alt=""
-                style={{ width: m(28), height: m(28) }}
-              />
-            </div>
-            <ImageRow items={f.license} gap={m(10)} rowGap={m(10)} style={{ marginTop: m(10) }} />
-            <div style={{ fontSize: m(18), color: "var(--footer-text, #d9d9d9)", marginTop: m(10) }}>
-              {tx(f.licenseText)}
-            </div>
-          </div>
-
-          <div style={{ width: m(335), marginInlineStart: m(30) }}>
-            <div style={{ ...title, height: m(23) }}>{tx(f.titles.responsible)}</div>
-            <ImageRow items={f.responsible} gap={m(24)} rowGap={m(10)} style={{ marginTop: m(10) }} />
-          </div>
-        </div>
-
-        {/* গেম প্রোভাইডার */}
-        <ImageRow items={f.providers} gap={m(10)} rowGap={m(10)} style={{ marginTop: m(23) }} />
-
-        {/* পেমেন্ট মেথড */}
-        <div style={{ marginTop: m(32) }}>
-          <div style={title}>{tx(f.titles.payment)}</div>
-          <ImageRow items={f.payment} gap={m(15)} rowGap={m(10)} style={{ marginTop: m(15) }} />
-        </div>
-
-        {/* সার্টিফিকেশন ও সুরক্ষা */}
-        <div className="flex" style={{ marginTop: m(36) }}>
-          <div style={{ width: m(350) }}>
-            <div style={title}>{tx(f.titles.certification)}</div>
-            <ImageRow items={f.certification} gap={m(25)} rowGap={m(17)} style={{ marginTop: m(8) }} />
-          </div>
-
-          <div style={{ width: m(350) }}>
-            <div style={title}>{tx(f.titles.security)}</div>
-            <ImageRow items={f.security} gap={m(16)} rowGap={m(10)} style={{ marginTop: m(9) }} />
-          </div>
-        </div>
-
-        <div
-          className="text-center"
-          style={{ fontSize: m(20), color: "var(--footer-text, #d9d9d9)", marginTop: m(31) }}
-        >
-          {tx(f.copyright)}
-        </div>
-      </div>
-    </footer>
+  const helpLinks = articles.length > 0 && (
+    <div className="flex flex-wrap justify-center" style={{ marginTop: u(22, 26), gap: isDesktop ? "8px 22px" : `${m(10)} ${m(26)}` }}>
+      {articles.map((a, i) => (
+        <button key={a.id} type="button" onClick={() => setHelpAt(i)} className="cursor-pointer hover:underline" style={{ fontSize: u(14, 22), color: C.text }}>
+          {tx(a.title)}
+        </button>
+      ))}
+    </div>
   );
-};
-
-const DesktopFooter = () => {
-  const { t, lang } = useLanguage();
-  const { footer: f } = useSiteSettings();
-  const tx = (v) => pickLang(v, lang);
-  // admin "ডেস্কটপে দেখাও" দিলে সাহায্য কেন্দ্রের লেখা এখানে (মূল সাইটে কলামটা খালি)
-  const { articles } = useHelp("desktop");
-  const [helpAt, setHelpAt] = useState(null);
-  const tv = (v) => (lang === "en" ? v?.en || v?.bn : v?.bn || v?.en) || "";
-
-  const columns = [
-    { title: tx(f.titles.help), items: articles.map((a, i) => ({ key: a.id, label: tv(a.title), onClick: () => setHelpAt(i) })) },
-    {
-      title: tx(f.titles.products),
-      items: [
-        t.gameCenter.RNG,
-        t.gameCenter.FISH,
-        t.gameCenter.LIVE,
-        t.gameCenter.PVP,
-        t.gameCenter.SPORTS,
-      ],
-    },
-    {
-      title: tx(f.titles.social),
-      items: f.socials.map((s, i) => ({ key: `s${i}`, label: s.name, icon: s.icon, href: s.url })),
-    },
-  ];
 
   return (
-    <footer style={{ background: "var(--footer-bg, var(--surface))", paddingTop: 35, paddingBottom: 40 }}>
-      <div style={{ width: "var(--content-w)", marginInline: "auto" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 40 }}>
-          {columns.map((column) => (
-            <div key={column.title}>
-              <div style={{ color: "var(--footer-heading, #fff)", fontSize: 17, marginBottom: 18 }}>{column.title}</div>
-              <ul style={{ display: "grid", gap: 12 }}>
-                {column.items.map((item) =>
-                  typeof item === "string" ? (
-                    <li key={item} style={{ color: "var(--text-dim)", fontSize: 16 }}>
-                      {item}
-                    </li>
-                  ) : item.href !== undefined ? (
-                    <li key={item.key}>
-                      <a
-                        href={item.href || undefined}
-                        target="_blank"
-                        rel="noreferrer noopener"
-                        className="inline-flex items-center hover:underline"
-                        style={{ color: "var(--text-dim)", fontSize: 16, gap: 8 }}
-                      >
-                        {item.icon ? <img src={siteImage(item.icon)} alt="" style={{ width: 22, height: 22, objectFit: "contain" }} /> : null}
-                        {item.label}
-                      </a>
-                    </li>
-                  ) : (
-                    <li key={item.key}>
-                      <button type="button" onClick={item.onClick} className="cursor-pointer text-left hover:underline" style={{ color: "var(--text-dim)", fontSize: 16 }}>
-                        {item.label}
-                      </button>
-                    </li>
-                  ),
-                )}
-              </ul>
+    <footer style={{ background: C.bg, padding: isDesktop ? "35px 0 36px" : `${m(40)} 0 ${m(150)}` }}>
+      <div style={{ width: isDesktop ? "var(--content-w)" : m(700), marginInline: "auto" }}>
+        {isDesktop ? (
+          <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.3fr) minmax(0, 1fr) 230px", gap: 56 }}>
+            <div style={{ maxWidth: 360 }}>{about}</div>
+            <div>{games}</div>
+            <div>{certificates}</div>
+          </div>
+        ) : (
+          <>
+            {about}
+            <div className="flex" style={{ marginTop: f.about.show ? m(40) : 0, gap: m(30) }}>
+              <div className="min-w-0 flex-1">{games}</div>
+              <div className="shrink-0" style={{ width: m(290) }}>
+                {certificates}
+              </div>
             </div>
-          ))}
-        </div>
+          </>
+        )}
 
-        <div
-          style={{
-            marginTop: 40,
-            paddingTop: 28,
-            borderTop: "1px solid rgb(255 255 255 / 0.08)",
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 46,
-          }}
-        >
-          {f.desktopProviders.map((provider, i) => {
-            const logo = (
-              <img
-                key={`${provider.image}-${i}`}
-                src={siteImage(provider.image)}
-                alt={provider.name}
-                style={{
-                  height: 34,
-                  objectFit: "contain",
-                  filter: "grayscale(1) brightness(1.6)",
-                  opacity: 0.75,
-                }}
-              />
-            );
-            return provider.link ? (
-              <a key={`${provider.image}-${i}`} href={provider.link} target="_blank" rel="noreferrer noopener">
-                {logo}
-              </a>
-            ) : (
-              logo
-            );
-          })}
-        </div>
+        {providers}
+        {helpLinks}
 
-        <div
-          style={{ marginTop: 30, textAlign: "center", color: "var(--text-dim)", fontSize: 15 }}
-        >
+        <div className="text-center" style={{ marginTop: u(26, 30), fontSize: u(15, 20), color: "var(--footer-copy, var(--text-dim))" }}>
           {tx(f.copyright)}
         </div>
       </div>
@@ -241,7 +198,5 @@ const DesktopFooter = () => {
     </footer>
   );
 };
-
-const Footer = () => (useIsDesktop() ? <DesktopFooter /> : <MobileFooter />);
 
 export default Footer;

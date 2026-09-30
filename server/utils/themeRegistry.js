@@ -226,9 +226,13 @@ export const THEME_REGISTRY = {
           {
             label: "Footer",
             tokens: [
-              t("footer-bg", "Background (desktop)", "#241a3e"),
+              t("footer-bg", "Background", "#241a3e"),
               t("footer-heading", "Headings", "#ffffff"),
-              t("footer-text", "Text", "#d9d9d9"),
+              t("footer-line", "Heading underline", "#fbd029"),
+              t("footer-text", "About text & help links", "#d9d9d9"),
+              t("footer-link", "Game list text", "#ffffff"),
+              t("footer-bullet", "Game list dots", "#ffffff"),
+              t("footer-copy", "Copyright", "#98a0ac"),
             ],
           },
         ],

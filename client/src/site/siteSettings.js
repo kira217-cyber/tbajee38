@@ -14,8 +14,6 @@ import { API_URL } from "../api/axios";
 const CACHE_KEY = "tbajee:site-settings";
 
 const lang = (bn, en = bn) => ({ bn, en });
-const img = (image, w, h, br = false) => ({ image, w, h, link: "", br });
-
 export const DEFAULT_SETTINGS = {
   identify: {
     siteName: "TBAJEE",
@@ -23,30 +21,39 @@ export const DEFAULT_SETTINGS = {
     mobileLogo: "/assets/mobile/logo.png",
     favicon: "/favicon.png",
   },
+  // server এর models/ClientFooterSetting.js এর FOOTER_DEFAULTS এর হুবহু কপি
   footer: {
-    titles: {
-      help: lang("সাহায্য", "Help"),
-      products: lang("পণ্য", "Products"),
-      social: lang("সোশ্যাল মিডিয়া", "Social media"),
-      license: lang("গেমিং লাইসেন্স", "Gaming License"),
-      responsible: lang("দায়িত্বশীল গেমিং", "Responsible Gaming"),
-      payment: lang("পেমেন্ট মেথড", "Payment Method"),
-      certification: lang("সার্টিফিকেশন", "Certification"),
-      security: lang("সুরক্ষা", "Security"),
+    about: {
+      show: true,
+      title: lang("আমাদের সম্পর্কে", "About us"),
+      logo: "",
+      text: lang(
+        "TBAJEE — বিশ্বস্ত অনলাইন গেমিং প্ল্যাটফর্ম। স্লট, লাইভ ক্যাসিনো, ফিশিং, পোকার আর স্পোর্টস সহ হাজারো গেম, দ্রুত জমা-উত্তোলন আর ২৪/৭ গ্রাহক সেবা।",
+        "TBAJEE — a trusted online gaming platform. Thousands of slot, live casino, fishing, poker and sports games, fast deposits and withdrawals, and 24/7 support.",
+      ),
     },
-    licenseText: lang("local_license_1"),
-    copyright: lang("Copyright © 2025 TBAJEE All rights reserved."),
-    license: [img("/assets/mobile/curacao.png", 90, 30)],
-    responsible: [img("/assets/mobile/responsible-1.png", 40, 40), img("/assets/mobile/responsible-2.png", 70, 50)],
-    providers: [img("/assets/mobile/vendor-icon.png", 700, 0)],
-    payment: [img("/assets/mobile/payment-channel.png", 374, 60)],
-    certification: [
-      img("/assets/mobile/certificate-1.png", 44, 52),
-      img("/assets/mobile/certificate-2.png", 52, 52),
-      img("/assets/mobile/certificate-3.png", 121, 31, true),
-    ],
-    security: [img("/assets/mobile/security-1.png", 41, 42), img("/assets/mobile/security-2.png", 37, 51)],
-    desktopProviders: [
+    games: {
+      show: true,
+      title: lang("প্রয়োজনীয় খেলা", "Popular games"),
+      items: [
+        ["slot", "স্লট গেম", "Slot games"],
+        ["fishing", "ফিশিং গেম", "Fishing games"],
+        ["live", "ক্যাসিনো গেম", "Casino games"],
+        ["poker", "পোকার গেম", "Poker games"],
+        ["sports", "স্পোর্টস গেম", "Sports games"],
+        ["crash", "ক্র্যাশ গেম", "Crash games"],
+      ].map(([category, bn, en]) => ({ category, label: lang(bn, en) })),
+    },
+    certificates: {
+      show: true,
+      title: lang("সার্টিফিকেট", "Certificates"),
+      items: [
+        { name: "Gaming Curacao", image: "/assets/footer/gaming-curacao.png", link: "" },
+        { name: "Oracle API", image: "/assets/footer/oracle-api.png", link: "https://oracleapi.co.uk/" },
+      ],
+    },
+    showProviders: true,
+    providerLogos: [
       ["PG", "/assets/vendors/rng_list_vendor/PG-COLOR.png"],
       ["EVO", "/assets/vendors/live_list_vendor/EG4-COLOR.png"],
       ["PT", "/assets/vendors/live_list_vendor/PT-COLOR.png"],
@@ -56,9 +63,12 @@ export const DEFAULT_SETTINGS = {
       ["JILI", "/assets/vendors/rng_list_vendor/JL-COLOR.png"],
       ["BTG", "/assets/vendors/rng_list_vendor/BTG-COLOR.png"],
     ].map(([name, image]) => ({ name, image, link: "" })),
-    socials: [],
+    copyright: lang("Copyright © 2025 TBAJEE All rights reserved."),
   },
 };
+
+/** ছবি ছাড়া সারি (admin এ সদ্য যোগ করা) দেখানো হয় না */
+const withImage = (list) => (Array.isArray(list) ? list.filter((r) => r && r.image) : null);
 
 /** server এর ডেটা `base` এর উপর (সাধারণত ডিফল্ট) — যা নেই তা base থেকে */
 const merge = (data, base = DEFAULT_SETTINGS) => {
@@ -67,18 +77,20 @@ const merge = (data, base = DEFAULT_SETTINGS) => {
     // খালি = এখনকার মূল সাইটের ছবি/নাম
     if (typeof data?.identify?.[k] === "string") identify[k] = data.identify[k] || DEFAULT_SETTINGS.identify[k];
   });
+
   const f = data?.footer || {};
-  const footer = { ...base.footer, titles: { ...base.footer.titles } };
-  Object.keys(footer.titles).forEach((k) => {
-    if (f.titles?.[k]) footer.titles[k] = f.titles[k];
-  });
-  ["licenseText", "copyright"].forEach((k) => {
-    if (f[k]) footer[k] = f[k];
-  });
-  ["license", "responsible", "providers", "payment", "certification", "security", "desktopProviders", "socials"].forEach((k) => {
-    // ছবি ছাড়া সারি (admin এ সদ্য যোগ করা) দেখানো হয় না
-    if (Array.isArray(f[k])) footer[k] = f[k].filter((r) => r && (k === "socials" ? r.name || r.icon : r.image));
-  });
+  const b = base.footer;
+  const section = (key, extra) => (f[key] && typeof f[key] === "object" ? { ...b[key], ...f[key], ...extra(f[key]) } : b[key]);
+  const footer = {
+    about: section("about", () => ({})),
+    games: section("games", (g) => ({
+      items: Array.isArray(g.items) ? g.items.filter((r) => r && r.category) : b.games.items,
+    })),
+    certificates: section("certificates", (c) => ({ items: withImage(c.items) || b.certificates.items })),
+    showProviders: typeof f.showProviders === "boolean" ? f.showProviders : b.showProviders,
+    providerLogos: withImage(f.providerLogos) || b.providerLogos,
+    copyright: f.copyright || b.copyright,
+  };
   return { identify, footer };
 };
 
